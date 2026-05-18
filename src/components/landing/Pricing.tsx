@@ -43,7 +43,7 @@ const plans = [
   },
   {
     name: "Vitalício",
-    price: "R$ 2.490",
+    price: "R$ 1.000",
     period: "único",
     description: "Pague uma vez. Use para sempre.",
     features: [
