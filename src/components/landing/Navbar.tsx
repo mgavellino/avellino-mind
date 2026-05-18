@@ -4,7 +4,7 @@ import { Logo } from "@/components/brand/Logo";
 const links = [
   { label: "Produto", href: "#features" },
   { label: "Planos", href: "#pricing" },
-  { label: "Depoimentos", href: "#testimonials" },
+  
   { label: "FAQ", href: "#faq" },
 ];
 

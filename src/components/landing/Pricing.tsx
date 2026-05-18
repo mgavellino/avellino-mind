@@ -41,6 +41,21 @@ const plans = [
     cta: "Assinar anual",
     featured: false,
   },
+  {
+    name: "Vitalício",
+    price: "R$ 2.490",
+    period: "único",
+    description: "Pague uma vez. Use para sempre.",
+    features: [
+      "Tudo do Anual",
+      "Acesso vitalício",
+      "Atualizações incluídas",
+      "Suporte premium dedicado",
+      "Sem mensalidades",
+    ],
+    cta: "Garantir vitalício",
+    featured: false,
+  },
 ];
 
 export function Pricing() {
@@ -59,7 +74,7 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
+        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}
