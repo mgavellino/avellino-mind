@@ -110,7 +110,7 @@ function RecordEditorPage() {
       await supabase.from("medical_record_versions").insert({
         record_id: record.id,
         version: nextVersion,
-        content: nextContent,
+        content: nextContent as never,
         created_by: user?.id,
       });
       lastSnapshot.current = Date.now();
