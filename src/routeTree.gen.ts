@@ -17,11 +17,12 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
-import { Route as AuthenticatedAppProntuariosRouteImport } from './routes/_authenticated/app.prontuarios'
 import { Route as AuthenticatedAppPacientesRouteImport } from './routes/_authenticated/app.pacientes'
 import { Route as AuthenticatedAppFinanceiroRouteImport } from './routes/_authenticated/app.financeiro'
 import { Route as AuthenticatedAppConfiguracoesRouteImport } from './routes/_authenticated/app.configuracoes'
 import { Route as AuthenticatedAppAgendaRouteImport } from './routes/_authenticated/app.agenda'
+import { Route as AuthenticatedAppProntuariosIndexRouteImport } from './routes/_authenticated/app.prontuarios.index'
+import { Route as AuthenticatedAppProntuariosIdRouteImport } from './routes/_authenticated/app.prontuarios.$id'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -62,12 +63,6 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
-const AuthenticatedAppProntuariosRoute =
-  AuthenticatedAppProntuariosRouteImport.update({
-    id: '/prontuarios',
-    path: '/prontuarios',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
 const AuthenticatedAppPacientesRoute =
   AuthenticatedAppPacientesRouteImport.update({
     id: '/pacientes',
@@ -91,6 +86,18 @@ const AuthenticatedAppAgendaRoute = AuthenticatedAppAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppProntuariosIndexRoute =
+  AuthenticatedAppProntuariosIndexRouteImport.update({
+    id: '/prontuarios/',
+    path: '/prontuarios/',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProntuariosIdRoute =
+  AuthenticatedAppProntuariosIdRouteImport.update({
+    id: '/prontuarios/$id',
+    path: '/prontuarios/$id',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -103,8 +110,9 @@ export interface FileRoutesByFullPath {
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
   '/app/pacientes': typeof AuthenticatedAppPacientesRoute
-  '/app/prontuarios': typeof AuthenticatedAppProntuariosRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
+  '/app/prontuarios/': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -116,8 +124,9 @@ export interface FileRoutesByTo {
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
   '/app/pacientes': typeof AuthenticatedAppPacientesRoute
-  '/app/prontuarios': typeof AuthenticatedAppProntuariosRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
+  '/app/prontuarios': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -132,8 +141,9 @@ export interface FileRoutesById {
   '/_authenticated/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/_authenticated/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
   '/_authenticated/app/pacientes': typeof AuthenticatedAppPacientesRoute
-  '/_authenticated/app/prontuarios': typeof AuthenticatedAppProntuariosRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
+  '/_authenticated/app/prontuarios/': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -148,8 +158,9 @@ export interface FileRouteTypes {
     | '/app/configuracoes'
     | '/app/financeiro'
     | '/app/pacientes'
-    | '/app/prontuarios'
     | '/app/'
+    | '/app/prontuarios/$id'
+    | '/app/prontuarios/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -161,8 +172,9 @@ export interface FileRouteTypes {
     | '/app/configuracoes'
     | '/app/financeiro'
     | '/app/pacientes'
-    | '/app/prontuarios'
     | '/app'
+    | '/app/prontuarios/$id'
+    | '/app/prontuarios'
   id:
     | '__root__'
     | '/'
@@ -176,8 +188,9 @@ export interface FileRouteTypes {
     | '/_authenticated/app/configuracoes'
     | '/_authenticated/app/financeiro'
     | '/_authenticated/app/pacientes'
-    | '/_authenticated/app/prontuarios'
     | '/_authenticated/app/'
+    | '/_authenticated/app/prontuarios/$id'
+    | '/_authenticated/app/prontuarios/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -247,13 +260,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/prontuarios': {
-      id: '/_authenticated/app/prontuarios'
-      path: '/prontuarios'
-      fullPath: '/app/prontuarios'
-      preLoaderRoute: typeof AuthenticatedAppProntuariosRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
     '/_authenticated/app/pacientes': {
       id: '/_authenticated/app/pacientes'
       path: '/pacientes'
@@ -282,6 +288,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAgendaRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/prontuarios/': {
+      id: '/_authenticated/app/prontuarios/'
+      path: '/prontuarios'
+      fullPath: '/app/prontuarios/'
+      preLoaderRoute: typeof AuthenticatedAppProntuariosIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/prontuarios/$id': {
+      id: '/_authenticated/app/prontuarios/$id'
+      path: '/prontuarios/$id'
+      fullPath: '/app/prontuarios/$id'
+      preLoaderRoute: typeof AuthenticatedAppProntuariosIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
@@ -290,8 +310,9 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppConfiguracoesRoute: typeof AuthenticatedAppConfiguracoesRoute
   AuthenticatedAppFinanceiroRoute: typeof AuthenticatedAppFinanceiroRoute
   AuthenticatedAppPacientesRoute: typeof AuthenticatedAppPacientesRoute
-  AuthenticatedAppProntuariosRoute: typeof AuthenticatedAppProntuariosRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppProntuariosIdRoute: typeof AuthenticatedAppProntuariosIdRoute
+  AuthenticatedAppProntuariosIndexRoute: typeof AuthenticatedAppProntuariosIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
@@ -299,8 +320,9 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppConfiguracoesRoute: AuthenticatedAppConfiguracoesRoute,
   AuthenticatedAppFinanceiroRoute: AuthenticatedAppFinanceiroRoute,
   AuthenticatedAppPacientesRoute: AuthenticatedAppPacientesRoute,
-  AuthenticatedAppProntuariosRoute: AuthenticatedAppProntuariosRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppProntuariosIdRoute: AuthenticatedAppProntuariosIdRoute,
+  AuthenticatedAppProntuariosIndexRoute: AuthenticatedAppProntuariosIndexRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =
