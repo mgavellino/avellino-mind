@@ -1,21 +1,83 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Calendar, Users, DollarSign, TrendingUp, ArrowRight } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/hooks/use-auth";
-import { Calendar, Users, DollarSign, TrendingUp } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: Dashboard,
 });
 
-const stats = [
-  { label: "Pacientes ativos", value: "0", icon: Users, hint: "+0 este mês" },
-  { label: "Consultas hoje", value: "0", icon: Calendar, hint: "Próximas 24h" },
-  { label: "Faturamento (mês)", value: "R$ 0", icon: DollarSign, hint: "+0%" },
-  { label: "Crescimento", value: "+0%", icon: TrendingUp, hint: "vs mês anterior" },
-];
+type UpcomingAppointment = {
+  id: string;
+  title: string | null;
+  starts_at: string;
+  ends_at: string;
+  patient_id: string;
+  patients: { full_name: string } | null;
+};
 
 function Dashboard() {
   const { user } = useAuth();
   const name = (user?.user_metadata?.full_name || user?.email?.split("@")[0] || "").toString();
+
+  const [activePatients, setActivePatients] = useState(0);
+  const [todayCount, setTodayCount] = useState(0);
+  const [upcoming, setUpcoming] = useState<UpcomingAppointment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const inOneWeek = new Date(today);
+    inOneWeek.setDate(inOneWeek.getDate() + 7);
+
+    Promise.all([
+      supabase
+        .from("patients")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true),
+      supabase
+        .from("appointments")
+        .select("*", { count: "exact", head: true })
+        .gte("starts_at", today.toISOString())
+        .lt("starts_at", tomorrow.toISOString()),
+      supabase
+        .from("appointments")
+        .select("id, title, starts_at, ends_at, patient_id, patients(full_name)")
+        .gte("starts_at", new Date().toISOString())
+        .lt("starts_at", inOneWeek.toISOString())
+        .order("starts_at")
+        .limit(5),
+    ]).then(([pat, today, upc]) => {
+      setActivePatients(pat.count ?? 0);
+      setTodayCount(today.count ?? 0);
+      setUpcoming((upc.data ?? []) as UpcomingAppointment[]);
+      setLoading(false);
+    });
+  }, [user]);
+
+  const stats = [
+    {
+      label: "Pacientes ativos",
+      value: String(activePatients),
+      icon: Users,
+      hint: "Em acompanhamento",
+    },
+    {
+      label: "Consultas hoje",
+      value: String(todayCount),
+      icon: Calendar,
+      hint: "Próximas 24h",
+    },
+    { label: "Faturamento (mês)", value: "R$ 0", icon: DollarSign, hint: "Em breve" },
+    { label: "Crescimento", value: "—", icon: TrendingUp, hint: "vs mês anterior" },
+  ];
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
@@ -23,9 +85,7 @@ function Dashboard() {
         <h1 className="text-3xl font-semibold tracking-tight">
           Bem-vindo{name ? `, ${name}` : ""}.
         </h1>
-        <p className="mt-1 text-muted-foreground">
-          Aqui está um resumo da sua clínica hoje.
-        </p>
+        <p className="mt-1 text-muted-foreground">Aqui está um resumo da sua clínica hoje.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -48,15 +108,95 @@ function Dashboard() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2 rounded-2xl border border-border/60 bg-surface/40 p-6 min-h-64">
-          <h2 className="text-sm font-medium text-muted-foreground">Próximas consultas</h2>
-          <div className="mt-6 text-center text-muted-foreground text-sm py-12">
-            Nenhuma consulta agendada. Em breve você poderá criar uma na aba Agenda.
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-muted-foreground">
+              Próximas consultas
+            </h2>
+            <Link
+              to="/app/agenda"
+              className="inline-flex items-center gap-1 text-xs text-[oklch(0.68_0.20_245)] hover:underline"
+            >
+              Ver agenda <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+
+          <div className="mt-5 space-y-2">
+            {loading ? (
+              <div className="text-center text-sm text-muted-foreground py-8">
+                Carregando...
+              </div>
+            ) : upcoming.length === 0 ? (
+              <div className="text-center text-sm text-muted-foreground py-8">
+                Nenhuma consulta nos próximos 7 dias.
+              </div>
+            ) : (
+              upcoming.map((a) => {
+                const start = parseISO(a.starts_at);
+                return (
+                  <Link
+                    key={a.id}
+                    to="/app/agenda"
+                    className="flex items-center gap-4 rounded-xl border border-border/40 bg-background/40 px-4 py-3 hover:bg-surface transition-colors"
+                  >
+                    <div className="text-center shrink-0 w-12">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        {format(start, "MMM", { locale: ptBR })}
+                      </div>
+                      <div className="text-lg font-semibold leading-none mt-0.5">
+                        {format(start, "dd")}
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">
+                        {a.patients?.full_name ?? a.title ?? "Consulta"}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {format(start, "EEEE · HH:mm", { locale: ptBR })}
+                      </div>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {a.title ?? "Sessão"}
+                    </span>
+                  </Link>
+                );
+              })
+            )}
           </div>
         </div>
+
         <div className="rounded-2xl border border-border/60 bg-surface/40 p-6 min-h-64">
-          <h2 className="text-sm font-medium text-muted-foreground">Atividade recente</h2>
-          <div className="mt-6 text-center text-muted-foreground text-sm py-12">
-            Sem atividade ainda.
+          <h2 className="text-sm font-medium text-muted-foreground">Ações rápidas</h2>
+          <div className="mt-5 grid gap-2">
+            <Link
+              to="/app/pacientes"
+              className="flex items-center justify-between rounded-xl border border-border/40 bg-background/40 px-4 py-3 hover:bg-surface transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-surface-elevated grid place-items-center">
+                  <Users className="h-4 w-4 text-[oklch(0.68_0.20_245)]" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Novo paciente</div>
+                  <div className="text-xs text-muted-foreground">Cadastrar prontuário</div>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+            <Link
+              to="/app/agenda"
+              className="flex items-center justify-between rounded-xl border border-border/40 bg-background/40 px-4 py-3 hover:bg-surface transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-surface-elevated grid place-items-center">
+                  <Calendar className="h-4 w-4 text-[oklch(0.68_0.20_245)]" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Agendar consulta</div>
+                  <div className="text-xs text-muted-foreground">Bloquear horário</div>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
           </div>
         </div>
       </div>
