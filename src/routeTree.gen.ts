@@ -17,6 +17,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppProntuariosRouteImport } from './routes/_authenticated/app.prontuarios'
 import { Route as AuthenticatedAppPacientesRouteImport } from './routes/_authenticated/app.pacientes'
 import { Route as AuthenticatedAppAgendaRouteImport } from './routes/_authenticated/app.agenda'
 
@@ -59,6 +60,12 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppProntuariosRoute =
+  AuthenticatedAppProntuariosRouteImport.update({
+    id: '/prontuarios',
+    path: '/prontuarios',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppPacientesRoute =
   AuthenticatedAppPacientesRouteImport.update({
     id: '/pacientes',
@@ -80,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/agenda': typeof AuthenticatedAppAgendaRoute
   '/app/pacientes': typeof AuthenticatedAppPacientesRoute
+  '/app/prontuarios': typeof AuthenticatedAppProntuariosRoute
   '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -90,6 +98,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/app/agenda': typeof AuthenticatedAppAgendaRoute
   '/app/pacientes': typeof AuthenticatedAppPacientesRoute
+  '/app/prontuarios': typeof AuthenticatedAppProntuariosRoute
   '/app': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesById {
@@ -103,6 +112,7 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/agenda': typeof AuthenticatedAppAgendaRoute
   '/_authenticated/app/pacientes': typeof AuthenticatedAppPacientesRoute
+  '/_authenticated/app/prontuarios': typeof AuthenticatedAppProntuariosRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/agenda'
     | '/app/pacientes'
+    | '/app/prontuarios'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/app/agenda'
     | '/app/pacientes'
+    | '/app/prontuarios'
     | '/app'
   id:
     | '__root__'
@@ -138,6 +150,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/app/agenda'
     | '/_authenticated/app/pacientes'
+    | '/_authenticated/app/prontuarios'
     | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
 }
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/prontuarios': {
+      id: '/_authenticated/app/prontuarios'
+      path: '/prontuarios'
+      fullPath: '/app/prontuarios'
+      preLoaderRoute: typeof AuthenticatedAppProntuariosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/pacientes': {
       id: '/_authenticated/app/pacientes'
       path: '/pacientes'
@@ -228,12 +248,14 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAgendaRoute: typeof AuthenticatedAppAgendaRoute
   AuthenticatedAppPacientesRoute: typeof AuthenticatedAppPacientesRoute
+  AuthenticatedAppProntuariosRoute: typeof AuthenticatedAppProntuariosRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAgendaRoute: AuthenticatedAppAgendaRoute,
   AuthenticatedAppPacientesRoute: AuthenticatedAppPacientesRoute,
+  AuthenticatedAppProntuariosRoute: AuthenticatedAppProntuariosRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
@@ -263,3 +285,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
