@@ -29,7 +29,7 @@ function Index() {
       <Hero />
       <Features />
       <Pricing />
-      <Testimonials />
+      
       <FAQ />
       <CTA />
       <Footer />
