@@ -29,18 +29,18 @@ export function Navbar() {
             ))}
           </ul>
           <div className="flex items-center gap-2">
-            <a
-              href="#login"
+            <Link
+              to="/login"
               className="hidden sm:inline-flex text-sm px-3 py-1.5 text-muted-foreground hover:text-foreground transition-colors"
             >
               Entrar
-            </a>
-            <a
-              href="#pricing"
+            </Link>
+            <Link
+              to="/signup"
               className="inline-flex items-center text-sm px-3.5 py-1.5 rounded-lg bg-foreground text-background font-medium hover:opacity-90 transition-opacity"
             >
               Começar grátis
-            </a>
+            </Link>
           </div>
         </nav>
       </div>
