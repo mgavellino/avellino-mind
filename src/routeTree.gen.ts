@@ -22,6 +22,7 @@ import { Route as AuthenticatedAppPacientesRouteImport } from './routes/_authent
 import { Route as AuthenticatedAppFinanceiroRouteImport } from './routes/_authenticated/app.financeiro'
 import { Route as AuthenticatedAppConfiguracoesRouteImport } from './routes/_authenticated/app.configuracoes'
 import { Route as AuthenticatedAppAgendaRouteImport } from './routes/_authenticated/app.agenda'
+import { Route as AuthenticatedAppProntuariosIndexRouteImport } from './routes/_authenticated/app.prontuarios.index'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -91,6 +92,12 @@ const AuthenticatedAppAgendaRoute = AuthenticatedAppAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppProntuariosIndexRoute =
+  AuthenticatedAppProntuariosIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppProntuariosRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -103,8 +110,9 @@ export interface FileRoutesByFullPath {
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
   '/app/pacientes': typeof AuthenticatedAppPacientesRoute
-  '/app/prontuarios': typeof AuthenticatedAppProntuariosRoute
+  '/app/prontuarios': typeof AuthenticatedAppProntuariosRouteWithChildren
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/prontuarios/': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -116,8 +124,8 @@ export interface FileRoutesByTo {
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
   '/app/pacientes': typeof AuthenticatedAppPacientesRoute
-  '/app/prontuarios': typeof AuthenticatedAppProntuariosRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/prontuarios': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -132,8 +140,9 @@ export interface FileRoutesById {
   '/_authenticated/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/_authenticated/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
   '/_authenticated/app/pacientes': typeof AuthenticatedAppPacientesRoute
-  '/_authenticated/app/prontuarios': typeof AuthenticatedAppProntuariosRoute
+  '/_authenticated/app/prontuarios': typeof AuthenticatedAppProntuariosRouteWithChildren
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/prontuarios/': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/app/pacientes'
     | '/app/prontuarios'
     | '/app/'
+    | '/app/prontuarios/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -161,8 +171,8 @@ export interface FileRouteTypes {
     | '/app/configuracoes'
     | '/app/financeiro'
     | '/app/pacientes'
-    | '/app/prontuarios'
     | '/app'
+    | '/app/prontuarios'
   id:
     | '__root__'
     | '/'
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/pacientes'
     | '/_authenticated/app/prontuarios'
     | '/_authenticated/app/'
+    | '/_authenticated/app/prontuarios/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -282,15 +293,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAgendaRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/prontuarios/': {
+      id: '/_authenticated/app/prontuarios/'
+      path: '/'
+      fullPath: '/app/prontuarios/'
+      preLoaderRoute: typeof AuthenticatedAppProntuariosIndexRouteImport
+      parentRoute: typeof AuthenticatedAppProntuariosRoute
+    }
   }
 }
+
+interface AuthenticatedAppProntuariosRouteChildren {
+  AuthenticatedAppProntuariosIndexRoute: typeof AuthenticatedAppProntuariosIndexRoute
+}
+
+const AuthenticatedAppProntuariosRouteChildren: AuthenticatedAppProntuariosRouteChildren =
+  {
+    AuthenticatedAppProntuariosIndexRoute:
+      AuthenticatedAppProntuariosIndexRoute,
+  }
+
+const AuthenticatedAppProntuariosRouteWithChildren =
+  AuthenticatedAppProntuariosRoute._addFileChildren(
+    AuthenticatedAppProntuariosRouteChildren,
+  )
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAgendaRoute: typeof AuthenticatedAppAgendaRoute
   AuthenticatedAppConfiguracoesRoute: typeof AuthenticatedAppConfiguracoesRoute
   AuthenticatedAppFinanceiroRoute: typeof AuthenticatedAppFinanceiroRoute
   AuthenticatedAppPacientesRoute: typeof AuthenticatedAppPacientesRoute
-  AuthenticatedAppProntuariosRoute: typeof AuthenticatedAppProntuariosRoute
+  AuthenticatedAppProntuariosRoute: typeof AuthenticatedAppProntuariosRouteWithChildren
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
@@ -299,7 +332,8 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppConfiguracoesRoute: AuthenticatedAppConfiguracoesRoute,
   AuthenticatedAppFinanceiroRoute: AuthenticatedAppFinanceiroRoute,
   AuthenticatedAppPacientesRoute: AuthenticatedAppPacientesRoute,
-  AuthenticatedAppProntuariosRoute: AuthenticatedAppProntuariosRoute,
+  AuthenticatedAppProntuariosRoute:
+    AuthenticatedAppProntuariosRouteWithChildren,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
