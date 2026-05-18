@@ -41,6 +41,21 @@ const plans = [
     cta: "Assinar anual",
     featured: false,
   },
+  {
+    name: "Vitalício",
+    price: "R$ 2.490",
+    period: "único",
+    description: "Pague uma vez. Use para sempre.",
+    features: [
+      "Tudo do Anual",
+      "Acesso vitalício",
+      "Atualizações incluídas",
+      "Suporte premium dedicado",
+      "Sem mensalidades",
+    ],
+    cta: "Garantir vitalício",
+    featured: false,
+  },
 ];
 
 export function Pricing() {
