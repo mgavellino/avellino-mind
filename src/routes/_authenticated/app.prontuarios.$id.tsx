@@ -94,7 +94,7 @@ function RecordEditorPage() {
       .from("medical_records")
       .update({
         title: nextTitle,
-        content: nextContent,
+        content: nextContent as never,
         content_text: nextText,
         version: nextVersion,
       })
