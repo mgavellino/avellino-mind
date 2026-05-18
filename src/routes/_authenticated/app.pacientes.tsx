@@ -198,7 +198,7 @@ function PatientsPage() {
         onOpenChange={setOpen}
         patient={editing}
         ownerId={user?.id}
-        onSaved={(p, isNew) => {
+        onSaved={(p: Patient, isNew: boolean) => {
           if (isNew) setPatients((prev) => [p, ...prev]);
           else setPatients((prev) => prev.map((x) => (x.id === p.id ? p : x)));
           setOpen(false);
