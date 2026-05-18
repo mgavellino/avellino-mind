@@ -39,7 +39,7 @@ export function RecordEditor({ content, onChange, editable = true }: Props) {
     editorProps: {
       attributes: {
         class:
-          "prose prose-invert prose-sm sm:prose-base max-w-none focus:outline-none min-h-[60vh] [&_p]:my-2 [&_h1]:mt-6 [&_h2]:mt-5 [&_h3]:mt-4",
+          "tiptap-content focus:outline-none min-h-[60vh] text-foreground",
       },
     },
     onUpdate: ({ editor }) => {
