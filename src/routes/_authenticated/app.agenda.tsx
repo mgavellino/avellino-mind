@@ -97,9 +97,10 @@ function AgendaPage() {
             </button>
             <button
               onClick={() => setCursor(startOfWeek(new Date(), { weekStartsOn: 1 }))}
-              className="px-3 h-9 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors border-x border-border/60"
+              title="Voltar para hoje"
+              className="px-3 h-9 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors border-x border-border/60 min-w-[120px] capitalize"
             >
-              Hoje
+              {format(days[0], "d MMM", { locale: ptBR })} – {format(days[6], "d MMM", { locale: ptBR })}
             </button>
             <button
               onClick={() => setCursor(addWeeks(cursor, 1))}
