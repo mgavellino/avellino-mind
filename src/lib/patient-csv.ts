@@ -39,7 +39,18 @@ export async function importPatientsCSV(file: File, ownerId: string): Promise<Im
       skipEmptyLines: true,
       complete: async (result) => {
         const errors: string[] = [];
-        const payload: Record<string, unknown>[] = [];
+        type Row = {
+          owner_id: string;
+          full_name: string;
+          email: string | null;
+          phone: string | null;
+          cpf: string | null;
+          birth_date: string | null;
+          address: string | null;
+          notes: string | null;
+          is_active: boolean;
+        };
+        const payload: Row[] = [];
         for (const [i, row] of result.data.entries()) {
           const name = (row.full_name || row.nome || row.name || "").trim();
           if (!name) {
