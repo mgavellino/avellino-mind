@@ -8,6 +8,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
+import { AvatarUpload } from "@/components/app/AvatarUpload";
 
 export type Patient = {
   id: string;
@@ -19,6 +20,7 @@ export type Patient = {
   birth_date: string | null;
   address: string | null;
   notes: string | null;
+  avatar_url: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -40,6 +42,7 @@ const empty = {
   birth_date: "",
   address: "",
   notes: "",
+  avatar_url: "" as string | null | "",
   is_active: true,
 };
 
@@ -57,6 +60,7 @@ export function PatientFormSheet({ open, onOpenChange, patient, ownerId, onSaved
         birth_date: patient.birth_date ?? "",
         address: patient.address ?? "",
         notes: patient.notes ?? "",
+        avatar_url: patient.avatar_url ?? "",
         is_active: patient.is_active,
       });
     } else {
@@ -81,6 +85,7 @@ export function PatientFormSheet({ open, onOpenChange, patient, ownerId, onSaved
       birth_date: form.birth_date || null,
       address: form.address.trim() || null,
       notes: form.notes.trim() || null,
+      avatar_url: form.avatar_url || null,
       is_active: form.is_active,
     };
 
@@ -121,6 +126,21 @@ export function PatientFormSheet({ open, onOpenChange, patient, ownerId, onSaved
         </SheetHeader>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {ownerId && (
+            <div>
+              <label className="text-xs text-muted-foreground">Foto</label>
+              <div className="mt-2">
+                <AvatarUpload
+                  value={form.avatar_url || null}
+                  onChange={(url) => setForm({ ...form, avatar_url: url ?? "" })}
+                  ownerId={ownerId}
+                  pathPrefix={`patients/${patient?.id ?? "new"}`}
+                  fallback={form.full_name || "?"}
+                  size={72}
+                />
+              </div>
+            </div>
+          )}
           <Field label="Nome completo *">
             <input
               value={form.full_name}
