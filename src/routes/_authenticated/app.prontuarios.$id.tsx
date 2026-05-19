@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, History, Loader2, Check, Trash2, User } from "lucide-react";
+import { ArrowLeft, History, Loader2, Check, Trash2, User, FileDown, FileText as FileTextIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { ClientOnly } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { RecordEditor } from "@/components/app/RecordEditor";
+import { exportRecordAsPDF, exportRecordAsDOCX } from "@/lib/record-export";
 
 export const Route = createFileRoute("/_authenticated/app/prontuarios/$id")({
   component: RecordEditorPage,
@@ -219,6 +220,38 @@ function RecordEditorPage() {
           >
             <History className="h-3.5 w-3.5" />
             Histórico (v{record.version})
+          </button>
+          <button
+            onClick={async () => {
+              const { data: profile } = await supabase
+                .from("profiles").select("full_name, crp").eq("id", user!.id).maybeSingle();
+              exportRecordAsPDF(content ?? {}, {
+                title: title || "Prontuário",
+                patientName,
+                professionalName: profile?.full_name ?? undefined,
+                crp: profile?.crp ?? undefined,
+              });
+            }}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors h-8 px-2.5 rounded-md hover:bg-surface"
+          >
+            <FileDown className="h-3.5 w-3.5" />
+            PDF
+          </button>
+          <button
+            onClick={async () => {
+              const { data: profile } = await supabase
+                .from("profiles").select("full_name, crp").eq("id", user!.id).maybeSingle();
+              await exportRecordAsDOCX(content ?? {}, {
+                title: title || "Prontuário",
+                patientName,
+                professionalName: profile?.full_name ?? undefined,
+                crp: profile?.crp ?? undefined,
+              });
+            }}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors h-8 px-2.5 rounded-md hover:bg-surface"
+          >
+            <FileTextIcon className="h-3.5 w-3.5" />
+            DOCX
           </button>
           <button
             onClick={handleDelete}
