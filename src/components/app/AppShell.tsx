@@ -1,4 +1,5 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Calendar,
@@ -12,7 +13,9 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { SpotifyPlayer } from "@/components/app/SpotifyPlayer";
 
 const nav = [
   { to: "/app", icon: LayoutDashboard, label: "Dashboard" },
@@ -27,6 +30,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("avatar_url")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setAvatarUrl(data?.avatar_url ?? null));
+  }, [user]);
 
   const initial = (user?.user_metadata?.full_name || user?.email || "U")
     .toString()
@@ -94,12 +108,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <button className="h-9 w-9 grid place-items-center rounded-lg hover:bg-surface text-muted-foreground hover:text-foreground transition-colors">
             <Bell className="h-4 w-4" />
           </button>
-          <div className="h-9 w-9 rounded-full bg-gradient-brand grid place-items-center text-sm font-medium text-white">
-            {initial}
-          </div>
+          <Link
+            to="/app/configuracoes"
+            className="h-9 w-9 rounded-full bg-gradient-brand grid place-items-center text-sm font-medium text-white overflow-hidden"
+          >
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              initial
+            )}
+          </Link>
         </header>
         <main className="flex-1 p-4 md:p-8">{children}</main>
       </div>
+      <SpotifyPlayer />
     </div>
   );
 }

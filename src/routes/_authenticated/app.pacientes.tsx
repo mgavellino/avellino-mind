@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Pencil, Trash2, Mail, Phone } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Plus, Search, Pencil, Trash2, Mail, Phone, Download, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { PatientFormSheet, type Patient } from "@/components/app/PatientFormSheet";
+import { exportPatientsCSV, importPatientsCSV } from "@/lib/patient-csv";
 
 export const Route = createFileRoute("/_authenticated/app/pacientes")({
   component: PatientsPage,
@@ -17,6 +18,7 @@ function PatientsPage() {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Patient | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     setLoading(true);
@@ -54,23 +56,59 @@ function PatientsPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="flex items-center justify-between gap-4 mb-8">
+      <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Pacientes</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {patients.length} cadastrados · gerencie seu portfólio clínico.
           </p>
         </div>
-        <button
-          onClick={() => {
-            setEditing(null);
-            setOpen(true);
-          }}
-          className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background text-sm font-medium px-4 py-2.5 hover:opacity-90 transition-opacity"
-        >
-          <Plus className="h-4 w-4" />
-          Novo paciente
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              if (!f || !user) return;
+              const t = toast.loading("Importando...");
+              const res = await importPatientsCSV(f, user.id);
+              toast.dismiss(t);
+              if (res.inserted) toast.success(`${res.inserted} pacientes importados`);
+              if (res.errors.length) toast.error(res.errors[0]);
+              if (res.inserted) load();
+              e.target.value = "";
+            }}
+          />
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border/60 bg-surface hover:bg-surface-elevated text-xs transition-colors"
+          >
+            <Upload className="h-3.5 w-3.5" />
+            Importar CSV
+          </button>
+          <button
+            onClick={() => {
+              if (!patients.length) return toast.error("Sem pacientes para exportar");
+              exportPatientsCSV(patients);
+            }}
+            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border/60 bg-surface hover:bg-surface-elevated text-xs transition-colors"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Exportar CSV
+          </button>
+          <button
+            onClick={() => {
+              setEditing(null);
+              setOpen(true);
+            }}
+            className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background text-sm font-medium px-4 h-9 hover:opacity-90 transition-opacity"
+          >
+            <Plus className="h-4 w-4" />
+            Novo paciente
+          </button>
+        </div>
       </div>
 
       <div className="relative mb-5">
@@ -123,8 +161,12 @@ function PatientsPage() {
                 >
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full bg-gradient-brand grid place-items-center text-sm font-medium text-white">
-                        {p.full_name.charAt(0).toUpperCase()}
+                      <div className="h-9 w-9 rounded-full bg-gradient-brand grid place-items-center text-sm font-medium text-white overflow-hidden shrink-0">
+                        {p.avatar_url ? (
+                          <img src={p.avatar_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          p.full_name.charAt(0).toUpperCase()
+                        )}
                       </div>
                       <div className="min-w-0">
                         <div className="text-sm font-medium truncate">{p.full_name}</div>
