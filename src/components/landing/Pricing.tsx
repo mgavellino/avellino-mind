@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 
 const plans = [
@@ -43,7 +43,7 @@ const plans = [
   },
   {
     name: "Vitalício",
-    price: "R$ 1.000",
+    price: "R$ 997",
     period: "único",
     description: "Pague uma vez. Use para sempre.",
     features: [
@@ -70,11 +70,35 @@ export function Pricing() {
             Preços transparentes.
           </h2>
           <p className="mt-4 text-muted-foreground text-lg">
-            Sem taxas escondidas. Cancele quando quiser.
+            14 dias de teste grátis em qualquer plano. Sem cartão de crédito.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {/* Launch promo banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-10 mx-auto max-w-3xl rounded-2xl border border-[oklch(0.55_0.22_260)]/40 bg-gradient-to-r from-[oklch(0.55_0.22_260)]/10 to-[oklch(0.68_0.20_245)]/10 px-6 py-5 flex flex-col sm:flex-row items-center gap-4 justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <span className="h-9 w-9 rounded-full bg-gradient-brand grid place-items-center text-white">
+              <Sparkles className="h-4 w-4" />
+            </span>
+            <div>
+              <div className="text-sm font-semibold">Promoção de lançamento</div>
+              <div className="text-xs text-muted-foreground">
+                1º mês por <span className="text-foreground font-semibold">R$ 697</span> · parcele em até 12x
+              </div>
+            </div>
+          </div>
+          <span className="text-[10px] uppercase tracking-wider text-[oklch(0.78_0.16_250)] border border-[oklch(0.55_0.22_260)]/40 rounded-full px-3 py-1">
+            por tempo limitado
+          </span>
+        </motion.div>
+
+        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}

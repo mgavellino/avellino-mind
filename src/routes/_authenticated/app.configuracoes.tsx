@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { AvatarUpload } from "@/components/app/AvatarUpload";
 
 export const Route = createFileRoute("/_authenticated/app/configuracoes")({
   component: SettingsPage,
@@ -15,6 +16,7 @@ function SettingsPage() {
     phone: "",
     crp: "",
     specialty: "",
+    avatar_url: "" as string | null | "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -33,6 +35,7 @@ function SettingsPage() {
             phone: data.phone ?? "",
             crp: data.crp ?? "",
             specialty: data.specialty ?? "",
+            avatar_url: data.avatar_url ?? "",
           });
         }
         setLoading(false);
@@ -45,11 +48,23 @@ function SettingsPage() {
     setSaving(true);
     const { error } = await supabase
       .from("profiles")
-      .update(form)
+      .update({
+        full_name: form.full_name,
+        phone: form.phone,
+        crp: form.crp,
+        specialty: form.specialty,
+        avatar_url: form.avatar_url || null,
+      })
       .eq("id", user.id);
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Perfil atualizado");
+  };
+
+  const persistAvatar = async (url: string | null) => {
+    setForm((f) => ({ ...f, avatar_url: url ?? "" }));
+    if (!user) return;
+    await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
   };
 
   return (
@@ -66,8 +81,23 @@ function SettingsPage() {
       ) : (
         <form
           onSubmit={handleSave}
-          className="space-y-4 rounded-2xl border border-border/60 bg-surface/40 p-6"
+          className="space-y-5 rounded-2xl border border-border/60 bg-surface/40 p-6"
         >
+          {user && (
+            <div>
+              <label className="text-xs text-muted-foreground">Foto de perfil</label>
+              <div className="mt-2">
+                <AvatarUpload
+                  value={form.avatar_url || null}
+                  onChange={persistAvatar}
+                  ownerId={user.id}
+                  pathPrefix="profile"
+                  fallback={form.full_name || user.email || "U"}
+                />
+              </div>
+            </div>
+          )}
+
           <Field label="Nome completo">
             <input
               value={form.full_name}

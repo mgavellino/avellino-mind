@@ -3,9 +3,10 @@ import {
   Calendar,
   FileText,
   Users,
-  CreditCard,
+  Music,
   Shield,
   BarChart3,
+  Download,
 } from "lucide-react";
 
 const features = [
@@ -13,25 +14,31 @@ const features = [
     icon: Calendar,
     title: "Agenda inteligente",
     description:
-      "Visualização mensal, semanal e diária com drag-and-drop e lembretes automáticos.",
+      "Visualização semanal e diária com criação por clique e lembretes automáticos.",
   },
   {
     icon: FileText,
     title: "Prontuário com autosave",
     description:
-      "Editor estilo Word com salvamento em tempo real. Cada palavra é preservada instantaneamente.",
+      "Editor estilo Word com salvamento em tempo real. Exporte em PDF ou DOCX com um clique.",
   },
   {
     icon: Users,
     title: "Gestão de pacientes",
     description:
-      "Ficha completa, histórico, anexos e busca rápida em uma interface limpa.",
+      "Ficha completa, foto, histórico e busca rápida em uma interface limpa.",
   },
   {
-    icon: CreditCard,
-    title: "Pagamentos integrados",
+    icon: Download,
+    title: "Importe e exporte",
     description:
-      "Mercado Pago nativo, assinaturas, renovações e bloqueio automático por vencimento.",
+      "Traga seus pacientes de qualquer planilha por CSV — e leve embora quando quiser.",
+  },
+  {
+    icon: Music,
+    title: "Spotify integrado",
+    description:
+      "Player nativo no app. Cole sua playlist favorita e mantenha o foco em sessão.",
   },
   {
     icon: Shield,
@@ -64,7 +71,7 @@ export function Features() {
           </p>
         </div>
 
-        <div className="mt-14 grid gap-px rounded-2xl border border-border/60 bg-border/60 overflow-hidden md:grid-cols-3">
+        <div className="mt-14 grid gap-px rounded-2xl border border-border/60 bg-border/60 overflow-hidden md:grid-cols-3 lg:grid-cols-3">
           {features.map((f, i) => (
             <motion.div
               key={f.title}

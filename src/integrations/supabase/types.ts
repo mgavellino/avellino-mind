@@ -263,6 +263,7 @@ export type Database = {
       patients: {
         Row: {
           address: string | null
+          avatar_url: string | null
           birth_date: string | null
           cpf: string | null
           created_at: string
@@ -277,6 +278,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          avatar_url?: string | null
           birth_date?: string | null
           cpf?: string | null
           created_at?: string
@@ -291,6 +293,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          avatar_url?: string | null
           birth_date?: string | null
           cpf?: string | null
           created_at?: string
@@ -370,8 +373,11 @@ export type Database = {
           interval: Database["public"]["Enums"]["plan_interval"]
           is_active: boolean
           is_featured: boolean
+          max_installments: number | null
           name: string
           price_cents: number
+          promo_label: string | null
+          promo_price_cents: number | null
           slug: string
           sort_order: number
           updated_at: string
@@ -384,8 +390,11 @@ export type Database = {
           interval: Database["public"]["Enums"]["plan_interval"]
           is_active?: boolean
           is_featured?: boolean
+          max_installments?: number | null
           name: string
           price_cents: number
+          promo_label?: string | null
+          promo_price_cents?: number | null
           slug: string
           sort_order?: number
           updated_at?: string
@@ -398,8 +407,11 @@ export type Database = {
           interval?: Database["public"]["Enums"]["plan_interval"]
           is_active?: boolean
           is_featured?: boolean
+          max_installments?: number | null
           name?: string
           price_cents?: number
+          promo_label?: string | null
+          promo_price_cents?: number | null
           slug?: string
           sort_order?: number
           updated_at?: string
