@@ -3,10 +3,10 @@ import {
   Calendar,
   FileText,
   Users,
-  Music,
+  Image as ImageIcon,
   Shield,
-  BarChart3,
   Download,
+  Upload,
 } from "lucide-react";
 
 const features = [
@@ -14,43 +14,43 @@ const features = [
     icon: Calendar,
     title: "Agenda inteligente",
     description:
-      "Visualização semanal e diária com criação por clique e lembretes automáticos.",
+      "Visualização semanal de 7h às 21h com criação por clique no slot. Cores por status: agendada, realizada, faltou, cancelada.",
   },
   {
     icon: FileText,
     title: "Prontuário com autosave",
     description:
-      "Editor estilo Word com salvamento em tempo real. Exporte em PDF ou DOCX com um clique.",
+      "Editor estilo Word com salvamento em tempo real, histórico de versões e restauração de qualquer ponto.",
   },
   {
     icon: Users,
     title: "Gestão de pacientes",
     description:
-      "Ficha completa, foto, histórico e busca rápida em uma interface limpa.",
+      "Ficha completa, foto, contato, histórico clínico e busca instantânea em interface limpa.",
   },
   {
     icon: Download,
-    title: "Importe e exporte",
+    title: "Exportação PDF e DOCX",
     description:
-      "Traga seus pacientes de qualquer planilha por CSV — e leve embora quando quiser.",
+      "Gere prontuários profissionais em PDF ou DOCX com um clique para entregar ao paciente ou ao judiciário.",
   },
   {
-    icon: Music,
-    title: "Spotify integrado",
+    icon: Upload,
+    title: "Importação CSV",
     description:
-      "Player nativo no app. Cole sua playlist favorita e mantenha o foco em sessão.",
+      "Migrou de outra plataforma? Importe sua lista de pacientes por CSV e exporte de volta sempre que quiser.",
+  },
+  {
+    icon: ImageIcon,
+    title: "Foto de pacientes",
+    description:
+      "Upload de avatar para profissional e cada paciente. Identificação visual rápida na agenda e na ficha.",
   },
   {
     icon: Shield,
     title: "Segurança LGPD",
     description:
-      "Criptografia, RLS, logs de auditoria e permissões granulares por papel.",
-  },
-  {
-    icon: BarChart3,
-    title: "Analytics em tempo real",
-    description:
-      "Faturamento, consultas concluídas e métricas de crescimento ao seu alcance.",
+      "Criptografia, RLS por usuário, logs de auditoria e permissões granulares por papel e por plano.",
   },
 ];
 
@@ -66,7 +66,7 @@ export function Features() {
             Tudo o que sua clínica precisa.
           </h2>
           <p className="mt-4 text-muted-foreground text-lg">
-            Construído com a precisão de softwares médicos internacionais — sem o peso
+            Construído com a precisão de softwares clínicos internacionais — sem o peso
             deles.
           </p>
         </div>

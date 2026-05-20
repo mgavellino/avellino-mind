@@ -10,12 +10,14 @@ import {
   LogOut,
   Bell,
   Search,
+  ShieldCheck,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { useAuth } from "@/hooks/use-auth";
+import { useIsAdmin } from "@/hooks/use-role";
+import { usePlan } from "@/hooks/use-plan";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { SpotifyPlayer } from "@/components/app/SpotifyPlayer";
 
 const nav = [
   { to: "/app", icon: LayoutDashboard, label: "Dashboard" },
@@ -30,6 +32,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { isAdmin } = useIsAdmin();
+  const { limits } = usePlan();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -53,9 +57,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     navigate({ to: "/" });
   };
 
+  const planBadge =
+    limits.status === "trial"
+      ? `Teste · ${limits.trial_days_left ?? 0}d`
+      : limits.plan_name ?? "Sem plano";
+
   return (
     <div className="min-h-screen bg-background text-foreground flex">
-      {/* Sidebar */}
       <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-border/60 bg-surface/40">
         <div className="p-5">
           <Logo />
@@ -81,8 +89,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="mt-2 flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm border border-[oklch(0.55_0.22_260)]/40 bg-[oklch(0.55_0.22_260)]/10 text-[oklch(0.82_0.16_250)] hover:bg-[oklch(0.55_0.22_260)]/20 transition-colors"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              Admin Master
+            </Link>
+          )}
         </nav>
-        <div className="p-3 border-t border-border/60">
+        <div className="p-3 border-t border-border/60 space-y-2">
+          <div className="px-3 py-2 rounded-lg bg-surface/60 border border-border/50">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Plano</div>
+            <div className="text-xs font-medium mt-0.5">{planBadge}</div>
+          </div>
           <button
             onClick={handleSignOut}
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
@@ -93,7 +114,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 border-b border-border/60 flex items-center px-4 md:px-6 gap-3 bg-background/80 backdrop-blur sticky top-0 z-30">
           <div className="flex-1 max-w-md">
@@ -121,7 +141,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main className="flex-1 p-4 md:p-8">{children}</main>
       </div>
-      <SpotifyPlayer />
     </div>
   );
 }
