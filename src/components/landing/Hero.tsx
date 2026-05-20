@@ -1,11 +1,10 @@
 import { motion } from "motion/react";
 import { ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
-import dashboardMockup from "@/assets/dashboard-mockup.jpg";
+import { DashboardPreview } from "@/components/landing/DashboardPreview";
 
 export function Hero() {
   return (
     <section className="relative pt-40 pb-24 overflow-hidden">
-      {/* background */}
       <div className="absolute inset-0 bg-grid pointer-events-none" />
       <div
         className="absolute inset-0 pointer-events-none"
@@ -23,7 +22,7 @@ export function Hero() {
           className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-surface/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur"
         >
           <Sparkles className="h-3.5 w-3.5 text-[oklch(0.68_0.20_245)]" />
-          <span>Mental Health Platform · LGPD compliant</span>
+          <span>Plataforma de saúde mental · Conforme LGPD</span>
         </motion.div>
 
         <motion.h1
@@ -43,9 +42,9 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 0.15 }}
           className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground"
         >
-          AvellPsy é o sistema premium de gestão para psicólogos: agenda, prontuário
-          eletrônico com autosave, pagamentos e painel administrativo — tudo em um único
-          ambiente seguro.
+          AvellPsy é o sistema premium de gestão para psicólogos: agenda inteligente,
+          prontuário eletrônico com autosave, gestão de pacientes e exportação em PDF/DOCX
+          — tudo em um único ambiente seguro.
         </motion.p>
 
         <motion.div
@@ -58,14 +57,14 @@ export function Hero() {
             href="#pricing"
             className="group inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-3 text-sm font-medium text-background hover:opacity-90 transition-opacity"
           >
-            Iniciar teste grátis
+            Iniciar teste grátis de 14 dias
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </a>
           <a
             href="#features"
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface/60 px-5 py-3 text-sm font-medium text-foreground hover:bg-surface-elevated transition-colors backdrop-blur"
           >
-            Ver demonstração
+            Ver recursos
           </a>
         </motion.div>
 
@@ -76,24 +75,18 @@ export function Hero() {
           className="mt-4 inline-flex items-center gap-2 text-xs text-muted-foreground"
         >
           <ShieldCheck className="h-3.5 w-3.5" />
-          Criptografia ponta-a-ponta · Servidores no Brasil
+          Criptografia · Conformidade LGPD · Sem cartão no teste
         </motion.div>
 
-        {/* Mockup */}
         <motion.div
           initial={{ opacity: 0, y: 40, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.9, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
           className="relative mt-16 mx-auto max-w-5xl"
         >
-          <div className="relative rounded-2xl border border-border/70 bg-surface/50 p-1.5 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)] backdrop-blur">
-            <div className="absolute -inset-x-20 -top-20 h-40 bg-[oklch(0.55_0.22_260/0.25)] blur-3xl pointer-events-none" />
-            <img
-              src={dashboardMockup}
-              alt="AvellPsy dashboard"
-              className="relative w-full rounded-xl"
-              loading="eager"
-            />
+          <div className="absolute -inset-x-20 -top-20 h-40 bg-[oklch(0.55_0.22_260/0.25)] blur-3xl pointer-events-none" />
+          <div className="relative">
+            <DashboardPreview />
           </div>
         </motion.div>
       </div>

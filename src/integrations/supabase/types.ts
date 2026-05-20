@@ -17,11 +17,13 @@ export type Database = {
       appointments: {
         Row: {
           created_at: string
+          custom_kind: string | null
           ends_at: string
           id: string
+          kind: Database["public"]["Enums"]["appointment_kind"]
           notes: string | null
           owner_id: string
-          patient_id: string
+          patient_id: string | null
           starts_at: string
           status: Database["public"]["Enums"]["appointment_status"]
           title: string | null
@@ -29,11 +31,13 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custom_kind?: string | null
           ends_at: string
           id?: string
+          kind?: Database["public"]["Enums"]["appointment_kind"]
           notes?: string | null
           owner_id: string
-          patient_id: string
+          patient_id?: string | null
           starts_at: string
           status?: Database["public"]["Enums"]["appointment_status"]
           title?: string | null
@@ -41,11 +45,13 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custom_kind?: string | null
           ends_at?: string
           id?: string
+          kind?: Database["public"]["Enums"]["appointment_kind"]
           notes?: string | null
           owner_id?: string
-          patient_id?: string
+          patient_id?: string | null
           starts_at?: string
           status?: Database["public"]["Enums"]["appointment_status"]
           title?: string | null
@@ -366,6 +372,7 @@ export type Database = {
       }
       plans: {
         Row: {
+          capabilities: Json
           created_at: string
           description: string | null
           features: Json
@@ -374,6 +381,7 @@ export type Database = {
           is_active: boolean
           is_featured: boolean
           max_installments: number | null
+          max_patients: number | null
           name: string
           price_cents: number
           promo_label: string | null
@@ -383,6 +391,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          capabilities?: Json
           created_at?: string
           description?: string | null
           features?: Json
@@ -391,6 +400,7 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           max_installments?: number | null
+          max_patients?: number | null
           name: string
           price_cents: number
           promo_label?: string | null
@@ -400,6 +410,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          capabilities?: Json
           created_at?: string
           description?: string | null
           features?: Json
@@ -408,6 +419,7 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           max_installments?: number | null
+          max_patients?: number | null
           name?: string
           price_cents?: number
           promo_label?: string | null
@@ -451,6 +463,27 @@ export type Database = {
           phone?: string | null
           specialty?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
         }
         Relationships: []
       }
@@ -530,6 +563,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_plan_limits: { Args: { _uid: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -540,6 +574,12 @@ export type Database = {
     }
     Enums: {
       app_role: "admin_master" | "user"
+      appointment_kind:
+        | "consulta"
+        | "reuniao"
+        | "supervisao"
+        | "pessoal"
+        | "outro"
       appointment_status:
         | "scheduled"
         | "confirmed"
@@ -687,6 +727,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin_master", "user"],
+      appointment_kind: [
+        "consulta",
+        "reuniao",
+        "supervisao",
+        "pessoal",
+        "outro",
+      ],
       appointment_status: [
         "scheduled",
         "confirmed",

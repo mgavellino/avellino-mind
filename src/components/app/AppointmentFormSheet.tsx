@@ -12,14 +12,19 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Patient } from "./PatientFormSheet";
 import { Trash2 } from "lucide-react";
 
+export type AppointmentKind = "consulta" | "reuniao" | "supervisao" | "pessoal" | "outro";
+export type AppointmentStatus = "scheduled" | "completed" | "cancelled" | "no_show";
+
 export type Appointment = {
   id: string;
   owner_id: string;
-  patient_id: string;
+  patient_id: string | null;
   title: string | null;
   starts_at: string;
   ends_at: string;
-  status: "scheduled" | "confirmed" | "completed" | "cancelled" | "no_show";
+  status: AppointmentStatus;
+  kind: AppointmentKind;
+  custom_kind: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -36,6 +41,14 @@ type Props = {
   onDeleted: () => void;
 };
 
+const KIND_LABELS: Record<AppointmentKind, string> = {
+  consulta: "Consulta",
+  reuniao: "Reunião",
+  supervisao: "Supervisão",
+  pessoal: "Pessoal / Bloqueio",
+  outro: "Outro",
+};
+
 function toLocalInput(d: Date) {
   return format(d, "yyyy-MM-dd'T'HH:mm");
 }
@@ -50,17 +63,21 @@ export function AppointmentFormSheet({
   onSaved,
   onDeleted,
 }: Props) {
+  const [kind, setKind] = useState<AppointmentKind>("consulta");
+  const [customKind, setCustomKind] = useState("");
   const [patientId, setPatientId] = useState("");
   const [title, setTitle] = useState("Sessão");
   const [starts, setStarts] = useState("");
   const [ends, setEnds] = useState("");
-  const [status, setStatus] = useState<Appointment["status"]>("scheduled");
+  const [status, setStatus] = useState<AppointmentStatus>("scheduled");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (appointment) {
-      setPatientId(appointment.patient_id);
+      setKind(appointment.kind ?? "consulta");
+      setCustomKind(appointment.custom_kind ?? "");
+      setPatientId(appointment.patient_id ?? "");
       setTitle(appointment.title ?? "Sessão");
       setStarts(toLocalInput(new Date(appointment.starts_at)));
       setEnds(toLocalInput(new Date(appointment.ends_at)));
@@ -69,6 +86,8 @@ export function AppointmentFormSheet({
     } else if (initialDate) {
       const end = new Date(initialDate);
       end.setMinutes(end.getMinutes() + 50);
+      setKind("consulta");
+      setCustomKind("");
       setPatientId(patients[0]?.id ?? "");
       setTitle("Sessão");
       setStarts(toLocalInput(initialDate));
@@ -78,9 +97,12 @@ export function AppointmentFormSheet({
     }
   }, [appointment, initialDate, open, patients]);
 
+  const needsPatient = kind === "consulta";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!patientId) return toast.error("Selecione um paciente");
+    if (needsPatient && !patientId) return toast.error("Selecione um paciente");
+    if (kind === "outro" && !customKind.trim()) return toast.error("Descreva o tipo de evento");
     if (!starts || !ends) return toast.error("Defina horário de início e fim");
     if (new Date(ends) <= new Date(starts))
       return toast.error("O término deve ser após o início");
@@ -88,7 +110,9 @@ export function AppointmentFormSheet({
 
     setSaving(true);
     const payload = {
-      patient_id: patientId,
+      kind,
+      custom_kind: kind === "outro" ? customKind.trim() : null,
+      patient_id: needsPatient ? patientId : null,
       title: title.trim() || null,
       starts_at: new Date(starts).toISOString(),
       ends_at: new Date(ends).toISOString(),
@@ -103,7 +127,7 @@ export function AppointmentFormSheet({
         .eq("id", appointment.id);
       setSaving(false);
       if (error) return toast.error(error.message);
-      toast.success("Consulta atualizada");
+      toast.success("Compromisso atualizado");
       onSaved();
     } else {
       const { error } = await supabase
@@ -111,20 +135,20 @@ export function AppointmentFormSheet({
         .insert({ ...payload, owner_id: ownerId });
       setSaving(false);
       if (error) return toast.error(error.message);
-      toast.success("Consulta agendada");
+      toast.success("Compromisso agendado");
       onSaved();
     }
   };
 
   const handleDelete = async () => {
     if (!appointment) return;
-    if (!confirm("Cancelar e remover esta consulta?")) return;
+    if (!confirm("Remover este compromisso?")) return;
     const { error } = await supabase
       .from("appointments")
       .delete()
       .eq("id", appointment.id);
     if (error) return toast.error(error.message);
-    toast.success("Consulta removida");
+    toast.success("Compromisso removido");
     onDeleted();
   };
 
@@ -133,33 +157,60 @@ export function AppointmentFormSheet({
       <SheetContent className="w-full sm:max-w-md overflow-y-auto bg-background border-l border-border/60">
         <SheetHeader className="text-left">
           <SheetTitle className="text-xl font-semibold tracking-tight">
-            {appointment ? "Editar consulta" : "Nova consulta"}
+            {appointment ? "Editar compromisso" : "Novo compromisso"}
           </SheetTitle>
           <SheetDescription className="text-sm text-muted-foreground">
-            Vincule um paciente, defina o horário e adicione observações.
+            Escolha o tipo, defina horário e adicione observações.
           </SheetDescription>
         </SheetHeader>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <Field label="Paciente *">
+          <Field label="Tipo *">
             <select
-              value={patientId}
-              onChange={(e) => setPatientId(e.target.value)}
+              value={kind}
+              onChange={(e) => setKind(e.target.value as AppointmentKind)}
               className={inputCls}
             >
-              <option value="">Selecione...</option>
-              {patients.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.full_name}
+              {(Object.keys(KIND_LABELS) as AppointmentKind[]).map((k) => (
+                <option key={k} value={k}>
+                  {KIND_LABELS[k]}
                 </option>
               ))}
             </select>
-            {patients.length === 0 && (
-              <p className="mt-1 text-xs text-muted-foreground">
-                Cadastre um paciente antes de agendar.
-              </p>
-            )}
           </Field>
+
+          {kind === "outro" && (
+            <Field label="Descrição do tipo *">
+              <input
+                value={customKind}
+                onChange={(e) => setCustomKind(e.target.value)}
+                placeholder="ex: workshop, treinamento..."
+                className={inputCls}
+              />
+            </Field>
+          )}
+
+          {needsPatient && (
+            <Field label="Paciente *">
+              <select
+                value={patientId}
+                onChange={(e) => setPatientId(e.target.value)}
+                className={inputCls}
+              >
+                <option value="">Selecione...</option>
+                {patients.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.full_name}
+                  </option>
+                ))}
+              </select>
+              {patients.length === 0 && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Cadastre um paciente antes de agendar uma consulta.
+                </p>
+              )}
+            </Field>
+          )}
 
           <Field label="Título">
             <input
@@ -191,14 +242,13 @@ export function AppointmentFormSheet({
           <Field label="Status">
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value as Appointment["status"])}
+              onChange={(e) => setStatus(e.target.value as AppointmentStatus)}
               className={inputCls}
             >
               <option value="scheduled">Agendada</option>
-              <option value="confirmed">Confirmada</option>
               <option value="completed">Realizada</option>
+              <option value="no_show">Faltou</option>
               <option value="cancelled">Cancelada</option>
-              <option value="no_show">Não compareceu</option>
             </select>
           </Field>
 
