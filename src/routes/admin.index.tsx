@@ -27,7 +27,7 @@ function AdminOverview() {
           .from("subscriptions")
           .select("id", { count: "exact", head: true })
           .eq("status", "trial"),
-        supabase.from("payments").select("amount_cents").eq("status", "completed"),
+        supabase.from("payments").select("amount_cents").eq("status", "approved"),
       ]);
       const revenue = (paid.data ?? []).reduce(
         (s, p: { amount_cents: number }) => s + (p.amount_cents ?? 0),
