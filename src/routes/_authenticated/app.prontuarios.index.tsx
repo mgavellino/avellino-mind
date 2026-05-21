@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { FileText, Plus, ChevronRight, Search } from "lucide-react";
+import { FileText, Plus, ChevronRight, Search, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import type { Patient } from "@/components/app/PatientFormSheet";
+import { ANAMNESIS_TEMPLATES } from "@/lib/anamnesis-templates";
 
 export const Route = createFileRoute("/_authenticated/app/prontuarios/")({
   component: RecordsListPage,
@@ -30,6 +31,7 @@ function RecordsListPage() {
   const [creating, setCreating] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState("");
+  const [templateId, setTemplateId] = useState("blank");
 
   useEffect(() => {
     if (!user) return;
@@ -60,14 +62,15 @@ function RecordsListPage() {
 
   const handleCreate = async () => {
     if (!selectedPatient || !user) return toast.error("Selecione um paciente");
+    const template = ANAMNESIS_TEMPLATES.find((t) => t.id === templateId) ?? ANAMNESIS_TEMPLATES[0];
     setCreating(true);
     const { data, error } = await supabase
       .from("medical_records")
       .insert({
         owner_id: user.id,
         patient_id: selectedPatient,
-        title: "Novo prontuário",
-        content: { type: "doc", content: [{ type: "paragraph" }] },
+        title: template.id === "blank" ? "Novo prontuário" : template.label,
+        content: template.doc as never,
         content_text: "",
       })
       .select("id")
