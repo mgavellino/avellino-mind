@@ -4,7 +4,7 @@ import { Hero } from "@/components/landing/Hero";
 import { Features } from "@/components/landing/Features";
 import { Pricing } from "@/components/landing/Pricing";
 
-import { FAQ } from "@/components/landing/FAQ";
+import { FAQ, faqItems } from "@/components/landing/FAQ";
 import { CTA } from "@/components/landing/CTA";
 import { Footer } from "@/components/landing/Footer";
 import ogImage from "@/assets/og-avellpsy.jpg";
@@ -12,6 +12,19 @@ import ogImage from "@/assets/og-avellpsy.jpg";
 const TITLE = "AvellPsy — Plataforma de gestão para psicólogos e clínicas";
 const DESCRIPTION =
   "Agenda inteligente, prontuário com autosave, pagamentos e admin em um só lugar. Compliance LGPD, design premium e teste grátis.";
+
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqItems.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.a,
+    },
+  })),
+};
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -27,6 +40,12 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(faqLd),
+      },
+    ],
   }),
 });
 

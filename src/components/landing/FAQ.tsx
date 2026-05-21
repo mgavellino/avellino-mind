@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const items = [
+export const faqItems = [
   {
     q: "Os dados dos meus pacientes são seguros?",
     a: "Sim. Usamos criptografia ponta-a-ponta, servidores no Brasil, RLS no banco e auditoria completa. Conformidade total com a LGPD e CFP.",
@@ -41,7 +41,7 @@ export function FAQ() {
           </h2>
         </div>
         <Accordion type="single" collapsible className="space-y-2">
-          {items.map((item, i) => (
+          {faqItems.map((item, i) => (
             <AccordionItem
               key={i}
               value={`item-${i}`}
