@@ -90,6 +90,34 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "AvellPsy",
+              url: "/",
+              logo: "/favicon.ico",
+              description: "Plataforma premium de gestão para psicólogos e clínicas: agenda, prontuário, pagamentos e admin.",
+              sameAs: [],
+            },
+            {
+              "@type": "WebSite",
+              name: "AvellPsy",
+              url: "/",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: "/app/pacientes?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            },
+          ],
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
