@@ -23,7 +23,7 @@ type Coupon = {
 const empty = {
   code: "",
   description: "",
-  discount_type: "percent" as const,
+  discount_type: "percent" as "percent" | "fixed",
   discount_value: 10,
   max_redemptions: null as number | null,
   expires_at: null as string | null,

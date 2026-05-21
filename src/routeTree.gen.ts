@@ -21,6 +21,8 @@ import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminPromoRouteImport } from './routes/admin.promo'
 import { Route as AdminPrecosRouteImport } from './routes/admin.precos'
+import { Route as AdminCuponsRouteImport } from './routes/admin.cupons'
+import { Route as AdminAssinaturasRouteImport } from './routes/admin.assinaturas'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppPacientesRouteImport } from './routes/_authenticated/app.pacientes'
@@ -90,6 +92,16 @@ const AdminPrecosRoute = AdminPrecosRouteImport.update({
   path: '/precos',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCuponsRoute = AdminCuponsRouteImport.update({
+  id: '/cupons',
+  path: '/cupons',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAssinaturasRoute = AdminAssinaturasRouteImport.update({
+  id: '/assinaturas',
+  path: '/assinaturas',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -150,6 +162,8 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/admin/assinaturas': typeof AdminAssinaturasRoute
+  '/admin/cupons': typeof AdminCuponsRoute
   '/admin/precos': typeof AdminPrecosRoute
   '/admin/promo': typeof AdminPromoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
@@ -170,6 +184,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/admin/assinaturas': typeof AdminAssinaturasRoute
+  '/admin/cupons': typeof AdminCuponsRoute
   '/admin/precos': typeof AdminPrecosRoute
   '/admin/promo': typeof AdminPromoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
@@ -194,6 +210,8 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/admin/assinaturas': typeof AdminAssinaturasRoute
+  '/admin/cupons': typeof AdminCuponsRoute
   '/admin/precos': typeof AdminPrecosRoute
   '/admin/promo': typeof AdminPromoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
@@ -218,6 +236,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/app'
+    | '/admin/assinaturas'
+    | '/admin/cupons'
     | '/admin/precos'
     | '/admin/promo'
     | '/admin/usuarios'
@@ -238,6 +258,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/signup'
+    | '/admin/assinaturas'
+    | '/admin/cupons'
     | '/admin/precos'
     | '/admin/promo'
     | '/admin/usuarios'
@@ -261,6 +283,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/_authenticated/app'
+    | '/admin/assinaturas'
+    | '/admin/cupons'
     | '/admin/precos'
     | '/admin/promo'
     | '/admin/usuarios'
@@ -374,6 +398,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPrecosRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/cupons': {
+      id: '/admin/cupons'
+      path: '/cupons'
+      fullPath: '/admin/cupons'
+      preLoaderRoute: typeof AdminCuponsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/assinaturas': {
+      id: '/admin/assinaturas'
+      path: '/assinaturas'
+      fullPath: '/admin/assinaturas'
+      preLoaderRoute: typeof AdminAssinaturasRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_authenticated/app': {
       id: '/_authenticated/app'
       path: '/app'
@@ -476,6 +514,8 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminAssinaturasRoute: typeof AdminAssinaturasRoute
+  AdminCuponsRoute: typeof AdminCuponsRoute
   AdminPrecosRoute: typeof AdminPrecosRoute
   AdminPromoRoute: typeof AdminPromoRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
@@ -483,6 +523,8 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAssinaturasRoute: AdminAssinaturasRoute,
+  AdminCuponsRoute: AdminCuponsRoute,
   AdminPrecosRoute: AdminPrecosRoute,
   AdminPromoRoute: AdminPromoRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
