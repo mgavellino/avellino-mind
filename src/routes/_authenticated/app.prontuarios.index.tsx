@@ -125,6 +125,34 @@ function RecordsListPage() {
               {creating ? "Criando..." : "Criar"}
             </button>
           </div>
+          <div className="mt-4">
+            <label className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
+              <Sparkles className="h-3 w-3 text-[oklch(0.68_0.20_245)]" />
+              Modelo de anamnese
+            </label>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {ANAMNESIS_TEMPLATES.map((t) => (
+                <button
+                  type="button"
+                  key={t.id}
+                  onClick={() => setTemplateId(t.id)}
+                  className={`text-left rounded-xl border p-3 transition-colors ${
+                    templateId === t.id
+                      ? "border-[oklch(0.55_0.22_260)]/50 bg-[oklch(0.55_0.22_260)]/10"
+                      : "border-border/60 bg-background/40 hover:bg-surface"
+                  }`}
+                >
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                    {t.specialty}
+                  </div>
+                  <div className="mt-0.5 text-sm font-medium">{t.label}</div>
+                  <div className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                    {t.description}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
           {patients.length === 0 && (
             <p className="mt-2 text-xs text-muted-foreground">
               Cadastre um paciente antes de criar um prontuário.{" "}
