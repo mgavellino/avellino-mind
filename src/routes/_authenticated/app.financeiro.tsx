@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-role";
 import { StripeEmbeddedCheckout } from "@/components/payments/StripeEmbeddedCheckout";
 import { PaymentTestModeBanner } from "@/components/payments/PaymentTestModeBanner";
+import { ManageSubscriptionButton } from "@/components/payments/ManageSubscriptionButton";
 
 export const Route = createFileRoute("/_authenticated/app/financeiro")({
   component: FinanceiroPage,
@@ -367,15 +368,11 @@ function FinanceiroPage() {
 
       {/* Subscription section */}
       <section>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
             Sua assinatura AvellPsy
           </h2>
-          {isAdmin && (
-            <span className="text-[10px] uppercase tracking-wider text-[oklch(0.78_0.16_250)]">
-              Visão admin
-            </span>
-          )}
+          <ManageSubscriptionButton />
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {plans.map((p) => {

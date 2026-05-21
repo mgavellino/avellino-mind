@@ -60,7 +60,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const planBadge =
     limits.status === "trial"
       ? `Teste · ${limits.trial_days_left ?? 0}d`
-      : limits.plan_name ?? "Sem plano";
+      : limits.status === "lifetime"
+        ? `${limits.plan_name ?? "Vitalício"} ∞`
+        : limits.plan_name ?? "Sem plano";
+  const showUpgrade =
+    limits.status === "trial" || limits.status === "past_due" || !limits.has_access;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
@@ -103,6 +107,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="px-3 py-2 rounded-lg bg-surface/60 border border-border/50">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Plano</div>
             <div className="text-xs font-medium mt-0.5">{planBadge}</div>
+            {showUpgrade && (
+              <Link
+                to="/app/financeiro"
+                className="mt-2 block text-center text-[11px] rounded-md py-1 bg-gradient-brand text-white"
+              >
+                Assinar
+              </Link>
+            )}
           </div>
           <button
             onClick={handleSignOut}

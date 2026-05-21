@@ -148,7 +148,7 @@ export function Pricing() {
                   ))}
                 </ul>
                 <a
-                  href="/signup"
+                  href={`/checkout?plan=${plan.slug}`}
                   className={`mt-8 block w-full text-center rounded-xl py-2.5 text-sm font-medium transition-opacity hover:opacity-90 ${
                     plan.is_featured
                       ? "bg-gradient-brand text-white"
