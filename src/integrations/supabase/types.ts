@@ -608,6 +608,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           crp: string | null
+          default_session_price_cents: number
           full_name: string | null
           id: string
           is_blocked: boolean
@@ -620,6 +621,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           crp?: string | null
+          default_session_price_cents?: number
           full_name?: string | null
           id: string
           is_blocked?: boolean
@@ -632,6 +634,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           crp?: string | null
+          default_session_price_cents?: number
           full_name?: string | null
           id?: string
           is_blocked?: boolean
