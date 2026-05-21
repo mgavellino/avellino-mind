@@ -9,6 +9,7 @@ type Plan = {
   name: string;
   description: string | null;
   price_cents: number;
+  promo_price_cents: number | null;
   interval: string;
   features: string[];
   max_installments: number | null;
@@ -99,6 +100,8 @@ export function Pricing() {
 
         <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan, i) => {
+            const effective = plan.promo_price_cents ?? plan.price_cents;
+            const hasPromo = plan.promo_price_cents != null && plan.promo_price_cents < plan.price_cents;
             const installments = plan.max_installments && plan.max_installments > 1
               ? `até ${plan.max_installments}x`
               : null;
@@ -124,10 +127,15 @@ export function Pricing() {
                 <p className="mt-1 text-sm text-muted-foreground">{plan.description}</p>
                 <div className="mt-6 flex items-baseline gap-1">
                   <span className="text-5xl font-semibold tracking-tight">
-                    {formatBRL(plan.price_cents)}
+                    {formatBRL(effective)}
                   </span>
                   <span className="text-muted-foreground">{intervalLabel[plan.interval] ?? ""}</span>
                 </div>
+                {hasPromo && (
+                  <div className="mt-1 text-xs text-muted-foreground line-through">
+                    de {formatBRL(plan.price_cents)}
+                  </div>
+                )}
                 {installments && (
                   <div className="mt-1 text-xs text-muted-foreground">{installments} no cartão</div>
                 )}

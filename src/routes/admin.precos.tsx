@@ -14,6 +14,7 @@ type Plan = {
   name: string;
   description: string | null;
   price_cents: number;
+  promo_price_cents: number | null;
   interval: string;
   max_installments: number | null;
   is_featured: boolean;
@@ -47,6 +48,7 @@ function AdminPlans() {
         name: plan.name,
         description: plan.description,
         price_cents: plan.price_cents,
+        promo_price_cents: plan.promo_price_cents,
         max_installments: plan.max_installments,
         is_featured: plan.is_featured,
         is_active: plan.is_active,
@@ -112,7 +114,7 @@ function AdminPlans() {
               </div>
             </div>
 
-            <div className="mt-5 grid gap-4 sm:grid-cols-3">
+            <div className="mt-5 grid gap-4 sm:grid-cols-4">
               <Field label="Preço (R$)">
                 <input
                   type="number"
@@ -121,6 +123,22 @@ function AdminPlans() {
                   onChange={(e) =>
                     update(plan.id, {
                       price_cents: Math.round(parseFloat(e.target.value || "0") * 100),
+                    })
+                  }
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Preço promocional (R$)">
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="vazio = sem promo"
+                  value={plan.promo_price_cents != null ? (plan.promo_price_cents / 100).toFixed(2) : ""}
+                  onChange={(e) =>
+                    update(plan.id, {
+                      promo_price_cents: e.target.value
+                        ? Math.round(parseFloat(e.target.value) * 100)
+                        : null,
                     })
                   }
                   className={inputCls}
