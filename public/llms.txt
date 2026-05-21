@@ -1,0 +1,31 @@
+# AvellPsy
+
+> Plataforma premium de gestão para psicólogos e clínicas de saúde mental. Agenda inteligente, prontuário eletrônico com autosave, gestão financeira e painel administrativo — tudo em um só lugar, com segurança LGPD.
+
+## Pages
+
+- [/](/): Página inicial com apresentação da plataforma, funcionalidades, planos de preços, FAQ e call-to-action.
+- [/pricing](/pricing): Planos de assinatura (Básico, Profissional, Premium) com recursos e preços.
+- [/login](/login): Entrada de usuários existentes na plataforma.
+- [/signup](/signup): Cadastro de novos psicólogos e clínicas.
+- [/forgot-password](/forgot-password): Recuperação de senha por e-mail.
+- [/checkout](/checkout): Finalização de assinatura com pagamento via Stripe.
+- [/checkout/return](/checkout/return): Confirmação pós-pagamento e ativação do plano.
+
+## App (requer autenticação)
+
+- [/app](/app): Dashboard principal do usuário autenticado.
+- [/app/agenda](/app/agenda): Agenda de consultas e compromissos.
+- [/app/pacientes](/app/pacientes): Cadastro e gestão de pacientes.
+- [/app/prontuarios](/app/prontuarios): Prontuário eletrônico com histórico clínico.
+- [/app/financeiro](/app/financeiro): Controle financeiro, faturamento e gestão de assinatura.
+- [/app/configuracoes](/app/configuracoes): Configurações da conta e preferências.
+
+## Admin
+
+- [/admin](/admin): Painel administrativo para gestão da plataforma.
+- [/admin/usuarios](/admin/usuarios): Gestão de usuários e permissões.
+- [/admin/assinaturas](/admin/assinaturas): Controle de assinaturas e planos ativos.
+- [/admin/precos](/admin/precos): Configuração de planos e preços.
+- [/admin/cupons](/admin/cupons): Gerenciamento de cupons de desconto.
+- [/admin/promo](/admin/promo): Campanhas promocionais.
