@@ -139,8 +139,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
           </Link>
         </header>
-        <main className="flex-1 p-4 md:p-8">{children}</main>
+        <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">{children}</main>
       </div>
+
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur">
+        <div className="flex items-stretch justify-around h-16 px-1 pb-[env(safe-area-inset-bottom)]">
+          {nav.map((item) => {
+            const active =
+              item.to === "/app"
+                ? location.pathname === "/app"
+                : location.pathname.startsWith(item.to);
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] rounded-lg transition-colors ${
+                  active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <item.icon className={`h-5 w-5 ${active ? "text-[oklch(0.78_0.16_250)]" : ""}`} />
+                <span className="truncate max-w-full px-1">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }
