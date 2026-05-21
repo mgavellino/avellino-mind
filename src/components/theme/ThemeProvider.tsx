@@ -1,57 +1,77 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
 
 type Theme = "dark" | "light";
+const STORAGE_KEY = "avellpsy-theme";
 
-function apply(theme: Theme) {
+type Ctx = { theme: Theme; setTheme: (t: Theme) => void };
+const ThemeContext = createContext<Ctx>({ theme: "dark", setTheme: () => {} });
+
+function applyTheme(theme: Theme) {
+  if (typeof document === "undefined") return;
   const root = document.documentElement;
   if (theme === "light") root.classList.add("light");
   else root.classList.remove("light");
   try {
-    localStorage.setItem("avellpsy-theme", theme);
+    localStorage.setItem(STORAGE_KEY, theme);
   } catch {}
 }
 
-export function useTheme() {
-  const { user } = useAuth();
+function readInitial(): Theme {
+  if (typeof window === "undefined") return "dark";
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === "light" || stored === "dark") return stored;
+  } catch {}
+  return "dark";
+}
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
 
+  // Apply stored theme as soon as we hit the client
   useEffect(() => {
-    let initial: Theme = "dark";
-    try {
-      const stored = localStorage.getItem("avellpsy-theme");
-      if (stored === "light" || stored === "dark") initial = stored;
-    } catch {}
+    const initial = readInitial();
     setThemeState(initial);
-    apply(initial);
+    applyTheme(initial);
   }, []);
 
+  // Sync with profile when user logs in
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("theme")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        const t = (data as { theme?: string } | null)?.theme;
-        if (t === "light" || t === "dark") {
-          setThemeState(t);
-          apply(t);
-        }
-      });
-  }, [user]);
+    const sync = async () => {
+      const { data: sess } = await supabase.auth.getSession();
+      const uid = sess.session?.user?.id;
+      if (!uid) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("theme")
+        .eq("id", uid)
+        .maybeSingle();
+      const t = (data as { theme?: string } | null)?.theme;
+      if (t === "light" || t === "dark") {
+        setThemeState(t);
+        applyTheme(t);
+      }
+    };
+    sync();
+    const { data: sub } = supabase.auth.onAuthStateChange(() => sync());
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
-  const setTheme = async (t: Theme) => {
+  const setTheme = (t: Theme) => {
     setThemeState(t);
-    apply(t);
-    if (user) {
-      await supabase.from("profiles").update({ theme: t }).eq("id", user.id);
-    }
+    applyTheme(t);
+    supabase.auth.getSession().then(({ data }) => {
+      const uid = data.session?.user?.id;
+      if (uid) supabase.from("profiles").update({ theme: t }).eq("id", uid).then(() => {});
+    });
   };
 
-  return { theme, setTheme };
+  return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
+}
+
+export function useTheme() {
+  return useContext(ThemeContext);
 }
 
 export function ThemeToggle() {

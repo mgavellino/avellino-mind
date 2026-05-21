@@ -36,8 +36,6 @@ async function resolveOrCreateCustomer(
   return created.id;
 }
 
-// Reads the coupon from our DB (admin client), validates it, and ensures a
-// Stripe Coupon with the same id exists. Returns the Stripe coupon id or null.
 async function resolveCoupon(
   stripe: ReturnType<typeof createStripeClient>,
   couponCode: string,
@@ -129,6 +127,12 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       }
     }
 
+    const baseMetadata: Record<string, string> = {
+      priceId: data.priceId,
+      ...(data.userId && { userId: data.userId }),
+      ...(dbCouponId && { dbCouponId }),
+    };
+
     const session = await stripe.checkout.sessions.create({
       line_items: [{ price: stripePrice.id, quantity: 1 }],
       mode: isRecurring ? "subscription" : "payment",
@@ -139,19 +143,9 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       ...(!isRecurring && {
         payment_intent_data: { description: productDescription },
       }),
-      ...(data.userId && {
-        metadata: {
-          userId: data.userId,
-          ...(dbCouponId && { dbCouponId }),
-        },
-        ...(isRecurring && {
-          subscription_data: {
-            metadata: {
-              userId: data.userId,
-              ...(dbCouponId && { dbCouponId }),
-            },
-          },
-        }),
+      metadata: baseMetadata,
+      ...(isRecurring && {
+        subscription_data: { metadata: baseMetadata },
       }),
     });
 
