@@ -107,6 +107,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="px-3 py-2 rounded-lg bg-surface/60 border border-border/50">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Plano</div>
             <div className="text-xs font-medium mt-0.5">{planBadge}</div>
+            {showUpgrade && (
+              <Link
+                to="/app/financeiro"
+                className="mt-2 block text-center text-[11px] rounded-md py-1 bg-gradient-brand text-white"
+              >
+                Assinar
+              </Link>
+            )}
           </div>
           <button
             onClick={handleSignOut}
