@@ -18,6 +18,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminPromoRouteImport } from './routes/admin.promo'
@@ -77,6 +78,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const SitemapXmlRoute = SitemapXmlRouteImport.update({
+  id: '/sitemap/xml',
+  path: '/sitemap/xml',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   id: '/return',
@@ -175,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/admin/promo': typeof AdminPromoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/admin/': typeof AdminIndexRoute
   '/app/agenda': typeof AuthenticatedAppAgendaRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/admin/promo': typeof AdminPromoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/admin': typeof AdminIndexRoute
   '/app/agenda': typeof AuthenticatedAppAgendaRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
@@ -225,6 +233,7 @@ export interface FileRoutesById {
   '/admin/promo': typeof AdminPromoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/admin/': typeof AdminIndexRoute
   '/_authenticated/app/agenda': typeof AuthenticatedAppAgendaRoute
   '/_authenticated/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/admin/promo'
     | '/admin/usuarios'
     | '/checkout/return'
+    | '/sitemap/xml'
     | '/admin/'
     | '/app/agenda'
     | '/app/configuracoes'
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
     | '/admin/promo'
     | '/admin/usuarios'
     | '/checkout/return'
+    | '/sitemap/xml'
     | '/admin'
     | '/app/agenda'
     | '/app/configuracoes'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
     | '/admin/promo'
     | '/admin/usuarios'
     | '/checkout/return'
+    | '/sitemap/xml'
     | '/admin/'
     | '/_authenticated/app/agenda'
     | '/_authenticated/app/configuracoes'
@@ -321,6 +333,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  SitemapXmlRoute: typeof SitemapXmlRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -388,6 +401,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/sitemap/xml': {
+      id: '/sitemap/xml'
+      path: '/sitemap/xml'
+      fullPath: '/sitemap/xml'
+      preLoaderRoute: typeof SitemapXmlRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/checkout/return': {
       id: '/checkout/return'
@@ -573,6 +593,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  SitemapXmlRoute: SitemapXmlRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
