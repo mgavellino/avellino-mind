@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointment_receivables: {
+        Row: {
+          amount_cents: number
+          appointment_id: string
+          created_at: string
+          due_at: string | null
+          id: string
+          notes: string | null
+          owner_id: string
+          paid_at: string | null
+          patient_id: string | null
+          payment_method: string | null
+          status: Database["public"]["Enums"]["receivable_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount_cents?: number
+          appointment_id: string
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          notes?: string | null
+          owner_id: string
+          paid_at?: string | null
+          patient_id?: string | null
+          payment_method?: string | null
+          status?: Database["public"]["Enums"]["receivable_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          appointment_id?: string
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          paid_at?: string | null
+          patient_id?: string | null
+          payment_method?: string | null
+          status?: Database["public"]["Enums"]["receivable_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      appointment_reminders: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          error_message: string | null
+          id: string
+          owner_id: string
+          patient_id: string | null
+          reminder_type: string
+          scheduled_for: string
+          sent_at: string | null
+          status: Database["public"]["Enums"]["reminder_status"]
+          updated_at: string
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          owner_id: string
+          patient_id?: string | null
+          reminder_type?: string
+          scheduled_for: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["reminder_status"]
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          owner_id?: string
+          patient_id?: string | null
+          reminder_type?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["reminder_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           created_at: string
@@ -716,6 +803,8 @@ export type Database = {
         | "refunded"
         | "cancelled"
       plan_interval: "monthly" | "quarterly" | "yearly" | "lifetime"
+      receivable_status: "pending" | "paid" | "overdue" | "waived"
+      reminder_status: "scheduled" | "sent" | "failed" | "cancelled"
       subscription_status:
         | "active"
         | "expired"
@@ -872,6 +961,8 @@ export const Constants = {
         "cancelled",
       ],
       plan_interval: ["monthly", "quarterly", "yearly", "lifetime"],
+      receivable_status: ["pending", "paid", "overdue", "waived"],
+      reminder_status: ["scheduled", "sent", "failed", "cancelled"],
       subscription_status: [
         "active",
         "expired",
