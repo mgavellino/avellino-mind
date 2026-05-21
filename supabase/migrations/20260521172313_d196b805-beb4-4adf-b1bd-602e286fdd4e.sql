@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.promote_founder() FROM PUBLIC, anon, authenticated;
