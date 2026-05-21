@@ -81,8 +81,46 @@ function AdminLayout() {
           </Link>
         </div>
       </aside>
-      <main className="flex-1 p-6 md:p-10 overflow-auto">
-        <Outlet />
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <div className="md:hidden sticky top-0 z-30 flex items-center justify-between gap-2 px-4 h-14 border-b border-border/60 bg-background/95 backdrop-blur">
+          <Link
+            to="/app"
+            className="inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Voltar
+          </Link>
+          <div className="flex items-center gap-1.5">
+            <ShieldCheck className="h-4 w-4 text-[oklch(0.78_0.16_250)]" />
+            <span className="text-sm font-semibold">Admin</span>
+          </div>
+          <div className="w-[72px]" />
+        </div>
+        <nav className="md:hidden flex gap-1.5 overflow-x-auto px-4 py-2 border-b border-border/40 bg-surface/30">
+          {adminNav.map((item) => {
+            const active =
+              item.to === "/admin"
+                ? location.pathname === "/admin"
+                : location.pathname.startsWith(item.to);
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`shrink-0 inline-flex items-center gap-1.5 px-3 h-8 rounded-full text-xs transition-colors border ${
+                  active
+                    ? "bg-[oklch(0.55_0.22_260)]/20 text-foreground border-[oklch(0.55_0.22_260)]/40"
+                    : "text-muted-foreground border-border/60 hover:text-foreground hover:bg-surface"
+                }`}
+              >
+                <item.icon className="h-3.5 w-3.5" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+        <div className="flex-1 p-4 md:p-10 overflow-auto">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
