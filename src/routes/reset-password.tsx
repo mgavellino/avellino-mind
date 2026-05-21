@@ -10,7 +10,18 @@ import { AuthLayout } from "@/components/auth/AuthLayout";
 const schema = z.object({ password: z.string().min(8, "Mínimo 8 caracteres") });
 type FormData = z.infer<typeof schema>;
 
-export const Route = createFileRoute("/reset-password")({ component: ResetPage });
+export const Route = createFileRoute("/reset-password")({
+  component: ResetPage,
+  head: () => ({
+    meta: [
+      { title: "Redefinir senha — AvellPsy" },
+      { name: "description", content: "Defina uma nova senha para sua conta AvellPsy." },
+      { property: "og:title", content: "Redefinir senha — AvellPsy" },
+      { property: "og:description", content: "Defina uma nova senha para sua conta AvellPsy." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
+});
 
 function ResetPage() {
   const navigate = useNavigate();

@@ -22,6 +22,15 @@ export const Route = createFileRoute("/checkout")({
     plan: typeof search.plan === "string" ? search.plan : undefined,
   }),
   component: CheckoutPage,
+  head: () => ({
+    meta: [
+      { title: "Checkout — AvellPsy" },
+      { name: "description", content: "Finalize sua assinatura AvellPsy com pagamento seguro." },
+      { property: "og:title", content: "Checkout — AvellPsy" },
+      { property: "og:description", content: "Finalize sua assinatura AvellPsy com pagamento seguro." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
 });
 
 function brl(cents: number) {

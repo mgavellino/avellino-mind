@@ -9,6 +9,15 @@ export const Route = createFileRoute("/checkout/return")({
     session_id: typeof search.session_id === "string" ? search.session_id : undefined,
   }),
   component: CheckoutReturn,
+  head: () => ({
+    meta: [
+      { title: "Pagamento confirmado — AvellPsy" },
+      { name: "description", content: "Confirmação e ativação do seu plano AvellPsy." },
+      { property: "og:title", content: "Pagamento confirmado — AvellPsy" },
+      { property: "og:description", content: "Confirmação e ativação do seu plano AvellPsy." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
 });
 
 function CheckoutReturn() {
