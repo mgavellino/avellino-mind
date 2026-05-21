@@ -27,40 +27,21 @@ function readInitial(): Theme {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  // Initialize from localStorage synchronously on the client to avoid flicker.
+  const [theme, setThemeState] = useState<Theme>(() => readInitial());
 
-  // Apply stored theme as soon as we hit the client
+  // Ensure the html class matches on mount (covers SSR hydration mismatch).
   useEffect(() => {
-    const initial = readInitial();
-    setThemeState(initial);
-    applyTheme(initial);
-  }, []);
-
-  // Sync with profile when user logs in
-  useEffect(() => {
-    const sync = async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      const uid = sess.session?.user?.id;
-      if (!uid) return;
-      const { data } = await supabase
-        .from("profiles")
-        .select("theme")
-        .eq("id", uid)
-        .maybeSingle();
-      const t = (data as { theme?: string } | null)?.theme;
-      if (t === "light" || t === "dark") {
-        setThemeState(t);
-        applyTheme(t);
-      }
-    };
-    sync();
-    const { data: sub } = supabase.auth.onAuthStateChange(() => sync());
-    return () => sub.subscription.unsubscribe();
+    applyTheme(theme);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setTheme = (t: Theme) => {
+    if (t === theme) return;
     setThemeState(t);
     applyTheme(t);
+    // Best-effort: persist to profile if the user is logged in. Does not
+    // trigger any re-render or auth-state sync.
     supabase.auth.getSession().then(({ data }) => {
       const uid = data.session?.user?.id;
       if (uid) supabase.from("profiles").update({ theme: t }).eq("id", uid).then(() => {});
