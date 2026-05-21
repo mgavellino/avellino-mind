@@ -103,6 +103,80 @@ export type Database = {
         }
         Relationships: []
       }
+      coupon_redemptions: {
+        Row: {
+          coupon_id: string
+          id: string
+          redeemed_at: string
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          coupon_id: string
+          id?: string
+          redeemed_at?: string
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          coupon_id?: string
+          id?: string
+          redeemed_at?: string
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_redemptions_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_redemptions: number | null
+          redemptions_count: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_type: string
+          discount_value: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          redemptions_count?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          redemptions_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string
@@ -319,6 +393,8 @@ export type Database = {
           amount_cents: number
           created_at: string
           currency: string
+          description: string | null
+          environment: string
           gateway: string
           gateway_payment_id: string | null
           id: string
@@ -326,6 +402,7 @@ export type Database = {
           paid_at: string | null
           payment_method: string | null
           status: Database["public"]["Enums"]["payment_status"]
+          stripe_session_id: string | null
           subscription_id: string | null
           updated_at: string
           user_id: string
@@ -334,6 +411,8 @@ export type Database = {
           amount_cents: number
           created_at?: string
           currency?: string
+          description?: string | null
+          environment?: string
           gateway?: string
           gateway_payment_id?: string | null
           id?: string
@@ -341,6 +420,7 @@ export type Database = {
           paid_at?: string | null
           payment_method?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
+          stripe_session_id?: string | null
           subscription_id?: string | null
           updated_at?: string
           user_id: string
@@ -349,6 +429,8 @@ export type Database = {
           amount_cents?: number
           created_at?: string
           currency?: string
+          description?: string | null
+          environment?: string
           gateway?: string
           gateway_payment_id?: string | null
           id?: string
@@ -356,6 +438,7 @@ export type Database = {
           paid_at?: string | null
           payment_method?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
+          stripe_session_id?: string | null
           subscription_id?: string | null
           updated_at?: string
           user_id?: string
@@ -388,6 +471,7 @@ export type Database = {
           promo_price_cents: number | null
           slug: string
           sort_order: number
+          stripe_price_id: string | null
           updated_at: string
         }
         Insert: {
@@ -407,6 +491,7 @@ export type Database = {
           promo_price_cents?: number | null
           slug: string
           sort_order?: number
+          stripe_price_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -426,6 +511,7 @@ export type Database = {
           promo_price_cents?: number | null
           slug?: string
           sort_order?: number
+          stripe_price_id?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -440,6 +526,7 @@ export type Database = {
           is_blocked: boolean
           phone: string | null
           specialty: string | null
+          theme: string
           updated_at: string
         }
         Insert: {
@@ -451,6 +538,7 @@ export type Database = {
           is_blocked?: boolean
           phone?: string | null
           specialty?: string | null
+          theme?: string
           updated_at?: string
         }
         Update: {
@@ -462,6 +550,7 @@ export type Database = {
           is_blocked?: boolean
           phone?: string | null
           specialty?: string | null
+          theme?: string
           updated_at?: string
         }
         Relationships: []
@@ -489,45 +578,79 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          cancel_at_period_end: boolean
           cancelled_at: string | null
+          coupon_id: string | null
           created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          environment: string
           expires_at: string | null
           gateway: string | null
           gateway_subscription_id: string | null
           id: string
           plan_id: string | null
+          price_id: string | null
+          product_id: string | null
           starts_at: string
           status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          cancel_at_period_end?: boolean
           cancelled_at?: string | null
+          coupon_id?: string | null
           created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
           expires_at?: string | null
           gateway?: string | null
           gateway_subscription_id?: string | null
           id?: string
           plan_id?: string | null
+          price_id?: string | null
+          product_id?: string | null
           starts_at?: string
           status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          cancel_at_period_end?: boolean
           cancelled_at?: string | null
+          coupon_id?: string | null
           created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
           expires_at?: string | null
           gateway?: string | null
           gateway_subscription_id?: string | null
           id?: string
           plan_id?: string | null
+          price_id?: string | null
+          product_id?: string | null
           starts_at?: string
           status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "subscriptions_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "subscriptions_plan_id_fkey"
             columns: ["plan_id"]

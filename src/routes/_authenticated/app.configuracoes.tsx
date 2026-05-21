@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { AvatarUpload } from "@/components/app/AvatarUpload";
+import { ThemeToggle } from "@/components/theme/ThemeProvider";
 
 export const Route = createFileRoute("/_authenticated/app/configuracoes")({
   component: SettingsPage,
@@ -74,6 +75,14 @@ function SettingsPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Dados profissionais exibidos no app e em documentos.
         </p>
+      </div>
+
+      <div className="mb-6 rounded-2xl border border-border/60 bg-surface/40 p-6 flex items-center justify-between">
+        <div>
+          <div className="text-sm font-semibold">Aparência</div>
+          <div className="text-xs text-muted-foreground mt-0.5">Modo claro ou escuro.</div>
+        </div>
+        <ThemeToggle />
       </div>
 
       {loading ? (

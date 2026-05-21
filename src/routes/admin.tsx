@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { ShieldCheck, DollarSign, Megaphone, Users, LayoutDashboard, ArrowLeft } from "lucide-react";
+import { ShieldCheck, DollarSign, Megaphone, Users, LayoutDashboard, ArrowLeft, Ticket, Crown } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-role";
 
@@ -12,6 +12,8 @@ const adminNav = [
   { to: "/admin", icon: LayoutDashboard, label: "Visão geral" },
   { to: "/admin/precos", icon: DollarSign, label: "Preços e planos" },
   { to: "/admin/promo", icon: Megaphone, label: "Banner promo" },
+  { to: "/admin/cupons", icon: Ticket, label: "Cupons" },
+  { to: "/admin/assinaturas", icon: Crown, label: "Assinaturas" },
   { to: "/admin/usuarios", icon: Users, label: "Usuários" },
 ];
 
