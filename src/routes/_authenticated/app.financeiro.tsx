@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-role";
 import { StripeEmbeddedCheckout } from "@/components/payments/StripeEmbeddedCheckout";
 import { PaymentTestModeBanner } from "@/components/payments/PaymentTestModeBanner";
+import { ManageSubscriptionButton } from "@/components/payments/ManageSubscriptionButton";
 
 export const Route = createFileRoute("/_authenticated/app/financeiro")({
   component: FinanceiroPage,
