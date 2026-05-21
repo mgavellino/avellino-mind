@@ -60,7 +60,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const planBadge =
     limits.status === "trial"
       ? `Teste · ${limits.trial_days_left ?? 0}d`
-      : limits.plan_name ?? "Sem plano";
+      : limits.status === "lifetime"
+        ? `${limits.plan_name ?? "Vitalício"} ∞`
+        : limits.plan_name ?? "Sem plano";
+  const showUpgrade =
+    limits.status === "trial" || limits.status === "past_due" || !limits.has_access;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
