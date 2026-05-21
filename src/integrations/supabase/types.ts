@@ -784,6 +784,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      user_has_access: {
+        Args: { _env?: string; _uid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin_master" | "user"
@@ -814,6 +818,7 @@ export type Database = {
         | "cancelled"
         | "trial"
         | "lifetime"
+        | "past_due"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -972,6 +977,7 @@ export const Constants = {
         "cancelled",
         "trial",
         "lifetime",
+        "past_due",
       ],
     },
   },
