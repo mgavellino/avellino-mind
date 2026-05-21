@@ -17,6 +17,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminPromoRouteImport } from './routes/admin.promo'
 import { Route as AdminPrecosRouteImport } from './routes/admin.precos'
@@ -27,6 +28,7 @@ import { Route as AuthenticatedAppFinanceiroRouteImport } from './routes/_authen
 import { Route as AuthenticatedAppConfiguracoesRouteImport } from './routes/_authenticated/app.configuracoes'
 import { Route as AuthenticatedAppAgendaRouteImport } from './routes/_authenticated/app.agenda'
 import { Route as AuthenticatedAppProntuariosIndexRouteImport } from './routes/_authenticated/app.prontuarios.index'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as AuthenticatedAppProntuariosIdRouteImport } from './routes/_authenticated/app.prontuarios.$id'
 
 const SignupRoute = SignupRouteImport.update({
@@ -67,6 +69,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/checkout/return',
+  path: '/checkout/return',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   id: '/usuarios',
@@ -122,6 +129,12 @@ const AuthenticatedAppProntuariosIndexRoute =
     path: '/prontuarios/',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAppProntuariosIdRoute =
   AuthenticatedAppProntuariosIdRouteImport.update({
     id: '/prontuarios/$id',
@@ -140,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/admin/precos': typeof AdminPrecosRoute
   '/admin/promo': typeof AdminPromoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/admin/': typeof AdminIndexRoute
   '/app/agenda': typeof AuthenticatedAppAgendaRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
@@ -147,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/app/pacientes': typeof AuthenticatedAppPacientesRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/app/prontuarios/': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRoutesByTo {
@@ -158,6 +173,7 @@ export interface FileRoutesByTo {
   '/admin/precos': typeof AdminPrecosRoute
   '/admin/promo': typeof AdminPromoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/admin': typeof AdminIndexRoute
   '/app/agenda': typeof AuthenticatedAppAgendaRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
@@ -165,6 +181,7 @@ export interface FileRoutesByTo {
   '/app/pacientes': typeof AuthenticatedAppPacientesRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/app/prontuarios': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRoutesById {
@@ -180,6 +197,7 @@ export interface FileRoutesById {
   '/admin/precos': typeof AdminPrecosRoute
   '/admin/promo': typeof AdminPromoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/admin/': typeof AdminIndexRoute
   '/_authenticated/app/agenda': typeof AuthenticatedAppAgendaRoute
   '/_authenticated/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
@@ -187,6 +205,7 @@ export interface FileRoutesById {
   '/_authenticated/app/pacientes': typeof AuthenticatedAppPacientesRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/_authenticated/app/prontuarios/': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRouteTypes {
@@ -202,6 +221,7 @@ export interface FileRouteTypes {
     | '/admin/precos'
     | '/admin/promo'
     | '/admin/usuarios'
+    | '/checkout/return'
     | '/admin/'
     | '/app/agenda'
     | '/app/configuracoes'
@@ -209,6 +229,7 @@ export interface FileRouteTypes {
     | '/app/pacientes'
     | '/app/'
     | '/app/prontuarios/$id'
+    | '/api/public/payments/webhook'
     | '/app/prontuarios/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -220,6 +241,7 @@ export interface FileRouteTypes {
     | '/admin/precos'
     | '/admin/promo'
     | '/admin/usuarios'
+    | '/checkout/return'
     | '/admin'
     | '/app/agenda'
     | '/app/configuracoes'
@@ -227,6 +249,7 @@ export interface FileRouteTypes {
     | '/app/pacientes'
     | '/app'
     | '/app/prontuarios/$id'
+    | '/api/public/payments/webhook'
     | '/app/prontuarios'
   id:
     | '__root__'
@@ -241,6 +264,7 @@ export interface FileRouteTypes {
     | '/admin/precos'
     | '/admin/promo'
     | '/admin/usuarios'
+    | '/checkout/return'
     | '/admin/'
     | '/_authenticated/app/agenda'
     | '/_authenticated/app/configuracoes'
@@ -248,6 +272,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/pacientes'
     | '/_authenticated/app/'
     | '/_authenticated/app/prontuarios/$id'
+    | '/api/public/payments/webhook'
     | '/_authenticated/app/prontuarios/'
   fileRoutesById: FileRoutesById
 }
@@ -259,6 +284,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  CheckoutReturnRoute: typeof CheckoutReturnRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -318,6 +345,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/usuarios': {
       id: '/admin/usuarios'
@@ -389,6 +423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProntuariosIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app/prontuarios/$id': {
       id: '/_authenticated/app/prontuarios/$id'
       path: '/prontuarios/$id'
@@ -458,17 +499,9 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  CheckoutReturnRoute: CheckoutReturnRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
