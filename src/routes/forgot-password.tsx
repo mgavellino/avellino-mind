@@ -10,7 +10,18 @@ import { AuthLayout } from "@/components/auth/AuthLayout";
 const schema = z.object({ email: z.string().email("Email inválido") });
 type FormData = z.infer<typeof schema>;
 
-export const Route = createFileRoute("/forgot-password")({ component: ForgotPage });
+export const Route = createFileRoute("/forgot-password")({
+  component: ForgotPage,
+  head: () => ({
+    meta: [
+      { title: "Recuperar senha — AvellPsy" },
+      { name: "description", content: "Receba um link por e-mail para redefinir sua senha do AvellPsy." },
+      { property: "og:title", content: "Recuperar senha — AvellPsy" },
+      { property: "og:description", content: "Receba um link por e-mail para redefinir sua senha do AvellPsy." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
+});
 
 function ForgotPage() {
   const [loading, setLoading] = useState(false);

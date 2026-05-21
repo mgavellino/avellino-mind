@@ -18,6 +18,16 @@ type FormData = z.infer<typeof schema>;
 
 export const Route = createFileRoute("/signup")({
   component: SignupPage,
+  head: () => ({
+    meta: [
+      { title: "Criar conta grátis — AvellPsy" },
+      { name: "description", content: "Comece grátis no AvellPsy: agenda, prontuário e financeiro para psicólogos em minutos." },
+      { property: "og:title", content: "Criar conta grátis — AvellPsy" },
+      { property: "og:description", content: "Comece grátis no AvellPsy: agenda, prontuário e financeiro para psicólogos em minutos." },
+      { property: "og:url", content: "/signup" },
+    ],
+    links: [{ rel: "canonical", href: "/signup" }],
+  }),
 });
 
 function SignupPage() {

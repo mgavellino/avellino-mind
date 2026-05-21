@@ -18,6 +18,17 @@ type FormData = z.infer<typeof schema>;
 export const Route = createFileRoute("/login")({
   component: LoginPage,
   validateSearch: (s) => ({ redirect: (s.redirect as string) || "/app" }),
+  head: () => ({
+    meta: [
+      { title: "Entrar — AvellPsy" },
+      { name: "description", content: "Acesse sua conta AvellPsy para gerenciar agenda, prontuários e pagamentos." },
+      { property: "og:title", content: "Entrar — AvellPsy" },
+      { property: "og:description", content: "Acesse sua conta AvellPsy para gerenciar agenda, prontuários e pagamentos." },
+      { property: "og:url", content: "/login" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "/login" }],
+  }),
 });
 
 function LoginPage() {
