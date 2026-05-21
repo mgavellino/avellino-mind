@@ -14,6 +14,12 @@ function getSupabase(): any {
 }
 
 const PRICE_TO_PLAN_SLUG: Record<string, string> = {
+  // current price ids
+  plan_mensal_monthly_97: "mensal",
+  plan_trimestral_monthly_87: "trimestral",
+  plan_anual_monthly_59: "anual",
+  plan_vitalicio_launch_697: "vitalicio",
+  // legacy ids (back-compat)
   plan_mensal_price: "mensal",
   plan_trimestral_price: "trimestral",
   plan_anual_price: "anual",
@@ -21,7 +27,8 @@ const PRICE_TO_PLAN_SLUG: Record<string, string> = {
   plan_vitalicio_launch_price: "vitalicio",
 };
 
-async function planIdFromPriceId(priceId: string): Promise<string | null> {
+async function planIdFromPriceId(priceId: string | null | undefined): Promise<string | null> {
+  if (!priceId) return null;
   const slug = PRICE_TO_PLAN_SLUG[priceId];
   if (!slug) return null;
   const { data } = await getSupabase()
@@ -40,17 +47,19 @@ async function handleSubscriptionUpsert(subscription: any, env: StripeEnv) {
   const priceId =
     item?.price?.lookup_key ||
     item?.price?.metadata?.lovable_external_id ||
+    subscription.metadata?.priceId ||
     item?.price?.id;
   const productId = item?.price?.product;
   const periodStart = item?.current_period_start ?? subscription.current_period_start;
   const periodEnd = item?.current_period_end ?? subscription.current_period_end;
-  const planId = priceId ? await planIdFromPriceId(priceId) : null;
+  const planId = await planIdFromPriceId(priceId);
 
-  const status = subscription.status === "active" || subscription.status === "trialing"
-    ? "active"
-    : subscription.status === "canceled"
-      ? "cancelled"
-      : "active";
+  const status =
+    subscription.status === "active" || subscription.status === "trialing"
+      ? "active"
+      : subscription.status === "canceled"
+        ? "cancelled"
+        : "active";
 
   await getSupabase().from("subscriptions").upsert(
     {
@@ -62,7 +71,9 @@ async function handleSubscriptionUpsert(subscription: any, env: StripeEnv) {
       price_id: priceId,
       status,
       gateway: "stripe",
-      starts_at: periodStart ? new Date(periodStart * 1000).toISOString() : new Date().toISOString(),
+      starts_at: periodStart
+        ? new Date(periodStart * 1000).toISOString()
+        : new Date().toISOString(),
       expires_at: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
       current_period_start: periodStart ? new Date(periodStart * 1000).toISOString() : null,
       current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
@@ -73,7 +84,6 @@ async function handleSubscriptionUpsert(subscription: any, env: StripeEnv) {
     { onConflict: "stripe_subscription_id" },
   );
 
-  // Bump coupon usage
   const dbCouponId = subscription.metadata?.dbCouponId;
   if (dbCouponId) {
     const { data: cp } = await getSupabase()
@@ -84,7 +94,9 @@ async function handleSubscriptionUpsert(subscription: any, env: StripeEnv) {
     if (cp) {
       await getSupabase()
         .from("coupons")
-        .update({ redemptions_count: ((cp as { redemptions_count: number }).redemptions_count ?? 0) + 1 })
+        .update({
+          redemptions_count: ((cp as { redemptions_count: number }).redemptions_count ?? 0) + 1,
+        })
         .eq("id", dbCouponId);
       await getSupabase().from("coupon_redemptions").insert({
         coupon_id: dbCouponId,
@@ -102,10 +114,10 @@ async function handleSubscriptionDeleted(subscription: any, env: StripeEnv) {
     .eq("environment", env);
 }
 
-async function handleTransactionCompleted(session: any, env: StripeEnv) {
+async function handleCheckoutCompleted(session: any, env: StripeEnv) {
   const userId = session.metadata?.userId;
   if (!userId) return;
-  // Record payment
+
   await getSupabase().from("payments").insert({
     user_id: userId,
     amount_cents: session.amount_total ?? 0,
@@ -116,12 +128,13 @@ async function handleTransactionCompleted(session: any, env: StripeEnv) {
     stripe_session_id: session.id,
     environment: env,
     paid_at: new Date().toISOString(),
-    description: session.metadata?.description ?? "Pagamento Stripe",
+    description: session.metadata?.description ?? "Assinatura Stripe",
   });
 
-  // For one-time payments (vitalício), upsert a subscription record
-  if (session.mode === "payment" && session.metadata?.priceId) {
-    const planId = await planIdFromPriceId(session.metadata.priceId);
+  // For one-time payments (vitalício), create the subscription row from session
+  if (session.mode === "payment") {
+    const priceId = session.metadata?.priceId;
+    const planId = await planIdFromPriceId(priceId);
     if (planId) {
       await getSupabase().from("subscriptions").insert({
         user_id: userId,
@@ -132,7 +145,7 @@ async function handleTransactionCompleted(session: any, env: StripeEnv) {
         expires_at: null,
         environment: env,
         stripe_customer_id: session.customer,
-        price_id: session.metadata.priceId,
+        price_id: priceId,
       });
     }
   }
@@ -150,8 +163,7 @@ async function handleWebhook(req: Request, env: StripeEnv) {
       await handleSubscriptionDeleted(event.data.object, env);
       break;
     case "checkout.session.completed":
-    case "transaction.completed":
-      await handleTransactionCompleted(event.data.object, env);
+      await handleCheckoutCompleted(event.data.object, env);
       break;
     default:
       console.log("Unhandled event:", event.type);

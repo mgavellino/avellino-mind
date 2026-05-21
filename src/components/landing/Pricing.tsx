@@ -26,8 +26,8 @@ type Promo = {
 
 const intervalLabel: Record<string, string> = {
   monthly: "/mês",
-  quarterly: "/trimestre",
-  yearly: "/ano",
+  quarterly: "/mês",
+  yearly: "/mês",
   lifetime: "único",
 };
 
