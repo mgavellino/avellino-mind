@@ -42,7 +42,7 @@ async function resolveCoupon(
   stripe: ReturnType<typeof createStripeClient>,
   couponCode: string,
 ): Promise<{ stripeCouponId: string; dbId: string } | null> {
-  const supabase = createClient(
+  const supabase: any = createClient(
     process.env.SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
