@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { type StripeEnv, createStripeClient } from "@/lib/stripe.server";
 
 async function resolveOrCreateCustomer(
@@ -150,4 +151,38 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     });
 
     return session.client_secret;
+  });
+
+// ───────────────────────────────────────────────────────────────────────────
+// Billing portal: lets the user cancel, change card, change plan, see invoices.
+// ───────────────────────────────────────────────────────────────────────────
+const portalInput = z.object({
+  returnUrl: z.string().url(),
+  environment: z.enum(["sandbox", "live"]),
+});
+
+export const createPortalSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: z.infer<typeof portalInput>) => portalInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("stripe_customer_id")
+      .eq("user_id", userId)
+      .eq("environment", data.environment)
+      .not("stripe_customer_id", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const customerId = (sub as { stripe_customer_id: string | null } | null)?.stripe_customer_id;
+    if (!customerId) throw new Error("Nenhuma assinatura Stripe encontrada");
+
+    const stripe = createStripeClient(data.environment);
+    const portal = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: data.returnUrl,
+    });
+    return portal.url;
   });

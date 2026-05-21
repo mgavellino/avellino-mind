@@ -13,30 +13,35 @@ function getSupabase(): any {
   return _supabase;
 }
 
-const PRICE_TO_PLAN_SLUG: Record<string, string> = {
-  // current price ids
-  plan_mensal_monthly_97: "mensal",
-  plan_trimestral_monthly_87: "trimestral",
-  plan_anual_monthly_59: "anual",
-  plan_vitalicio_launch_697: "vitalicio",
-  // legacy ids (back-compat)
-  plan_mensal_price: "mensal",
-  plan_trimestral_price: "trimestral",
-  plan_anual_price: "anual",
-  plan_vitalicio_price: "vitalicio",
-  plan_vitalicio_launch_price: "vitalicio",
-};
-
+// Resolve plan_id by looking up plans.stripe_price_id — single source of truth.
 async function planIdFromPriceId(priceId: string | null | undefined): Promise<string | null> {
   if (!priceId) return null;
-  const slug = PRICE_TO_PLAN_SLUG[priceId];
-  if (!slug) return null;
   const { data } = await getSupabase()
     .from("plans")
     .select("id")
-    .eq("slug", slug)
+    .eq("stripe_price_id", priceId)
     .maybeSingle();
   return (data as { id: string } | null)?.id ?? null;
+}
+
+// Map Stripe subscription status → our enum.
+function mapStatus(stripeStatus: string): "active" | "cancelled" | "past_due" | "trial" {
+  if (stripeStatus === "active" || stripeStatus === "trialing") return "active";
+  if (stripeStatus === "canceled") return "cancelled";
+  if (stripeStatus === "past_due" || stripeStatus === "unpaid") return "past_due";
+  return "active";
+}
+
+// When a NEW active subscription lands, cancel any prior trial / older sub
+// for the same user+env so we never have multiple "active" rows.
+async function deactivateOtherSubs(userId: string, env: StripeEnv, keepStripeId: string) {
+  await getSupabase()
+    .from("subscriptions")
+    .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
+    .eq("user_id", userId)
+    .eq("environment", env)
+    .neq("stripe_subscription_id", keepStripeId)
+    .in("status", ["trial", "active", "past_due"]);
 }
 
 async function handleSubscriptionUpsert(subscription: any, env: StripeEnv) {
@@ -53,13 +58,7 @@ async function handleSubscriptionUpsert(subscription: any, env: StripeEnv) {
   const periodStart = item?.current_period_start ?? subscription.current_period_start;
   const periodEnd = item?.current_period_end ?? subscription.current_period_end;
   const planId = await planIdFromPriceId(priceId);
-
-  const status =
-    subscription.status === "active" || subscription.status === "trialing"
-      ? "active"
-      : subscription.status === "canceled"
-        ? "cancelled"
-        : "active";
+  const status = mapStatus(subscription.status);
 
   await getSupabase().from("subscriptions").upsert(
     {
@@ -83,6 +82,10 @@ async function handleSubscriptionUpsert(subscription: any, env: StripeEnv) {
     },
     { onConflict: "stripe_subscription_id" },
   );
+
+  if (status === "active") {
+    await deactivateOtherSubs(userId, env, subscription.id);
+  }
 
   const dbCouponId = subscription.metadata?.dbCouponId;
   if (dbCouponId) {
@@ -131,7 +134,7 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
     description: session.metadata?.description ?? "Assinatura Stripe",
   });
 
-  // For one-time payments (vitalício), create the subscription row from session
+  // For one-time payments (vitalício), create subscription row from session
   if (session.mode === "payment") {
     const priceId = session.metadata?.priceId;
     const planId = await planIdFromPriceId(priceId);
@@ -140,13 +143,21 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
         user_id: userId,
         plan_id: planId,
         gateway: "stripe",
-        status: "active",
+        status: "lifetime",
         starts_at: new Date().toISOString(),
         expires_at: null,
         environment: env,
         stripe_customer_id: session.customer,
         price_id: priceId,
       });
+      // Cancel trial / prior subs
+      await getSupabase()
+        .from("subscriptions")
+        .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
+        .eq("user_id", userId)
+        .eq("environment", env)
+        .neq("price_id", priceId)
+        .in("status", ["trial", "active", "past_due"]);
     }
   }
 }
