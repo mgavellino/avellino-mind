@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
+import { AiAssistant } from "@/components/app/AiAssistant";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-role";
 import { usePlan } from "@/hooks/use-plan";
@@ -176,6 +177,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </div>
       </nav>
+
+      <AiAssistant />
     </div>
   );
 }
