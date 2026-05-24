@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -24,6 +24,11 @@ export function usePlan() {
   const { user } = useAuth();
   const [limits, setLimits] = useState<PlanLimits>({});
   const [loading, setLoading] = useState(true);
+  const channelIdRef = useRef(
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2),
+  );
 
   const refresh = useCallback(() => {
     if (!user) {
@@ -47,7 +52,7 @@ export function usePlan() {
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel(`sub-${user.id}`)
+      .channel(`sub-${user.id}-${channelIdRef.current}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${user.id}` },
