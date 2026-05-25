@@ -25,6 +25,8 @@ function Dashboard() {
 
   const [activePatients, setActivePatients] = useState(0);
   const [todayCount, setTodayCount] = useState(0);
+  const [monthRevenueCents, setMonthRevenueCents] = useState(0);
+  const [prevRevenueCents, setPrevRevenueCents] = useState(0);
   const [upcoming, setUpcoming] = useState<UpcomingAppointment[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,6 +38,10 @@ function Dashboard() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const inOneWeek = new Date(today);
     inOneWeek.setDate(inOneWeek.getDate() + 7);
+
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const nextMonthStart = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    const prevMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
 
     Promise.all([
       supabase
@@ -54,13 +60,36 @@ function Dashboard() {
         .lt("starts_at", inOneWeek.toISOString())
         .order("starts_at")
         .limit(5),
-    ]).then(([pat, today, upc]) => {
+      supabase
+        .from("appointment_receivables")
+        .select("amount_cents,paid_at")
+        .eq("status", "paid")
+        .gte("paid_at", prevMonthStart.toISOString())
+        .lt("paid_at", nextMonthStart.toISOString()),
+    ]).then(([pat, today, upc, recs]) => {
       setActivePatients(pat.count ?? 0);
       setTodayCount(today.count ?? 0);
       setUpcoming((upc.data ?? []) as UpcomingAppointment[]);
+      const list = (recs.data ?? []) as { amount_cents: number; paid_at: string }[];
+      let cur = 0,
+        prev = 0;
+      for (const r of list) {
+        const d = new Date(r.paid_at);
+        if (d >= monthStart) cur += r.amount_cents ?? 0;
+        else prev += r.amount_cents ?? 0;
+      }
+      setMonthRevenueCents(cur);
+      setPrevRevenueCents(prev);
       setLoading(false);
     });
   }, [user]);
+
+  const brl = (c: number) =>
+    (c / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const growth =
+    prevRevenueCents > 0
+      ? Math.round(((monthRevenueCents - prevRevenueCents) / prevRevenueCents) * 100)
+      : null;
 
   const stats = [
     {
@@ -75,8 +104,18 @@ function Dashboard() {
       icon: Calendar,
       hint: "Próximas 24h",
     },
-    { label: "Faturamento (mês)", value: "R$ 0", icon: DollarSign, hint: "Em breve" },
-    { label: "Crescimento", value: "—", icon: TrendingUp, hint: "vs mês anterior" },
+    {
+      label: "Faturamento (mês)",
+      value: brl(monthRevenueCents),
+      icon: DollarSign,
+      hint: monthRevenueCents > 0 ? "Recebido no mês" : "Sem recebimentos ainda",
+    },
+    {
+      label: "Crescimento",
+      value: growth === null ? "—" : `${growth >= 0 ? "+" : ""}${growth}%`,
+      icon: TrendingUp,
+      hint: "vs mês anterior",
+    },
   ];
 
   return (
