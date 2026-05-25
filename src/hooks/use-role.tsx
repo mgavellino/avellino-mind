@@ -9,9 +9,11 @@ export function useIsAdmin() {
 
   useEffect(() => {
     if (!user) {
+      setIsAdmin(false);
       setLoading(false);
       return;
     }
+    setLoading(true);
     supabase
       .from("user_roles")
       .select("role")
