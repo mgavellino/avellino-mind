@@ -43,7 +43,7 @@ export function AiAssistant() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Abrir assistente de IA"
-        className="fixed z-40 bottom-20 right-4 md:bottom-6 md:right-6 h-12 w-12 rounded-full bg-gradient-brand text-white shadow-lg grid place-items-center hover:scale-105 transition-transform"
+        className="fixed z-40 bottom-20 left-4 md:bottom-6 md:right-6 md:left-auto h-12 w-12 rounded-full bg-gradient-brand text-white shadow-lg grid place-items-center hover:scale-105 transition-transform"
       >
         <Sparkles className="h-5 w-5" />
       </button>
