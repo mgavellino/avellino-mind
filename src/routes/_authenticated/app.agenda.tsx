@@ -79,16 +79,16 @@ function AgendaPage() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto">
-      <div className="flex items-center justify-between gap-4 mb-4">
+    <div className="max-w-[1400px] mx-auto pb-24 md:pb-0">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Agenda</h1>
-          <p className="mt-1 text-sm text-muted-foreground capitalize">
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Agenda</h1>
+          <p className="mt-1 text-xs md:text-sm text-muted-foreground capitalize">
             {format(days[0], "d 'de' MMMM", { locale: ptBR })} —{" "}
             {format(days[6], "d 'de' MMMM yyyy", { locale: ptBR })}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="flex items-center rounded-lg border border-border/60 bg-surface/40">
             <button
               onClick={() => setCursor(addWeeks(cursor, -1))}
@@ -99,7 +99,7 @@ function AgendaPage() {
             <button
               onClick={() => setCursor(startOfWeek(new Date(), { weekStartsOn: 1 }))}
               title="Voltar para hoje"
-              className="px-3 h-9 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors border-x border-border/60 min-w-[140px] capitalize"
+              className="px-3 h-9 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors border-x border-border/60 min-w-[120px] md:min-w-[140px] capitalize"
             >
               {format(days[0], "d MMM", { locale: ptBR })} –{" "}
               {format(days[6], "d MMM", { locale: ptBR })}
@@ -111,19 +111,34 @@ function AgendaPage() {
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
+          {/* Desktop button */}
           <button
             onClick={() => {
               setEditing(null);
               setInitialDate(new Date());
               setOpen(true);
             }}
-            className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background text-sm font-medium px-4 h-9 hover:opacity-90 transition-opacity"
+            className="hidden md:inline-flex items-center gap-2 rounded-xl bg-foreground text-background text-sm font-medium px-4 h-9 hover:opacity-90 transition-opacity"
           >
             <Plus className="h-4 w-4" />
             Novo compromisso
           </button>
         </div>
       </div>
+
+      {/* Mobile floating action button — anchored above AI assistant */}
+      <button
+        onClick={() => {
+          setEditing(null);
+          setInitialDate(new Date());
+          setOpen(true);
+        }}
+        className="md:hidden fixed bottom-24 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-foreground text-background text-sm font-medium pl-4 pr-5 h-12 shadow-[0_12px_32px_-8px_oklch(0.55_0.22_260/0.5)] hover:opacity-90 transition-opacity"
+        aria-label="Novo compromisso"
+      >
+        <Plus className="h-5 w-5" />
+        Novo
+      </button>
 
       {/* Legend */}
       <div className="mb-4 flex flex-wrap items-center gap-3 text-xs">
