@@ -75,14 +75,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AvellPsy — Mental Health Platform" },
-      { name: "description", content: "Plataforma premium de gestão para psicólogos e clínicas: agenda, prontuário, pagamentos e admin." },
+      { title: "AvellPsy — Clinic Management System" },
+      { name: "description", content: "Plataforma premium de gestão para psicólogos e clínicas: agenda, prontuário, pagamentos e gestão de pacientes" },
       { name: "author", content: "AvellPsy" },
-      { property: "og:title", content: "AvellPsy — Mental Health Platform" },
-      { property: "og:description", content: "Plataforma premium de gestão para psicólogos e clínicas: agenda, prontuário, pagamentos e admin." },
+      { property: "og:title", content: "AvellPsy — Clinic Management System" },
+      { property: "og:description", content: "Plataforma premium de gestão para psicólogos e clínicas: agenda, prontuário, pagamentos e gestão de pacientes" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@AvellPsy" },
+      { name: "twitter:title", content: "AvellPsy — Clinic Management System" },
+      { name: "twitter:description", content: "Plataforma premium de gestão para psicólogos e clínicas: agenda, prontuário, pagamentos e gestão de pacientes" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/779aaf7c-7175-4ec3-a194-1d7e97849392" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/779aaf7c-7175-4ec3-a194-1d7e97849392" },
     ],
     links: [
       {
