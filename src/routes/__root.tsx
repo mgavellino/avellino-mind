@@ -85,8 +85,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@AvellPsy" },
       { name: "twitter:title", content: "AvellPsy — Clinic Management System" },
       { name: "twitter:description", content: "Plataforma premium de gestão para psicólogos e clínicas: agenda, prontuário, pagamentos e gestão de pacientes" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/779aaf7c-7175-4ec3-a194-1d7e97849392" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/779aaf7c-7175-4ec3-a194-1d7e97849392" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/62cd6991-a837-47e9-bf11-3e21a17a56cf" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/62cd6991-a837-47e9-bf11-3e21a17a56cf" },
     ],
     links: [
       {
