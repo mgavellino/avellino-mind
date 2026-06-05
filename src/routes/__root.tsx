@@ -17,17 +17,17 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h1 className="text-7xl font-display font-semibold text-brand">404</h1>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Página não encontrada</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          O endereço que você tentou abrir não existe.
         </p>
         <div className="mt-6">
           <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            to="/app"
+            className="inline-flex items-center justify-center rounded-lg bg-brand px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Go home
+            Ir para o app
           </Link>
         </div>
       </div>
@@ -43,10 +43,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          Algo deu errado
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          Tente atualizar a página ou voltar ao início.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -54,15 +54,15 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-lg bg-brand px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Try again
+            Tentar de novo
           </button>
           <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            href="/app"
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surface"
           >
-            Go home
+            Ir para o app
           </a>
         </div>
       </div>
@@ -74,52 +74,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AvellPsy — Clinic Management System" },
-      { name: "description", content: "Plataforma premium de gestão para psicólogos e clínicas: agenda, prontuário, pagamentos e gestão de pacientes" },
-      { name: "author", content: "AvellPsy" },
-      { property: "og:title", content: "AvellPsy — Clinic Management System" },
-      { property: "og:description", content: "Plataforma premium de gestão para psicólogos e clínicas: agenda, prontuário, pagamentos e gestão de pacientes" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@AvellPsy" },
-      { name: "twitter:title", content: "AvellPsy — Clinic Management System" },
-      { name: "twitter:description", content: "Plataforma premium de gestão para psicólogos e clínicas: agenda, prontuário, pagamentos e gestão de pacientes" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/62cd6991-a837-47e9-bf11-3e21a17a56cf" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/62cd6991-a837-47e9-bf11-3e21a17a56cf" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { title: "Aline Dias — Psicóloga" },
+      { name: "description", content: "Área restrita do consultório da psicóloga Aline Dias." },
+      { name: "robots", content: "noindex, nofollow" },
+      { name: "theme-color", content: "#2e6e6e" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
+      {
+        rel: "preconnect",
+        href: "https://fonts.googleapis.com",
+      },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous",
+      },
       {
         rel: "stylesheet",
-        href: appCss,
-      },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@graph": [
-            {
-              "@type": "Organization",
-              name: "AvellPsy",
-              url: "/",
-              logo: "/favicon.ico",
-              description: "Plataforma premium de gestão para psicólogos e clínicas: agenda, prontuário, pagamentos e admin.",
-              sameAs: [],
-            },
-            {
-              "@type": "WebSite",
-              name: "AvellPsy",
-              url: "/",
-              potentialAction: {
-                "@type": "SearchAction",
-                target: "/app/pacientes?q={search_term_string}",
-                "query-input": "required name=search_term_string",
-              },
-            },
-          ],
-        }),
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Dancing+Script:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap",
       },
     ],
   }),
@@ -129,11 +103,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
-const themeBootstrap = `(function(){try{var t=localStorage.getItem('avellpsy-theme');if(t==='light')document.documentElement.classList.add('light');}catch(e){}})();`;
+const themeBootstrap = `(function(){try{var t=localStorage.getItem('alinedias-theme');if(t!=='dark')document.documentElement.classList.add('light');}catch(e){document.documentElement.classList.add('light');}})();`;
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
