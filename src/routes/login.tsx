@@ -20,14 +20,10 @@ export const Route = createFileRoute("/login")({
   validateSearch: (s) => ({ redirect: (s.redirect as string) || "/app" }),
   head: () => ({
     meta: [
-      { title: "Entrar — AvellPsy" },
-      { name: "description", content: "Acesse sua conta AvellPsy para gerenciar agenda, prontuários e pagamentos." },
-      { property: "og:title", content: "Entrar — AvellPsy" },
-      { property: "og:description", content: "Acesse sua conta AvellPsy para gerenciar agenda, prontuários e pagamentos." },
-      { property: "og:url", content: "/login" },
-      { name: "robots", content: "noindex" },
+      { title: "Entrar — Aline Dias Psicóloga" },
+      { name: "description", content: "Acesso restrito ao consultório da psicóloga Aline Dias." },
+      { name: "robots", content: "noindex, nofollow" },
     ],
-    links: [{ rel: "canonical", href: "/login" }],
   }),
 });
 
