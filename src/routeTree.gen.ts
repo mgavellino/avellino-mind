@@ -9,22 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
-import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
-import { Route as AdminPromoRouteImport } from './routes/admin.promo'
-import { Route as AdminPrecosRouteImport } from './routes/admin.precos'
-import { Route as AdminCuponsRouteImport } from './routes/admin.cupons'
-import { Route as AdminAssinaturasRouteImport } from './routes/admin.assinaturas'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppPacientesRouteImport } from './routes/_authenticated/app.pacientes'
@@ -32,14 +24,8 @@ import { Route as AuthenticatedAppFinanceiroRouteImport } from './routes/_authen
 import { Route as AuthenticatedAppConfiguracoesRouteImport } from './routes/_authenticated/app.configuracoes'
 import { Route as AuthenticatedAppAgendaRouteImport } from './routes/_authenticated/app.agenda'
 import { Route as AuthenticatedAppProntuariosIndexRouteImport } from './routes/_authenticated/app.prontuarios.index'
-import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as AuthenticatedAppProntuariosIdRouteImport } from './routes/_authenticated/app.prontuarios.$id'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -53,11 +39,6 @@ const LoginRoute = LoginRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckoutRoute = CheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -79,39 +60,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
-const SitemapXmlRoute = SitemapXmlRouteImport.update({
-  id: '/sitemap/xml',
-  path: '/sitemap/xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
-  id: '/return',
-  path: '/return',
-  getParentRoute: () => CheckoutRoute,
-} as any)
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminPromoRoute = AdminPromoRouteImport.update({
-  id: '/promo',
-  path: '/promo',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminPrecosRoute = AdminPrecosRouteImport.update({
-  id: '/precos',
-  path: '/precos',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminCuponsRoute = AdminCuponsRouteImport.update({
-  id: '/cupons',
-  path: '/cupons',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAssinaturasRoute = AdminAssinaturasRouteImport.update({
-  id: '/assinaturas',
-  path: '/assinaturas',
   getParentRoute: () => AdminRoute,
 } as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
@@ -153,12 +104,6 @@ const AuthenticatedAppProntuariosIndexRoute =
     path: '/prontuarios/',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const ApiPublicPaymentsWebhookRoute =
-  ApiPublicPaymentsWebhookRouteImport.update({
-    id: '/api/public/payments/webhook',
-    path: '/api/public/payments/webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const AuthenticatedAppProntuariosIdRoute =
   AuthenticatedAppProntuariosIdRouteImport.update({
     id: '/prontuarios/$id',
@@ -169,19 +114,11 @@ const AuthenticatedAppProntuariosIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/checkout': typeof CheckoutRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/signup': typeof SignupRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
-  '/admin/assinaturas': typeof AdminAssinaturasRoute
-  '/admin/cupons': typeof AdminCuponsRoute
-  '/admin/precos': typeof AdminPrecosRoute
-  '/admin/promo': typeof AdminPromoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
-  '/checkout/return': typeof CheckoutReturnRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/admin/': typeof AdminIndexRoute
   '/app/agenda': typeof AuthenticatedAppAgendaRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
@@ -189,23 +126,14 @@ export interface FileRoutesByFullPath {
   '/app/pacientes': typeof AuthenticatedAppPacientesRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/app/prontuarios/': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/checkout': typeof CheckoutRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/signup': typeof SignupRoute
-  '/admin/assinaturas': typeof AdminAssinaturasRoute
-  '/admin/cupons': typeof AdminCuponsRoute
-  '/admin/precos': typeof AdminPrecosRoute
-  '/admin/promo': typeof AdminPromoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
-  '/checkout/return': typeof CheckoutReturnRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/admin': typeof AdminIndexRoute
   '/app/agenda': typeof AuthenticatedAppAgendaRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
@@ -213,7 +141,6 @@ export interface FileRoutesByTo {
   '/app/pacientes': typeof AuthenticatedAppPacientesRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/app/prontuarios': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRoutesById {
@@ -221,19 +148,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
-  '/checkout': typeof CheckoutRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/signup': typeof SignupRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
-  '/admin/assinaturas': typeof AdminAssinaturasRoute
-  '/admin/cupons': typeof AdminCuponsRoute
-  '/admin/precos': typeof AdminPrecosRoute
-  '/admin/promo': typeof AdminPromoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
-  '/checkout/return': typeof CheckoutReturnRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/admin/': typeof AdminIndexRoute
   '/_authenticated/app/agenda': typeof AuthenticatedAppAgendaRoute
   '/_authenticated/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
@@ -241,7 +160,6 @@ export interface FileRoutesById {
   '/_authenticated/app/pacientes': typeof AuthenticatedAppPacientesRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/_authenticated/app/prontuarios/': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRouteTypes {
@@ -249,19 +167,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
-    | '/checkout'
     | '/forgot-password'
     | '/login'
     | '/reset-password'
-    | '/signup'
     | '/app'
-    | '/admin/assinaturas'
-    | '/admin/cupons'
-    | '/admin/precos'
-    | '/admin/promo'
     | '/admin/usuarios'
-    | '/checkout/return'
-    | '/sitemap/xml'
     | '/admin/'
     | '/app/agenda'
     | '/app/configuracoes'
@@ -269,23 +179,14 @@ export interface FileRouteTypes {
     | '/app/pacientes'
     | '/app/'
     | '/app/prontuarios/$id'
-    | '/api/public/payments/webhook'
     | '/app/prontuarios/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/checkout'
     | '/forgot-password'
     | '/login'
     | '/reset-password'
-    | '/signup'
-    | '/admin/assinaturas'
-    | '/admin/cupons'
-    | '/admin/precos'
-    | '/admin/promo'
     | '/admin/usuarios'
-    | '/checkout/return'
-    | '/sitemap/xml'
     | '/admin'
     | '/app/agenda'
     | '/app/configuracoes'
@@ -293,26 +194,17 @@ export interface FileRouteTypes {
     | '/app/pacientes'
     | '/app'
     | '/app/prontuarios/$id'
-    | '/api/public/payments/webhook'
     | '/app/prontuarios'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/admin'
-    | '/checkout'
     | '/forgot-password'
     | '/login'
     | '/reset-password'
-    | '/signup'
     | '/_authenticated/app'
-    | '/admin/assinaturas'
-    | '/admin/cupons'
-    | '/admin/precos'
-    | '/admin/promo'
     | '/admin/usuarios'
-    | '/checkout/return'
-    | '/sitemap/xml'
     | '/admin/'
     | '/_authenticated/app/agenda'
     | '/_authenticated/app/configuracoes'
@@ -320,7 +212,6 @@ export interface FileRouteTypes {
     | '/_authenticated/app/pacientes'
     | '/_authenticated/app/'
     | '/_authenticated/app/prontuarios/$id'
-    | '/api/public/payments/webhook'
     | '/_authenticated/app/prontuarios/'
   fileRoutesById: FileRoutesById
 }
@@ -328,24 +219,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
-  CheckoutRoute: typeof CheckoutRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  SignupRoute: typeof SignupRoute
-  SitemapXmlRoute: typeof SitemapXmlRoute
-  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -365,13 +245,6 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checkout': {
-      id: '/checkout'
-      path: '/checkout'
-      fullPath: '/checkout'
-      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -402,53 +275,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/sitemap/xml': {
-      id: '/sitemap/xml'
-      path: '/sitemap/xml'
-      fullPath: '/sitemap/xml'
-      preLoaderRoute: typeof SitemapXmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checkout/return': {
-      id: '/checkout/return'
-      path: '/return'
-      fullPath: '/checkout/return'
-      preLoaderRoute: typeof CheckoutReturnRouteImport
-      parentRoute: typeof CheckoutRoute
-    }
     '/admin/usuarios': {
       id: '/admin/usuarios'
       path: '/usuarios'
       fullPath: '/admin/usuarios'
       preLoaderRoute: typeof AdminUsuariosRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/promo': {
-      id: '/admin/promo'
-      path: '/promo'
-      fullPath: '/admin/promo'
-      preLoaderRoute: typeof AdminPromoRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/precos': {
-      id: '/admin/precos'
-      path: '/precos'
-      fullPath: '/admin/precos'
-      preLoaderRoute: typeof AdminPrecosRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/cupons': {
-      id: '/admin/cupons'
-      path: '/cupons'
-      fullPath: '/admin/cupons'
-      preLoaderRoute: typeof AdminCuponsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/assinaturas': {
-      id: '/admin/assinaturas'
-      path: '/assinaturas'
-      fullPath: '/admin/assinaturas'
-      preLoaderRoute: typeof AdminAssinaturasRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_authenticated/app': {
@@ -500,13 +331,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProntuariosIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/api/public/payments/webhook': {
-      id: '/api/public/payments/webhook'
-      path: '/api/public/payments/webhook'
-      fullPath: '/api/public/payments/webhook'
-      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/app/prontuarios/$id': {
       id: '/_authenticated/app/prontuarios/$id'
       path: '/prontuarios/$id'
@@ -553,48 +377,24 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
-  AdminAssinaturasRoute: typeof AdminAssinaturasRoute
-  AdminCuponsRoute: typeof AdminCuponsRoute
-  AdminPrecosRoute: typeof AdminPrecosRoute
-  AdminPromoRoute: typeof AdminPromoRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminAssinaturasRoute: AdminAssinaturasRoute,
-  AdminCuponsRoute: AdminCuponsRoute,
-  AdminPrecosRoute: AdminPrecosRoute,
-  AdminPromoRoute: AdminPromoRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
-interface CheckoutRouteChildren {
-  CheckoutReturnRoute: typeof CheckoutReturnRoute
-}
-
-const CheckoutRouteChildren: CheckoutRouteChildren = {
-  CheckoutReturnRoute: CheckoutReturnRoute,
-}
-
-const CheckoutRouteWithChildren = CheckoutRoute._addFileChildren(
-  CheckoutRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
-  CheckoutRoute: CheckoutRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  SignupRoute: SignupRoute,
-  SitemapXmlRoute: SitemapXmlRoute,
-  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
