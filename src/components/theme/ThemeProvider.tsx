@@ -2,10 +2,10 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { supabase } from "@/integrations/supabase/client";
 
 type Theme = "dark" | "light";
-const STORAGE_KEY = "avellpsy-theme";
+const STORAGE_KEY = "alinedias-theme";
 
 type Ctx = { theme: Theme; setTheme: (t: Theme) => void };
-const ThemeContext = createContext<Ctx>({ theme: "dark", setTheme: () => {} });
+const ThemeContext = createContext<Ctx>({ theme: "light", setTheme: () => {} });
 
 function applyTheme(theme: Theme) {
   if (typeof document === "undefined") return;
@@ -18,12 +18,12 @@ function applyTheme(theme: Theme) {
 }
 
 function readInitial(): Theme {
-  if (typeof window === "undefined") return "dark";
+  if (typeof window === "undefined") return "light";
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === "light" || stored === "dark") return stored;
   } catch {}
-  return "dark";
+  return "light";
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
