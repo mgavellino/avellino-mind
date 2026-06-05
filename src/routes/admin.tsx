@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { ShieldCheck, DollarSign, Megaphone, Users, LayoutDashboard, ArrowLeft, Ticket, Crown } from "lucide-react";
+import { ShieldCheck, Users, LayoutDashboard, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-role";
 
@@ -10,10 +10,6 @@ export const Route = createFileRoute("/admin")({
 
 const adminNav = [
   { to: "/admin", icon: LayoutDashboard, label: "Visão geral" },
-  { to: "/admin/precos", icon: DollarSign, label: "Preços e planos" },
-  { to: "/admin/promo", icon: Megaphone, label: "Banner promo" },
-  { to: "/admin/cupons", icon: Ticket, label: "Cupons" },
-  { to: "/admin/assinaturas", icon: Crown, label: "Assinaturas" },
   { to: "/admin/usuarios", icon: Users, label: "Usuários" },
 ];
 
@@ -41,12 +37,12 @@ function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
-      <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-border/60 bg-[oklch(0.18_0.04_260)]/40">
+      <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-border/60 bg-surface/40">
         <div className="p-5 flex items-center gap-2">
-          <ShieldCheck className="h-5 w-5 text-[oklch(0.78_0.16_250)]" />
+          <ShieldCheck className="h-5 w-5 text-brand" />
           <div>
-            <div className="text-sm font-semibold tracking-tight">Admin Master</div>
-            <div className="text-[10px] text-muted-foreground">AvellPsy · Fundador</div>
+            <div className="text-sm font-semibold tracking-tight">Painel Admin</div>
+            <div className="text-[10px] text-muted-foreground">Aline Dias · Psicóloga</div>
           </div>
         </div>
         <nav className="flex-1 px-3 space-y-0.5">
@@ -61,7 +57,7 @@ function AdminLayout() {
                 to={item.to}
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                   active
-                    ? "bg-[oklch(0.55_0.22_260)]/20 text-foreground border border-[oklch(0.55_0.22_260)]/40"
+                    ? "bg-brand/15 text-foreground border border-brand/30"
                     : "text-muted-foreground hover:text-foreground hover:bg-surface"
                 }`}
               >
@@ -91,7 +87,7 @@ function AdminLayout() {
             Voltar
           </Link>
           <div className="flex items-center gap-1.5">
-            <ShieldCheck className="h-4 w-4 text-[oklch(0.78_0.16_250)]" />
+            <ShieldCheck className="h-4 w-4 text-brand" />
             <span className="text-sm font-semibold">Admin</span>
           </div>
           <div className="w-[72px]" />
@@ -108,7 +104,7 @@ function AdminLayout() {
                 to={item.to}
                 className={`shrink-0 inline-flex items-center gap-1.5 px-3 h-8 rounded-full text-xs transition-colors border ${
                   active
-                    ? "bg-[oklch(0.55_0.22_260)]/20 text-foreground border-[oklch(0.55_0.22_260)]/40"
+                    ? "bg-brand/15 text-foreground border-brand/30"
                     : "text-muted-foreground border-border/60 hover:text-foreground hover:bg-surface"
                 }`}
               >
