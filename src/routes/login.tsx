@@ -48,7 +48,7 @@ function LoginPage() {
   };
 
   return (
-    <AuthLayout title="Entrar" subtitle="Acesse seu painel AvellPsy">
+    <AuthLayout title="Entrar" subtitle="Acesse o consultório">
       <GoogleButton />
       <div className="flex items-center gap-3 my-5 text-xs text-muted-foreground">
         <div className="h-px bg-border flex-1" />
