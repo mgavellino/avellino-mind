@@ -73,7 +73,7 @@ function LoginPage() {
         <div>
           <div className="flex items-center justify-between">
             <label className="text-xs text-muted-foreground">Senha</label>
-            <Link to="/forgot-password" className="text-xs text-[oklch(0.68_0.20_245)] hover:underline">
+            <Link to="/forgot-password" className="text-xs text-brand hover:underline">
               Esqueci a senha
             </Link>
           </div>
@@ -94,10 +94,7 @@ function LoginPage() {
         </button>
       </form>
       <p className="mt-5 text-center text-xs text-muted-foreground">
-        Não tem conta?{" "}
-        <Link to="/signup" className="text-foreground hover:underline">
-          Criar agora
-        </Link>
+        Acesso restrito. Solicite suas credenciais à Aline.
       </p>
     </AuthLayout>
   );
