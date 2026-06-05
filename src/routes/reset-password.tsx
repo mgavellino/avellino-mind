@@ -14,10 +14,10 @@ export const Route = createFileRoute("/reset-password")({
   component: ResetPage,
   head: () => ({
     meta: [
-      { title: "Redefinir senha — AvellPsy" },
-      { name: "description", content: "Defina uma nova senha para sua conta AvellPsy." },
-      { property: "og:title", content: "Redefinir senha — AvellPsy" },
-      { property: "og:description", content: "Defina uma nova senha para sua conta AvellPsy." },
+      { title: "Redefinir senha — Aline Dias Psicóloga" },
+      { name: "description", content: "Defina uma nova senha para sua conta Aline Dias Psicóloga." },
+      { property: "og:title", content: "Redefinir senha — Aline Dias Psicóloga" },
+      { property: "og:description", content: "Defina uma nova senha para sua conta Aline Dias Psicóloga." },
       { name: "robots", content: "noindex" },
     ],
   }),
