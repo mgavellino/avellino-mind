@@ -14,10 +14,10 @@ export const Route = createFileRoute("/forgot-password")({
   component: ForgotPage,
   head: () => ({
     meta: [
-      { title: "Recuperar senha — AvellPsy" },
-      { name: "description", content: "Receba um link por e-mail para redefinir sua senha do AvellPsy." },
-      { property: "og:title", content: "Recuperar senha — AvellPsy" },
-      { property: "og:description", content: "Receba um link por e-mail para redefinir sua senha do AvellPsy." },
+      { title: "Recuperar senha — Aline Dias Psicóloga" },
+      { name: "description", content: "Receba um link por e-mail para redefinir sua senha do Aline Dias Psicóloga." },
+      { property: "og:title", content: "Recuperar senha — Aline Dias Psicóloga" },
+      { property: "og:description", content: "Receba um link por e-mail para redefinir sua senha do Aline Dias Psicóloga." },
       { name: "robots", content: "noindex" },
     ],
   }),

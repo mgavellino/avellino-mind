@@ -8,7 +8,6 @@ import {
   CreditCard,
   Settings,
   LogOut,
-  Bell,
   Search,
   ShieldCheck,
 } from "lucide-react";
@@ -16,7 +15,6 @@ import { Logo } from "@/components/brand/Logo";
 import { AiAssistant } from "@/components/app/AiAssistant";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-role";
-import { usePlan } from "@/hooks/use-plan";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -34,7 +32,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { isAdmin } = useIsAdmin();
-  const { limits } = usePlan();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -55,17 +52,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const handleSignOut = async () => {
     await signOut();
     toast.success("Sessão encerrada");
-    navigate({ to: "/" });
+    navigate({ to: "/login" });
   };
-
-  const planBadge =
-    limits.status === "trial"
-      ? `Teste · ${limits.trial_days_left ?? 0}d`
-      : limits.status === "lifetime"
-        ? `${limits.plan_name ?? "Vitalício"} ∞`
-        : limits.plan_name ?? "Sem plano";
-  const showUpgrade =
-    limits.status === "trial" || limits.status === "past_due" || !limits.has_access;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
@@ -97,26 +85,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {isAdmin && (
             <Link
               to="/admin"
-              className="mt-2 flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm border border-[oklch(0.55_0.22_260)]/40 bg-[oklch(0.55_0.22_260)]/10 text-[oklch(0.82_0.16_250)] hover:bg-[oklch(0.55_0.22_260)]/20 transition-colors"
+              className="mt-2 flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm border border-brand/40 bg-brand/10 text-brand hover:bg-brand/20 transition-colors"
             >
               <ShieldCheck className="h-4 w-4" />
-              Admin Master
+              Admin
             </Link>
           )}
         </nav>
-        <div className="p-3 border-t border-border/60 space-y-2">
-          <div className="px-3 py-2 rounded-lg bg-surface/60 border border-border/50">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Plano</div>
-            <div className="text-xs font-medium mt-0.5">{planBadge}</div>
-            {showUpgrade && (
-              <Link
-                to="/app/financeiro"
-                className="mt-2 block text-center text-[11px] rounded-md py-1 bg-gradient-brand text-white"
-              >
-                Assinar
-              </Link>
-            )}
-          </div>
+        <div className="p-3 border-t border-border/60">
           <button
             onClick={handleSignOut}
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
@@ -129,6 +105,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 border-b border-border/60 flex items-center px-4 md:px-6 gap-3 bg-background/80 backdrop-blur sticky top-0 z-30">
+          <div className="md:hidden">
+            <Logo showWordmark={false} size={28} />
+          </div>
           <div className="flex-1 max-w-md">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -138,12 +117,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               />
             </div>
           </div>
-          <button className="h-9 w-9 grid place-items-center rounded-lg hover:bg-surface text-muted-foreground hover:text-foreground transition-colors">
-            <Bell className="h-4 w-4" />
-          </button>
           <Link
             to="/app/configuracoes"
-            className="h-9 w-9 rounded-full bg-gradient-brand grid place-items-center text-sm font-medium text-white overflow-hidden"
+            className="h-9 w-9 rounded-full bg-brand grid place-items-center text-sm font-medium text-primary-foreground overflow-hidden"
           >
             {avatarUrl ? (
               <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
@@ -170,7 +146,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <item.icon className={`h-5 w-5 ${active ? "text-[oklch(0.78_0.16_250)]" : ""}`} />
+                <item.icon className={`h-5 w-5 ${active ? "text-brand" : ""}`} />
                 <span className="truncate max-w-full px-1">{item.label}</span>
               </Link>
             );

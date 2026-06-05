@@ -20,14 +20,10 @@ export const Route = createFileRoute("/login")({
   validateSearch: (s) => ({ redirect: (s.redirect as string) || "/app" }),
   head: () => ({
     meta: [
-      { title: "Entrar — AvellPsy" },
-      { name: "description", content: "Acesse sua conta AvellPsy para gerenciar agenda, prontuários e pagamentos." },
-      { property: "og:title", content: "Entrar — AvellPsy" },
-      { property: "og:description", content: "Acesse sua conta AvellPsy para gerenciar agenda, prontuários e pagamentos." },
-      { property: "og:url", content: "/login" },
-      { name: "robots", content: "noindex" },
+      { title: "Entrar — Aline Dias Psicóloga" },
+      { name: "description", content: "Acesso restrito ao consultório da psicóloga Aline Dias." },
+      { name: "robots", content: "noindex, nofollow" },
     ],
-    links: [{ rel: "canonical", href: "/login" }],
   }),
 });
 
@@ -52,7 +48,7 @@ function LoginPage() {
   };
 
   return (
-    <AuthLayout title="Entrar" subtitle="Acesse seu painel AvellPsy">
+    <AuthLayout title="Entrar" subtitle="Acesse o consultório">
       <GoogleButton />
       <div className="flex items-center gap-3 my-5 text-xs text-muted-foreground">
         <div className="h-px bg-border flex-1" />
@@ -73,7 +69,7 @@ function LoginPage() {
         <div>
           <div className="flex items-center justify-between">
             <label className="text-xs text-muted-foreground">Senha</label>
-            <Link to="/forgot-password" className="text-xs text-[oklch(0.68_0.20_245)] hover:underline">
+            <Link to="/forgot-password" className="text-xs text-brand hover:underline">
               Esqueci a senha
             </Link>
           </div>
@@ -94,10 +90,7 @@ function LoginPage() {
         </button>
       </form>
       <p className="mt-5 text-center text-xs text-muted-foreground">
-        Não tem conta?{" "}
-        <Link to="/signup" className="text-foreground hover:underline">
-          Criar agora
-        </Link>
+        Acesso restrito. Solicite suas credenciais à Aline.
       </p>
     </AuthLayout>
   );
