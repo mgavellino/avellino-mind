@@ -315,6 +315,45 @@ export type Database = {
           },
         ]
       }
+      expenses: {
+        Row: {
+          amount_cents: number
+          category: string | null
+          created_at: string
+          description: string
+          id: string
+          notes: string | null
+          owner_id: string
+          paid_at: string
+          payment_method: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          category?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          notes?: string | null
+          owner_id: string
+          paid_at?: string
+          payment_method?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          category?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          paid_at?: string
+          payment_method?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       medical_record_versions: {
         Row: {
           content: Json
