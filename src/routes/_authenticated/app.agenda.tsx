@@ -126,14 +126,14 @@ function AgendaPage() {
         </div>
       </div>
 
-      {/* Mobile floating action button — anchored above AI assistant */}
+      {/* Mobile FAB — above bottom nav (no AI ball anymore) */}
       <button
         onClick={() => {
           setEditing(null);
           setInitialDate(new Date());
           setOpen(true);
         }}
-        className="md:hidden fixed bottom-24 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-foreground text-background text-sm font-medium pl-4 pr-5 h-12 shadow-[0_12px_32px_-8px_oklch(0.55_0.22_260/0.5)] hover:opacity-90 transition-opacity"
+        className="md:hidden fixed bottom-20 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-brand text-primary-foreground text-sm font-medium pl-4 pr-5 h-12 shadow-lg hover:opacity-90 transition-opacity"
         aria-label="Novo compromisso"
       >
         <Plus className="h-5 w-5" />
