@@ -3,7 +3,16 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { format, parseISO, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CheckCircle2, Clock, DollarSign, Filter } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  DollarSign,
+  Filter,
+  Plus,
+  Trash2,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -37,8 +46,40 @@ type AppointmentLite = {
 type PatientLite = { id: string; full_name: string };
 type StatusFilter = "all" | "pending" | "paid" | "overdue" | "waived";
 
+type Expense = {
+  id: string;
+  description: string;
+  amount_cents: number;
+  category: string | null;
+  payment_method: string | null;
+  paid_at: string;
+};
+
+const PAYMENT_METHODS = [
+  { id: "pix", label: "PIX" },
+  { id: "dinheiro", label: "Dinheiro" },
+  { id: "cartao_credito", label: "Crédito" },
+  { id: "cartao_debito", label: "Débito" },
+  { id: "transferencia", label: "Transferência" },
+] as const;
+
+const EXPENSE_CATEGORIES = [
+  "Aluguel",
+  "Material",
+  "Supervisão",
+  "Marketing",
+  "Software",
+  "Impostos",
+  "Outros",
+];
+
 function brl(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function methodLabel(id: string | null | undefined) {
+  if (!id) return "—";
+  return PAYMENT_METHODS.find((m) => m.id === id)?.label ?? id;
 }
 
 const STATUS_META: Record<Receivable["status"], { label: string; cls: string }> = {
@@ -50,11 +91,21 @@ const STATUS_META: Record<Receivable["status"], { label: string; cls: string }> 
 
 function FinanceiroPage() {
   const { user } = useAuth();
+  const [tab, setTab] = useState<"receitas" | "despesas">("receitas");
   const [receivables, setReceivables] = useState<Receivable[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [appts, setAppts] = useState<Record<string, AppointmentLite>>({});
   const [patients, setPatients] = useState<Record<string, PatientLite>>({});
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [defaultPrice, setDefaultPrice] = useState<string>("");
+  const [payingId, setPayingId] = useState<string | null>(null);
+  const [expenseForm, setExpenseForm] = useState({
+    description: "",
+    amount: "",
+    category: "Aluguel",
+    payment_method: "pix",
+  });
+  const [expenseOpen, setExpenseOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -68,8 +119,12 @@ function FinanceiroPage() {
           ?.default_session_price_cents;
         if (typeof v === "number" && v > 0) setDefaultPrice(String(v / 100));
       });
-    loadReceivables();
+    loadAll();
   }, [user]);
+
+  const loadAll = async () => {
+    await Promise.all([loadReceivables(), loadExpenses()]);
+  };
 
   const loadReceivables = async () => {
     if (!user) return;
@@ -103,6 +158,15 @@ function FinanceiroPage() {
     }
   };
 
+  const loadExpenses = async () => {
+    const { data } = await supabase
+      .from("expenses")
+      .select("*")
+      .order("paid_at", { ascending: false })
+      .limit(500);
+    setExpenses((data as unknown as Expense[]) ?? []);
+  };
+
   const filtered = useMemo(
     () => (filter === "all" ? receivables : receivables.filter((r) => r.status === filter)),
     [receivables, filter],
@@ -115,6 +179,7 @@ function FinanceiroPage() {
     let received = 0;
     let pending = 0;
     let overdue = 0;
+    let monthExpenses = 0;
     for (const r of receivables) {
       const ref = r.paid_at ?? r.due_at;
       const inMonth = ref && ref >= monthStart && ref <= monthEnd;
@@ -122,8 +187,11 @@ function FinanceiroPage() {
       if (r.status === "pending") pending += r.amount_cents;
       if (r.status === "overdue") overdue += r.amount_cents;
     }
-    return { received, pending, overdue };
-  }, [receivables]);
+    for (const e of expenses) {
+      if (e.paid_at >= monthStart && e.paid_at <= monthEnd) monthExpenses += e.amount_cents;
+    }
+    return { received, pending, overdue, expenses: monthExpenses, profit: received - monthExpenses };
+  }, [receivables, expenses]);
 
   const updateReceivable = async (id: string, patch: Partial<Receivable>) => {
     const { error } = await supabase.from("appointment_receivables").update(patch).eq("id", id);
@@ -132,12 +200,14 @@ function FinanceiroPage() {
     loadReceivables();
   };
 
-  const markPaid = (r: Receivable, method: string) =>
+  const markPaid = (r: Receivable, method: string) => {
     updateReceivable(r.id, {
       status: "paid",
       paid_at: new Date().toISOString(),
       payment_method: method,
     });
+    setPayingId(null);
+  };
 
   const setAmount = (r: Receivable, value: string) => {
     const cents = Math.round(parseFloat(value.replace(",", ".")) * 100);
@@ -157,26 +227,61 @@ function FinanceiroPage() {
     toast.success("Valor padrão salvo");
   };
 
+  const addExpense = async () => {
+    if (!user) return;
+    const cents = Math.round(parseFloat(expenseForm.amount.replace(",", ".")) * 100);
+    if (!expenseForm.description.trim() || Number.isNaN(cents) || cents <= 0) {
+      return toast.error("Preencha descrição e valor");
+    }
+    const { error } = await supabase.from("expenses").insert({
+      owner_id: user.id,
+      description: expenseForm.description.trim(),
+      amount_cents: cents,
+      category: expenseForm.category,
+      payment_method: expenseForm.payment_method,
+      paid_at: new Date().toISOString(),
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Despesa registrada");
+    setExpenseForm({ description: "", amount: "", category: "Aluguel", payment_method: "pix" });
+    setExpenseOpen(false);
+    loadExpenses();
+  };
+
+  const deleteExpense = async (id: string) => {
+    const { error } = await supabase.from("expenses").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Despesa removida");
+    loadExpenses();
+  };
+
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight">Financeiro</h1>
+      <div className="mb-6">
+        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Financeiro</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Receba pelas consultas concluídas e acompanhe o mês.
+          Receitas, despesas e lucro do consultório.
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3 mb-6">
-        <StatCard label="Recebido (mês)" value={brl(stats.received)} tone="emerald" />
-        <StatCard label="A receber" value={brl(stats.pending)} tone="amber" />
-        <StatCard label="Atrasado" value={brl(stats.overdue)} tone="red" />
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-6">
+        <StatCard label="Recebido" value={brl(stats.received)} tone="emerald" />
+        <StatCard label="Despesas" value={brl(stats.expenses)} tone="red" icon="down" />
+        <StatCard
+          label="Lucro do mês"
+          value={brl(stats.profit)}
+          tone={stats.profit >= 0 ? "emerald" : "red"}
+          icon="up"
+          highlight
+        />
+        <StatCard label="A receber" value={brl(stats.pending + stats.overdue)} tone="amber" />
       </div>
 
-      <div className="rounded-2xl border border-border/60 bg-surface/40 p-5 mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
+      <div className="rounded-2xl border border-border/60 bg-surface/40 p-4 md:p-5 mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex-1">
           <div className="text-sm font-semibold">Valor padrão da consulta</div>
           <div className="text-xs text-muted-foreground mt-0.5">
-            Aplicado automaticamente em novos recebíveis.
+            Aplicado em novos recebíveis automaticamente.
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -186,7 +291,7 @@ function FinanceiroPage() {
             value={defaultPrice}
             onChange={(e) => setDefaultPrice(e.target.value)}
             placeholder="200,00"
-            className="h-10 w-32 px-3 rounded-lg bg-background border border-border/60 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+            className="h-10 w-28 px-3 rounded-lg bg-background border border-border/60 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
           <button
             onClick={saveDefaultPrice}
@@ -197,85 +302,250 @@ function FinanceiroPage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 mb-3 overflow-x-auto">
-        <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
-        {(["all", "pending", "paid", "overdue", "waived"] as StatusFilter[]).map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`px-3 h-8 rounded-full text-xs whitespace-nowrap border transition-colors ${
-              filter === s
-                ? "bg-foreground text-background border-foreground"
-                : "border-border/60 text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {s === "all" ? "Todos" : STATUS_META[s].label}
-          </button>
-        ))}
+      <div className="flex items-center gap-1 mb-4 p-1 rounded-xl bg-surface/40 border border-border/60 w-fit">
+        <button
+          onClick={() => setTab("receitas")}
+          className={`px-4 h-9 rounded-lg text-sm font-medium transition-colors ${tab === "receitas" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+        >
+          Receitas
+        </button>
+        <button
+          onClick={() => setTab("despesas")}
+          className={`px-4 h-9 rounded-lg text-sm font-medium transition-colors ${tab === "despesas" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+        >
+          Despesas
+        </button>
       </div>
 
-      <div className="rounded-2xl border border-border/60 bg-surface/40 overflow-hidden">
-        {filtered.length === 0 ? (
-          <div className="p-10 text-center text-sm text-muted-foreground">
-            Nenhum recebível por aqui.
+      {tab === "receitas" && (
+        <>
+          <div className="flex items-center gap-2 mb-3 overflow-x-auto">
+            <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+            {(["all", "pending", "paid", "overdue", "waived"] as StatusFilter[]).map((s) => (
+              <button
+                key={s}
+                onClick={() => setFilter(s)}
+                className={`px-3 h-8 rounded-full text-xs whitespace-nowrap border transition-colors ${
+                  filter === s
+                    ? "bg-foreground text-background border-foreground"
+                    : "border-border/60 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {s === "all" ? "Todos" : STATUS_META[s].label}
+              </button>
+            ))}
           </div>
-        ) : (
-          <ul className="divide-y divide-border/50">
-            {filtered.map((r) => {
-              const ap = appts[r.appointment_id];
-              const patient = r.patient_id ? patients[r.patient_id] : undefined;
-              const meta = STATUS_META[r.status];
-              return (
-                <li key={r.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate">
-                      {patient?.full_name ?? "Sem paciente"}
+
+          <div className="rounded-2xl border border-border/60 bg-surface/40 overflow-hidden">
+            {filtered.length === 0 ? (
+              <div className="p-10 text-center text-sm text-muted-foreground">
+                Nenhum recebível por aqui.
+              </div>
+            ) : (
+              <ul className="divide-y divide-border/50">
+                {filtered.map((r) => {
+                  const ap = appts[r.appointment_id];
+                  const patient = r.patient_id ? patients[r.patient_id] : undefined;
+                  const meta = STATUS_META[r.status];
+                  const isPicking = payingId === r.id;
+                  return (
+                    <li key={r.id} className="p-4 space-y-2">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium truncate">
+                            {patient?.full_name ?? "Sem paciente"}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {ap
+                              ? format(parseISO(ap.starts_at), "dd 'de' MMM, HH:mm", { locale: ptBR })
+                              : "Consulta"}
+                            {r.payment_method ? ` · ${methodLabel(r.payment_method)}` : ""}
+                          </div>
+                        </div>
+                        <span className={`text-[11px] px-2 py-1 rounded-full border shrink-0 ${meta.cls}`}>
+                          {meta.label}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs text-muted-foreground">R$</span>
+                          <input
+                            inputMode="decimal"
+                            defaultValue={(r.amount_cents / 100).toFixed(2).replace(".", ",")}
+                            onBlur={(e) => {
+                              const cents = Math.round(parseFloat(e.target.value.replace(",", ".")) * 100);
+                              if (!Number.isNaN(cents) && cents !== r.amount_cents) setAmount(r, e.target.value);
+                            }}
+                            className="h-9 w-24 px-2 rounded-lg bg-background border border-border/60 text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring/40"
+                          />
+                        </div>
+                        {r.status !== "paid" && !isPicking && (
+                          <button
+                            onClick={() => setPayingId(r.id)}
+                            className="h-9 px-3 rounded-lg text-xs bg-emerald-600 text-white hover:opacity-90 inline-flex items-center gap-1"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Marcar recebido
+                          </button>
+                        )}
+                        {isPicking && (
+                          <div className="flex items-center gap-1 flex-wrap">
+                            {PAYMENT_METHODS.map((m) => (
+                              <button
+                                key={m.id}
+                                onClick={() => markPaid(r, m.id)}
+                                className="h-9 px-3 rounded-lg text-xs border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20"
+                              >
+                                {m.label}
+                              </button>
+                            ))}
+                            <button
+                              onClick={() => setPayingId(null)}
+                              className="h-9 px-2 rounded-lg text-xs text-muted-foreground hover:text-foreground"
+                            >
+                              cancelar
+                            </button>
+                          </div>
+                        )}
+                        {r.status === "paid" && (
+                          <button
+                            onClick={() =>
+                              updateReceivable(r.id, { status: "pending", paid_at: null, payment_method: null })
+                            }
+                            className="h-9 px-3 rounded-lg text-xs border border-border/60 hover:bg-surface text-muted-foreground"
+                          >
+                            desfazer
+                          </button>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </>
+      )}
+
+      {tab === "despesas" && (
+        <>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground">
+              Aluguel, materiais, supervisão, marketing — tudo entra no cálculo do lucro.
+            </p>
+            <button
+              onClick={() => setExpenseOpen((v) => !v)}
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-foreground text-background text-xs font-medium hover:opacity-90"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Nova despesa
+            </button>
+          </div>
+
+          {expenseOpen && (
+            <div className="rounded-2xl border border-border/60 bg-surface/40 p-4 mb-4 grid gap-3 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="text-xs text-muted-foreground">Descrição</label>
+                <input
+                  value={expenseForm.description}
+                  onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
+                  placeholder="Ex: Aluguel da sala — junho"
+                  className="mt-1 w-full h-10 px-3 rounded-lg bg-background border border-border/60 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Valor (R$)</label>
+                <input
+                  inputMode="decimal"
+                  value={expenseForm.amount}
+                  onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
+                  placeholder="1500,00"
+                  className="mt-1 w-full h-10 px-3 rounded-lg bg-background border border-border/60 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Categoria</label>
+                <select
+                  value={expenseForm.category}
+                  onChange={(e) => setExpenseForm({ ...expenseForm, category: e.target.value })}
+                  className="mt-1 w-full h-10 px-2 rounded-lg bg-background border border-border/60 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                >
+                  {EXPENSE_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="text-xs text-muted-foreground">Forma de pagamento</label>
+                <div className="mt-1 flex gap-1 flex-wrap">
+                  {PAYMENT_METHODS.map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => setExpenseForm({ ...expenseForm, payment_method: m.id })}
+                      className={`h-9 px-3 rounded-lg text-xs border transition-colors ${
+                        expenseForm.payment_method === m.id
+                          ? "bg-foreground text-background border-foreground"
+                          : "border-border/60 hover:bg-surface"
+                      }`}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="sm:col-span-2 flex justify-end gap-2">
+                <button
+                  onClick={() => setExpenseOpen(false)}
+                  className="h-10 px-4 rounded-lg text-sm text-muted-foreground hover:text-foreground"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={addExpense}
+                  className="h-10 px-5 rounded-lg bg-brand text-primary-foreground text-sm font-medium hover:opacity-90"
+                >
+                  Adicionar
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="rounded-2xl border border-border/60 bg-surface/40 overflow-hidden">
+            {expenses.length === 0 ? (
+              <div className="p-10 text-center text-sm text-muted-foreground">
+                Nenhuma despesa registrada.
+              </div>
+            ) : (
+              <ul className="divide-y divide-border/50">
+                {expenses.map((e) => (
+                  <li key={e.id} className="p-4 flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{e.description}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {format(parseISO(e.paid_at), "dd 'de' MMM", { locale: ptBR })}
+                        {e.category ? ` · ${e.category}` : ""}
+                        {e.payment_method ? ` · ${methodLabel(e.payment_method)}` : ""}
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {ap
-                        ? format(parseISO(ap.starts_at), "dd 'de' MMM, HH:mm", { locale: ptBR })
-                        : "Consulta"}
-                      {r.payment_method ? ` · ${r.payment_method}` : ""}
+                    <div className="text-sm font-semibold text-red-600 shrink-0">
+                      − {brl(e.amount_cents)}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">R$</span>
-                    <input
-                      inputMode="decimal"
-                      defaultValue={(r.amount_cents / 100).toFixed(2).replace(".", ",")}
-                      onBlur={(e) => {
-                        const cents = Math.round(parseFloat(e.target.value.replace(",", ".")) * 100);
-                        if (!Number.isNaN(cents) && cents !== r.amount_cents) setAmount(r, e.target.value);
-                      }}
-                      className="h-9 w-24 px-2 rounded-lg bg-background border border-border/60 text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring/40"
-                    />
-                    <span className={`text-[11px] px-2 py-1 rounded-full border ${meta.cls}`}>
-                      {meta.label}
-                    </span>
-                    {r.status !== "paid" && (
-                      <>
-                        <button
-                          onClick={() => markPaid(r, "pix")}
-                          className="h-9 px-3 rounded-lg text-xs bg-emerald-600 text-white hover:opacity-90"
-                          title="Marcar como recebido (PIX)"
-                        >
-                          PIX
-                        </button>
-                        <button
-                          onClick={() => markPaid(r, "dinheiro")}
-                          className="h-9 px-3 rounded-lg text-xs border border-border/60 hover:bg-surface"
-                        >
-                          $
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
+                    <button
+                      onClick={() => deleteExpense(e.id)}
+                      className="h-8 w-8 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      aria-label="Remover"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -284,24 +554,33 @@ function StatCard({
   label,
   value,
   tone,
+  icon = "up",
+  highlight = false,
 }: {
   label: string;
   value: string;
   tone: "emerald" | "amber" | "red";
+  icon?: "up" | "down";
+  highlight?: boolean;
 }) {
   const tones = {
-    emerald: { icon: CheckCircle2, cls: "text-emerald-600" },
-    amber: { icon: Clock, cls: "text-amber-600" },
-    red: { icon: DollarSign, cls: "text-red-600" },
+    emerald: "text-emerald-600",
+    amber: "text-amber-600",
+    red: "text-red-600",
   } as const;
-  const { icon: Icon, cls } = tones[tone];
+  const Icon = icon === "down" ? TrendingDown : icon === "up" ? TrendingUp : DollarSign;
+  void Clock; // keep import for tree-shake safety
   return (
-    <div className="rounded-2xl border border-border/60 bg-surface/40 p-5">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Icon className={`h-4 w-4 ${cls}`} />
+    <div
+      className={`rounded-2xl border p-4 md:p-5 ${highlight ? "border-brand/40 bg-brand/5" : "border-border/60 bg-surface/40"}`}
+    >
+      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+        <Icon className={`h-3.5 w-3.5 ${tones[tone]}`} />
         {label}
       </div>
-      <div className="text-2xl font-semibold tracking-tight mt-2">{value}</div>
+      <div className={`text-xl md:text-2xl font-semibold tracking-tight mt-2 ${tones[tone]}`}>
+        {value}
+      </div>
     </div>
   );
 }

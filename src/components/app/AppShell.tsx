@@ -8,31 +8,29 @@ import {
   CreditCard,
   Settings,
   LogOut,
-  Search,
-  ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { AiAssistant } from "@/components/app/AiAssistant";
 import { useAuth } from "@/hooks/use-auth";
-import { useIsAdmin } from "@/hooks/use-role";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const nav = [
-  { to: "/app", icon: LayoutDashboard, label: "Dashboard" },
+  { to: "/app", icon: LayoutDashboard, label: "Início" },
   { to: "/app/agenda", icon: Calendar, label: "Agenda" },
   { to: "/app/pacientes", icon: Users, label: "Pacientes" },
   { to: "/app/prontuarios", icon: FileText, label: "Prontuários" },
   { to: "/app/financeiro", icon: CreditCard, label: "Financeiro" },
-  { to: "/app/configuracoes", icon: Settings, label: "Configurações" },
+  { to: "/app/configuracoes", icon: Settings, label: "Ajustes" },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { isAdmin } = useIsAdmin();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [aiOpen, setAiOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -44,14 +42,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       .then(({ data }) => setAvatarUrl(data?.avatar_url ?? null));
   }, [user]);
 
-  const initial = (user?.user_metadata?.full_name || user?.email || "U")
+  const initial = (user?.user_metadata?.full_name || user?.email || "A")
     .toString()
     .charAt(0)
     .toUpperCase();
 
   const handleSignOut = async () => {
     await signOut();
-    toast.success("Sessão encerrada");
+    toast.success("Até logo, Aline.");
     navigate({ to: "/login" });
   };
 
@@ -82,17 +80,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
-          {isAdmin && (
-            <Link
-              to="/admin"
-              className="mt-2 flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm border border-brand/40 bg-brand/10 text-brand hover:bg-brand/20 transition-colors"
-            >
-              <ShieldCheck className="h-4 w-4" />
-              Admin
-            </Link>
-          )}
         </nav>
-        <div className="p-3 border-t border-border/60">
+        <div className="p-3 border-t border-border/60 space-y-1">
+          <button
+            onClick={() => setAiOpen(true)}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm bg-brand/10 text-brand hover:bg-brand/15 border border-brand/30 transition-colors"
+          >
+            <Sparkles className="h-4 w-4" />
+            Assistente IA
+          </button>
           <button
             onClick={handleSignOut}
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
@@ -108,15 +104,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="md:hidden">
             <Logo showWordmark={false} size={28} />
           </div>
-          <div className="flex-1 max-w-md">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                placeholder="Buscar pacientes, consultas..."
-                className="w-full h-9 pl-9 pr-3 rounded-lg bg-surface border border-border/60 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
-              />
-            </div>
-          </div>
+          <div className="flex-1" />
+          <button
+            onClick={() => setAiOpen(true)}
+            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-full text-xs font-medium bg-brand/10 text-brand border border-brand/30 hover:bg-brand/15 transition-colors"
+            aria-label="Abrir assistente IA"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">IA</span>
+          </button>
           <Link
             to="/app/configuracoes"
             className="h-9 w-9 rounded-full bg-brand grid place-items-center text-sm font-medium text-primary-foreground overflow-hidden"
@@ -133,7 +129,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur">
         <div className="flex items-stretch justify-around h-16 px-1 pb-[env(safe-area-inset-bottom)]">
-          {nav.map((item) => {
+          {nav.slice(0, 5).map((item) => {
             const active =
               item.to === "/app"
                 ? location.pathname === "/app"
@@ -154,7 +150,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
-      <AiAssistant />
+      <AiAssistant open={aiOpen} onOpenChange={setAiOpen} />
     </div>
   );
 }
