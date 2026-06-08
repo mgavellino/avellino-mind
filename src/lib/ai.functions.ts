@@ -149,6 +149,58 @@ const TOOLS: ToolDef[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "create_note",
+      description: "Cria um lembrete/nota rápida pra Aline no bloco da dashboard.",
+      parameters: {
+        type: "object",
+        properties: {
+          content: { type: "string" },
+          priority: { type: "string", enum: ["low", "normal", "high"] },
+          due_at: { type: "string", description: "ISO datetime (opcional)" },
+        },
+        required: ["content"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "search_records",
+      description: "Busca trechos nos prontuários (full-text) por palavra-chave/sintoma.",
+      parameters: {
+        type: "object",
+        properties: { query: { type: "string" } },
+        required: ["query"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "today_briefing",
+      description: "Resumo do dia: consultas, recebíveis pendentes, aniversariantes hoje, pacientes inativos.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "birthday_list",
+      description: "Pacientes aniversariantes do mês atual.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "inactive_patients",
+      description: "Pacientes ativos sem consulta há mais de 30 dias.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
 ];
 
 type ToolResult = { ok: boolean; data?: unknown; error?: string; summary?: string };
