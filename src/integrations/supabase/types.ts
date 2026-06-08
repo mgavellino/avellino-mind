@@ -651,6 +651,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_blocked: boolean
+          onboarding_completed: boolean
           phone: string | null
           specialty: string | null
           theme: string
@@ -664,6 +665,7 @@ export type Database = {
           full_name?: string | null
           id: string
           is_blocked?: boolean
+          onboarding_completed?: boolean
           phone?: string | null
           specialty?: string | null
           theme?: string
@@ -677,9 +679,43 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_blocked?: boolean
+          onboarding_completed?: boolean
           phone?: string | null
           specialty?: string | null
           theme?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      quick_notes: {
+        Row: {
+          content: string
+          created_at: string
+          done: boolean
+          due_at: string | null
+          id: string
+          owner_id: string
+          priority: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          done?: boolean
+          due_at?: string | null
+          id?: string
+          owner_id: string
+          priority?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          done?: boolean
+          due_at?: string | null
+          id?: string
+          owner_id?: string
+          priority?: string
           updated_at?: string
         }
         Relationships: []

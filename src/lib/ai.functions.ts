@@ -149,6 +149,58 @@ const TOOLS: ToolDef[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "create_note",
+      description: "Cria um lembrete/nota rápida pra Aline no bloco da dashboard.",
+      parameters: {
+        type: "object",
+        properties: {
+          content: { type: "string" },
+          priority: { type: "string", enum: ["low", "normal", "high"] },
+          due_at: { type: "string", description: "ISO datetime (opcional)" },
+        },
+        required: ["content"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "search_records",
+      description: "Busca trechos nos prontuários (full-text) por palavra-chave/sintoma.",
+      parameters: {
+        type: "object",
+        properties: { query: { type: "string" } },
+        required: ["query"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "today_briefing",
+      description: "Resumo do dia: consultas, recebíveis pendentes, aniversariantes hoje, pacientes inativos.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "birthday_list",
+      description: "Pacientes aniversariantes do mês atual.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "inactive_patients",
+      description: "Pacientes ativos sem consulta há mais de 30 dias.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
 ];
 
 type ToolResult = { ok: boolean; data?: unknown; error?: string; summary?: string };
@@ -324,6 +376,111 @@ async function runTool(
           data: { received, toReceive, expenses, profit },
           summary: `lucro R$ ${(profit / 100).toFixed(2)}`,
         };
+      }
+      case "create_note": {
+        const { data, error } = await supabase
+          .from("quick_notes")
+          .insert({
+            owner_id: userId,
+            content: String(args.content),
+            priority: (args.priority as string) ?? "normal",
+            due_at: (args.due_at as string) ?? null,
+          })
+          .select()
+          .single();
+        if (error) throw error;
+        return { ok: true, data, summary: "lembrete criado" };
+      }
+      case "search_records": {
+        const q = String(args.query ?? "").trim();
+        if (!q) return { ok: false, error: "Query vazia" };
+        const { data, error } = await supabase
+          .from("medical_records")
+          .select("id, patient_id, content, created_at, patients(full_name)")
+          .ilike("content", `%${q}%`)
+          .order("created_at", { ascending: false })
+          .limit(10);
+        if (error) throw error;
+        return { ok: true, data, summary: `${data?.length ?? 0} trecho(s)` };
+      }
+      case "today_briefing": {
+        const now = new Date();
+        const dayStart = new Date(now);
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(dayStart);
+        dayEnd.setDate(dayEnd.getDate() + 1);
+        const [appts, pendings, pats] = await Promise.all([
+          supabase
+            .from("appointments")
+            .select("starts_at, title, patient_id, patients(full_name)")
+            .gte("starts_at", dayStart.toISOString())
+            .lt("starts_at", dayEnd.toISOString())
+            .neq("status", "cancelled")
+            .order("starts_at"),
+          supabase
+            .from("appointment_receivables")
+            .select("amount_cents")
+            .in("status", ["pending", "overdue"]),
+          supabase.from("patients").select("full_name, birth_date").eq("is_active", true),
+        ]);
+        const todayBdays = ((pats.data ?? []) as { full_name: string; birth_date: string | null }[])
+          .filter((p) => {
+            if (!p.birth_date) return false;
+            const d = new Date(p.birth_date + "T12:00:00");
+            return d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+          })
+          .map((p) => p.full_name);
+        const toReceive = ((pendings.data ?? []) as { amount_cents: number }[]).reduce(
+          (s, r) => s + r.amount_cents,
+          0,
+        );
+        return {
+          ok: true,
+          data: {
+            today_appointments: appts.data ?? [],
+            to_receive_cents: toReceive,
+            birthdays_today: todayBdays,
+          },
+          summary: `${appts.data?.length ?? 0} consulta(s) hoje`,
+        };
+      }
+      case "birthday_list": {
+        const now = new Date();
+        const { data } = await supabase
+          .from("patients")
+          .select("full_name, birth_date")
+          .eq("is_active", true)
+          .not("birth_date", "is", null);
+        const list = ((data ?? []) as { full_name: string; birth_date: string }[])
+          .map((p) => ({ ...p, d: new Date(p.birth_date + "T12:00:00") }))
+          .filter((p) => p.d.getMonth() === now.getMonth())
+          .sort((a, b) => a.d.getDate() - b.d.getDate())
+          .map((p) => ({ name: p.full_name, day: p.d.getDate() }));
+        return { ok: true, data: list, summary: `${list.length} aniversariante(s)` };
+      }
+      case "inactive_patients": {
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - 30);
+        const { data: pats } = await supabase
+          .from("patients")
+          .select("id, full_name")
+          .eq("is_active", true);
+        const ids = (pats ?? []).map((p) => p.id);
+        if (!ids.length) return { ok: true, data: [], summary: "0 pacientes" };
+        const { data: lastAppts } = await supabase
+          .from("appointments")
+          .select("patient_id, starts_at")
+          .in("patient_id", ids)
+          .lte("starts_at", new Date().toISOString())
+          .order("starts_at", { ascending: false });
+        const last: Record<string, string> = {};
+        for (const a of (lastAppts ?? []) as { patient_id: string; starts_at: string }[]) {
+          if (!last[a.patient_id]) last[a.patient_id] = a.starts_at;
+        }
+        const inactives = (pats ?? [])
+          .filter((p) => !last[p.id] || new Date(last[p.id]) < cutoff)
+          .map((p) => ({ name: p.full_name, last_seen: last[p.id] ?? null }));
+        return { ok: true, data: inactives, summary: `${inactives.length} inativo(s)` };
       }
       default:
         return { ok: false, error: `Ferramenta desconhecida: ${name}` };

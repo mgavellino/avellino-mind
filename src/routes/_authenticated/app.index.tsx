@@ -5,6 +5,10 @@ import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { QuickNotes } from "@/components/app/QuickNotes";
+import { BirthdaysCard } from "@/components/app/BirthdaysCard";
+import { InactivePatientsCard } from "@/components/app/InactivePatientsCard";
+import { OnboardingDialog } from "@/components/app/OnboardingDialog";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: Dashboard,
@@ -111,95 +115,104 @@ function Dashboard() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
-          Bem-vinda{name ? `, ${name.split(" ")[0]}` : ""}.
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Resumo do consultório hoje.</p>
-      </div>
+    <>
+      <OnboardingDialog />
+      <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
+            Bem-vinda{name ? `, ${name.split(" ")[0]}` : ""}.
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">Resumo do consultório hoje.</p>
+        </div>
 
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        {stats.map((s) => (
-          <div
-            key={s.label}
-            className={`rounded-2xl border p-4 md:p-5 ${s.highlight ? "border-brand/40 bg-brand/5" : "border-border/60 bg-surface/40"}`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground">
-                {s.label}
-              </span>
-              <s.icon className="h-4 w-4 text-brand" />
-            </div>
-            <div className="mt-2 md:mt-3 text-xl md:text-3xl font-semibold tracking-tight">
-              {s.value}
-            </div>
-            <div className="mt-1 text-[10px] md:text-xs text-muted-foreground">{s.hint}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-2xl border border-border/60 bg-surface/40 p-5 md:p-6 min-h-64">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-muted-foreground">Próximas consultas</h2>
-            <Link
-              to="/app/agenda"
-              className="inline-flex items-center gap-1 text-xs text-brand hover:underline"
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+          {stats.map((s) => (
+            <div
+              key={s.label}
+              className={`rounded-2xl border p-4 md:p-5 ${s.highlight ? "border-brand/40 bg-brand/5" : "border-border/60 bg-surface/40"}`}
             >
-              Ver agenda <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-
-          <div className="mt-5 space-y-2">
-            {loading ? (
-              <div className="text-center text-sm text-muted-foreground py-8">Carregando...</div>
-            ) : upcoming.length === 0 ? (
-              <div className="text-center text-sm text-muted-foreground py-8">
-                Nenhuma consulta nos próximos 14 dias.
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground">
+                  {s.label}
+                </span>
+                <s.icon className="h-4 w-4 text-brand" />
               </div>
-            ) : (
-              upcoming.map((a) => {
-                const start = parseISO(a.starts_at);
-                const headline =
-                  (a.patient_id && patientNames[a.patient_id]) || a.title || "Compromisso";
-                return (
-                  <Link
-                    key={a.id}
-                    to="/app/agenda"
-                    className="flex items-center gap-3 md:gap-4 rounded-xl border border-border/40 bg-background/40 px-3 md:px-4 py-2.5 md:py-3 hover:bg-surface transition-colors"
-                  >
-                    <div className="text-center shrink-0 w-12">
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        {format(start, "MMM", { locale: ptBR })}
-                      </div>
-                      <div className="text-lg font-semibold leading-none mt-0.5">
-                        {format(start, "dd")}
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{headline}</div>
-                      <div className="text-xs text-muted-foreground capitalize">
-                        {format(start, "EEEE · HH:mm", { locale: ptBR })}
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })
-            )}
-          </div>
+              <div className="mt-2 md:mt-3 text-xl md:text-3xl font-semibold tracking-tight">
+                {s.value}
+              </div>
+              <div className="mt-1 text-[10px] md:text-xs text-muted-foreground">{s.hint}</div>
+            </div>
+          ))}
         </div>
 
-        <div className="rounded-2xl border border-border/60 bg-surface/40 p-5 md:p-6 min-h-64">
-          <h2 className="text-sm font-medium text-muted-foreground">Atalhos</h2>
-          <div className="mt-5 grid gap-2">
-            <Quick to="/app/pacientes" icon={Users} title="Pacientes" hint="Cadastros e prontuário" />
-            <Quick to="/app/agenda" icon={Calendar} title="Agendar" hint="Bloquear horário" />
-            <Quick to="/app/financeiro" icon={Wallet} title="Financeiro" hint="Receber e despesas" />
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2 rounded-2xl border border-border/60 bg-surface/40 p-5 md:p-6 min-h-64">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-medium text-muted-foreground">Próximas consultas</h2>
+              <Link
+                to="/app/agenda"
+                className="inline-flex items-center gap-1 text-xs text-brand hover:underline"
+              >
+                Ver agenda <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+
+            <div className="mt-5 space-y-2">
+              {loading ? (
+                <div className="text-center text-sm text-muted-foreground py-8">Carregando...</div>
+              ) : upcoming.length === 0 ? (
+                <div className="text-center text-sm text-muted-foreground py-8">
+                  Nenhuma consulta nos próximos 14 dias.
+                </div>
+              ) : (
+                upcoming.map((a) => {
+                  const start = parseISO(a.starts_at);
+                  const headline =
+                    (a.patient_id && patientNames[a.patient_id]) || a.title || "Compromisso";
+                  return (
+                    <Link
+                      key={a.id}
+                      to="/app/agenda"
+                      className="flex items-center gap-3 md:gap-4 rounded-xl border border-border/40 bg-background/40 px-3 md:px-4 py-2.5 md:py-3 hover:bg-surface transition-colors"
+                    >
+                      <div className="text-center shrink-0 w-12">
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                          {format(start, "MMM", { locale: ptBR })}
+                        </div>
+                        <div className="text-lg font-semibold leading-none mt-0.5">
+                          {format(start, "dd")}
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">{headline}</div>
+                        <div className="text-xs text-muted-foreground capitalize">
+                          {format(start, "EEEE · HH:mm", { locale: ptBR })}
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          <QuickNotes />
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          <BirthdaysCard />
+          <InactivePatientsCard />
+          <div className="rounded-2xl border border-border/60 bg-surface/40 p-5 md:p-6">
+            <h2 className="text-sm font-medium text-muted-foreground">Atalhos</h2>
+            <div className="mt-5 grid gap-2">
+              <Quick to="/app/pacientes" icon={Users} title="Pacientes" hint="Cadastros e prontuário" />
+              <Quick to="/app/agenda" icon={Calendar} title="Agendar" hint="Bloquear horário" />
+              <Quick to="/app/financeiro" icon={Wallet} title="Financeiro" hint="Receber e despesas" />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

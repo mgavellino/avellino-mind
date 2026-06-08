@@ -18,12 +18,15 @@ type Props = {
 };
 
 const SUGGESTIONS = [
-  "Crie a paciente Maria Silva, telefone 11 99999-0000",
-  "Agenda uma consulta com Maria amanhã 14h",
-  "Quem tem consulta hoje?",
+  "Como está meu dia hoje?",
+  "Aniversariantes do mês",
+  "Pacientes inativos há +30 dias",
+  "Cria um lembrete pra ligar pra Maria amanhã às 10h",
+  "Agenda consulta com Maria sexta 14h",
   "Marca a consulta de hoje como recebida via PIX",
-  "Adiciona uma despesa de R$ 1.500 — aluguel do mês",
-  "Qual meu lucro deste mês?",
+  "Adiciona despesa R$ 1.500 aluguel",
+  "Qual meu lucro do mês?",
+  "Busca nos prontuários menções a ansiedade",
 ];
 
 export function AiAssistant({ open, onOpenChange }: Props) {

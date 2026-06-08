@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Clock,
   DollarSign,
+  FileDown,
   Filter,
   Plus,
   Trash2,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { generateMonthlyReport, type ReportData } from "@/lib/pdf-report";
 
 export const Route = createFileRoute("/_authenticated/app/financeiro")({
   component: FinanceiroPage,
@@ -255,13 +257,120 @@ function FinanceiroPage() {
     loadExpenses();
   };
 
+  const downloadReport = async () => {
+    if (!user) return;
+    const now = new Date();
+    const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const monthStart = startOfMonth(now).toISOString();
+    const monthEnd = endOfMonth(now).toISOString();
+    const prevStart = startOfMonth(prev).toISOString();
+    const prevEnd = endOfMonth(prev).toISOString();
+
+    const [{ data: paidRecs }, { data: prevPaidRecs }, { data: prevExp }, { data: profile }, { data: doneAppts }] =
+      await Promise.all([
+        supabase
+          .from("appointment_receivables")
+          .select("amount_cents, payment_method, patient_id")
+          .eq("status", "paid")
+          .gte("paid_at", monthStart)
+          .lte("paid_at", monthEnd),
+        supabase
+          .from("appointment_receivables")
+          .select("amount_cents")
+          .eq("status", "paid")
+          .gte("paid_at", prevStart)
+          .lte("paid_at", prevEnd),
+        supabase
+          .from("expenses")
+          .select("amount_cents")
+          .gte("paid_at", prevStart)
+          .lte("paid_at", prevEnd),
+        supabase.from("profiles").select("full_name, crp").eq("id", user.id).maybeSingle(),
+        supabase
+          .from("appointments")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "completed")
+          .gte("starts_at", monthStart)
+          .lte("starts_at", monthEnd),
+      ]);
+
+    const paid = (paidRecs ?? []) as { amount_cents: number; payment_method: string | null; patient_id: string | null }[];
+    const methodTotals: Record<string, number> = {};
+    const patientTotals: Record<string, number> = {};
+    for (const r of paid) {
+      const m = r.payment_method ?? "outro";
+      methodTotals[m] = (methodTotals[m] ?? 0) + r.amount_cents;
+      if (r.patient_id) patientTotals[r.patient_id] = (patientTotals[r.patient_id] ?? 0) + r.amount_cents;
+    }
+    const monthExp = expenses.filter((e) => e.paid_at >= monthStart && e.paid_at <= monthEnd);
+    const catTotals: Record<string, number> = {};
+    for (const e of monthExp) {
+      const c = e.category ?? "Outros";
+      catTotals[c] = (catTotals[c] ?? 0) + e.amount_cents;
+    }
+
+    const topPatientIds = Object.entries(patientTotals)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([id]) => id);
+    const topPatients: { name: string; total: number }[] = [];
+    if (topPatientIds.length) {
+      const { data: pats } = await supabase
+        .from("patients")
+        .select("id, full_name")
+        .in("id", topPatientIds);
+      const map: Record<string, string> = {};
+      for (const p of (pats ?? []) as { id: string; full_name: string }[]) map[p.id] = p.full_name;
+      for (const id of topPatientIds) {
+        topPatients.push({ name: map[id] ?? "Paciente", total: patientTotals[id] });
+      }
+    }
+
+    const prevPaid = ((prevPaidRecs ?? []) as { amount_cents: number }[]).reduce((s, r) => s + r.amount_cents, 0);
+    const prevExpenses = ((prevExp ?? []) as { amount_cents: number }[]).reduce((s, r) => s + r.amount_cents, 0);
+    const prevProfit = prevPaid - prevExpenses;
+
+    const prof = profile as { full_name?: string; crp?: string } | null;
+
+    const data: ReportData = {
+      monthLabel: format(now, "MMMM 'de' yyyy", { locale: ptBR }),
+      professional: prof?.full_name ?? "Aline Dias",
+      crp: prof?.crp ?? undefined,
+      receivedCents: stats.received,
+      expensesCents: stats.expenses,
+      profitCents: stats.profit,
+      toReceiveCents: stats.pending + stats.overdue,
+      appointmentsCount: doneAppts?.length ?? 0,
+      byMethod: Object.entries(methodTotals)
+        .map(([method, total]) => ({ method, total }))
+        .sort((a, b) => b.total - a.total),
+      expensesByCategory: Object.entries(catTotals)
+        .map(([category, total]) => ({ category, total }))
+        .sort((a, b) => b.total - a.total),
+      topPatients,
+      previousProfitCents: prevProfit,
+    };
+    const doc = generateMonthlyReport(data);
+    doc.save(`relatorio-${format(now, "yyyy-MM")}.pdf`);
+    toast.success("Relatório baixado");
+  };
+
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Financeiro</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Receitas, despesas e lucro do consultório.
-        </p>
+      <div className="mb-6 flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Financeiro</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Receitas, despesas e lucro do consultório.
+          </p>
+        </div>
+        <button
+          onClick={downloadReport}
+          className="inline-flex items-center gap-1.5 h-10 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90"
+        >
+          <FileDown className="h-4 w-4" />
+          Relatório do mês
+        </button>
       </div>
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-6">
