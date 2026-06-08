@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Clock,
   DollarSign,
+  FileDown,
   Filter,
   Plus,
   Trash2,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { generateMonthlyReport, type ReportData } from "@/lib/pdf-report";
 
 export const Route = createFileRoute("/_authenticated/app/financeiro")({
   component: FinanceiroPage,
