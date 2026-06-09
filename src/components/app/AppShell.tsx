@@ -9,9 +9,13 @@ import {
   Settings,
   LogOut,
   Sparkles,
+  Clock,
+  Network,
+  BookOpen,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { AiAssistant } from "@/components/app/AiAssistant";
+import { PomodoroWidget } from "@/components/app/PomodoroWidget";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -22,6 +26,12 @@ const nav = [
   { to: "/app/pacientes", icon: Users, label: "Pacientes" },
   { to: "/app/prontuarios", icon: FileText, label: "Prontuários" },
   { to: "/app/financeiro", icon: CreditCard, label: "Financeiro" },
+];
+
+const navExtras = [
+  { to: "/app/lista-espera", icon: Clock, label: "Lista de espera" },
+  { to: "/app/encaminhamentos", icon: Network, label: "Encaminhamentos" },
+  { to: "/app/biblioteca", icon: BookOpen, label: "Biblioteca" },
   { to: "/app/configuracoes", icon: Settings, label: "Ajustes" },
 ];
 
