@@ -480,6 +480,7 @@ export type Database = {
           notes: string | null
           owner_id: string
           phone: string | null
+          therapeutic_plan: Json | null
           updated_at: string
         }
         Insert: {
@@ -495,6 +496,7 @@ export type Database = {
           notes?: string | null
           owner_id: string
           phone?: string | null
+          therapeutic_plan?: Json | null
           updated_at?: string
         }
         Update: {
@@ -510,6 +512,7 @@ export type Database = {
           notes?: string | null
           owner_id?: string
           phone?: string | null
+          therapeutic_plan?: Json | null
           updated_at?: string
         }
         Relationships: []
@@ -645,12 +648,14 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          clinic_commission_pct: number | null
           created_at: string
           crp: string | null
           default_session_price_cents: number
           full_name: string | null
           id: string
           is_blocked: boolean
+          monthly_goal_cents: number | null
           onboarding_completed: boolean
           phone: string | null
           specialty: string | null
@@ -659,12 +664,14 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          clinic_commission_pct?: number | null
           created_at?: string
           crp?: string | null
           default_session_price_cents?: number
           full_name?: string | null
           id: string
           is_blocked?: boolean
+          monthly_goal_cents?: number | null
           onboarding_completed?: boolean
           phone?: string | null
           specialty?: string | null
@@ -673,17 +680,52 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          clinic_commission_pct?: number | null
           created_at?: string
           crp?: string | null
           default_session_price_cents?: number
           full_name?: string | null
           id?: string
           is_blocked?: boolean
+          monthly_goal_cents?: number | null
           onboarding_completed?: boolean
           phone?: string | null
           specialty?: string | null
           theme?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      psychoeducation_resources: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          owner_id: string
+          title: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          owner_id: string
+          title: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          owner_id?: string
+          title?: string
+          updated_at?: string
+          url?: string | null
         }
         Relationships: []
       }
@@ -716,6 +758,81 @@ export type Database = {
           id?: string
           owner_id?: string
           priority?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recurring_blocks: {
+        Row: {
+          color: string | null
+          created_at: string
+          end_time: string
+          id: string
+          owner_id: string
+          start_time: string
+          title: string
+          updated_at: string
+          weekday: number
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          end_time: string
+          id?: string
+          owner_id: string
+          start_time: string
+          title: string
+          updated_at?: string
+          weekday: number
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          end_time?: string
+          id?: string
+          owner_id?: string
+          start_time?: string
+          title?: string
+          updated_at?: string
+          weekday?: number
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          crp: string | null
+          email: string | null
+          full_name: string
+          id: string
+          notes: string | null
+          owner_id: string
+          phone: string | null
+          specialty: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          crp?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          notes?: string | null
+          owner_id: string
+          phone?: string | null
+          specialty?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          crp?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          phone?: string | null
+          specialty?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -843,6 +960,45 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      waiting_list: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          notes: string | null
+          owner_id: string
+          phone: string | null
+          priority: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          notes?: string | null
+          owner_id: string
+          phone?: string | null
+          priority?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          phone?: string | null
+          priority?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
