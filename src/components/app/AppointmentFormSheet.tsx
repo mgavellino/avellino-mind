@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import type { Patient } from "./PatientFormSheet";
-import { Trash2 } from "lucide-react";
+import { Trash2, MessageCircle } from "lucide-react";
+import { waLink, reminderMessage, confirmationMessage } from "@/lib/whatsapp";
 
 export type AppointmentKind = "consulta" | "reuniao" | "supervisao" | "pessoal" | "outro";
 export type AppointmentStatus = "scheduled" | "completed" | "cancelled" | "no_show";
@@ -260,6 +261,33 @@ export function AppointmentFormSheet({
               className={`${inputCls} resize-none py-2`}
             />
           </Field>
+
+          {appointment && needsPatient && (() => {
+            const pat = patients.find((p) => p.id === patientId);
+            if (!pat?.phone) return null;
+            const remLink = waLink(pat.phone, reminderMessage({ patientName: pat.full_name, startsAt: appointment.starts_at }));
+            const confLink = waLink(pat.phone, confirmationMessage({ patientName: pat.full_name, startsAt: appointment.starts_at }));
+            return (
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                  <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {remLink && (
+                    <a href={remLink} target="_blank" rel="noreferrer" className="h-9 px-3 rounded-md text-xs bg-emerald-600 text-white inline-flex items-center">
+                      Lembrete 24h
+                    </a>
+                  )}
+                  {confLink && (
+                    <a href={confLink} target="_blank" rel="noreferrer" className="h-9 px-3 rounded-md text-xs border border-emerald-500/40 text-emerald-700 dark:text-emerald-400 inline-flex items-center">
+                      Pedir confirmação
+                    </a>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
 
           <div className="flex items-center justify-between gap-2 pt-2">
             {appointment ? (

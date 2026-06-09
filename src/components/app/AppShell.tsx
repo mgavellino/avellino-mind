@@ -90,6 +90,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
+          <div className="mt-3 pt-3 border-t border-border/40 space-y-0.5">
+            {navExtras.map((item) => {
+              const active = location.pathname.startsWith(item.to);
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    active
+                      ? "bg-surface-elevated text-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-surface"
+                  }`}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
         </nav>
         <div className="p-3 border-t border-border/60 space-y-1">
           <button
@@ -161,6 +180,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </nav>
 
       <AiAssistant open={aiOpen} onOpenChange={setAiOpen} />
+      <PomodoroWidget />
     </div>
   );
 }
