@@ -16,7 +16,10 @@ import {
   Undo2,
   Redo2,
   Minus,
+  FileText,
 } from "lucide-react";
+import { useState } from "react";
+import { TEMPLATES } from "@/lib/soap-templates";
 
 type Props = {
   content: object | null;
@@ -25,6 +28,7 @@ type Props = {
 };
 
 export function RecordEditor({ content, onChange, editable = true }: Props) {
+  const [tplOpen, setTplOpen] = useState(false);
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -122,6 +126,36 @@ export function RecordEditor({ content, onChange, editable = true }: Props) {
           icon={<Minus className="h-4 w-4" />}
           label="Divisor"
         />
+        <Divider />
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setTplOpen((v) => !v)}
+            className="h-8 px-2 inline-flex items-center gap-1 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-surface"
+            title="Inserir template"
+          >
+            <FileText className="h-3.5 w-3.5" /> Template
+          </button>
+          {tplOpen && (
+            <div className="absolute z-20 top-9 left-0 w-64 rounded-lg border border-border/60 bg-background shadow-lg p-1">
+              {TEMPLATES.map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => {
+                    const doc = t.build();
+                    editor.chain().focus().insertContent(doc.content as never).run();
+                    setTplOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-surface text-sm"
+                >
+                  <div className="font-medium">{t.label}</div>
+                  <div className="text-xs text-muted-foreground">{t.description}</div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <div className="flex-1" />
         <ToolButton
           onClick={() => editor.chain().focus().undo().run()}
