@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Calendar, Users, DollarSign, TrendingUp, ArrowRight, Wallet } from "lucide-react";
+import { Calendar, Users, DollarSign, TrendingUp, ArrowRight, Wallet, StickyNote, Cake, Zap } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/hooks/use-auth";
@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { QuickNotes } from "@/components/app/QuickNotes";
 import { BirthdaysCard } from "@/components/app/BirthdaysCard";
 import { InactivePatientsCard } from "@/components/app/InactivePatientsCard";
+import { PendingReceivablesCard } from "@/components/app/PendingReceivablesCard";
 import { OnboardingDialog } from "@/components/app/OnboardingDialog";
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -145,14 +146,15 @@ function Dashboard() {
           ))}
         </div>
 
+        {/* Próximas consultas + A receber */}
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2 rounded-2xl border border-border/60 bg-surface/40 p-5 md:p-6 min-h-64">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium text-muted-foreground">Próximas consultas</h2>
-              <Link
-                to="/app/agenda"
-                className="inline-flex items-center gap-1 text-xs text-brand hover:underline"
-              >
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-brand" />
+                <h2 className="text-sm font-medium">Próximas consultas</h2>
+              </div>
+              <Link to="/app/agenda" className="inline-flex items-center gap-1 text-xs text-brand hover:underline">
                 Ver agenda <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
@@ -196,21 +198,43 @@ function Dashboard() {
             </div>
           </div>
 
-          <QuickNotes />
+          <PendingReceivablesCard />
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-3">
-          <BirthdaysCard />
-          <InactivePatientsCard />
-          <div className="rounded-2xl border border-border/60 bg-surface/40 p-5 md:p-6">
-            <h2 className="text-sm font-medium text-muted-foreground">Atalhos</h2>
-            <div className="mt-5 grid gap-2">
-              <Quick to="/app/pacientes" icon={Users} title="Pacientes" hint="Cadastros e prontuário" />
-              <Quick to="/app/agenda" icon={Calendar} title="Agendar" hint="Bloquear horário" />
-              <Quick to="/app/financeiro" icon={Wallet} title="Financeiro" hint="Receber e despesas" />
-            </div>
+        {/* Lembretes — bloco próprio */}
+        <section>
+          <div className="flex items-center gap-2 mb-3 px-1">
+            <StickyNote className="h-4 w-4 text-brand" />
+            <h2 className="text-sm font-semibold tracking-tight">Bloco de notas</h2>
           </div>
-        </div>
+          <QuickNotes />
+        </section>
+
+        {/* Aniversariantes + Inativos */}
+        <section>
+          <div className="flex items-center gap-2 mb-3 px-1">
+            <Cake className="h-4 w-4 text-brand" />
+            <h2 className="text-sm font-semibold tracking-tight">Pacientes em foco</h2>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <BirthdaysCard />
+            <InactivePatientsCard />
+          </div>
+        </section>
+
+        {/* Atalhos */}
+        <section>
+          <div className="flex items-center gap-2 mb-3 px-1">
+            <Zap className="h-4 w-4 text-brand" />
+            <h2 className="text-sm font-semibold tracking-tight">Atalhos</h2>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Quick to="/app/pacientes" icon={Users} title="Pacientes" hint="Cadastros e prontuário" />
+            <Quick to="/app/agenda" icon={Calendar} title="Agendar" hint="Bloquear horário" />
+            <Quick to="/app/financeiro" icon={Wallet} title="Financeiro" hint="Receber e despesas" />
+          </div>
+        </section>
+
       </div>
     </>
   );
