@@ -17,8 +17,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppPacientesRouteImport } from './routes/_authenticated/app.pacientes'
+import { Route as AuthenticatedAppListaEsperaRouteImport } from './routes/_authenticated/app.lista-espera'
 import { Route as AuthenticatedAppFinanceiroRouteImport } from './routes/_authenticated/app.financeiro'
+import { Route as AuthenticatedAppEncaminhamentosRouteImport } from './routes/_authenticated/app.encaminhamentos'
 import { Route as AuthenticatedAppConfiguracoesRouteImport } from './routes/_authenticated/app.configuracoes'
+import { Route as AuthenticatedAppBibliotecaRouteImport } from './routes/_authenticated/app.biblioteca'
 import { Route as AuthenticatedAppAgendaRouteImport } from './routes/_authenticated/app.agenda'
 import { Route as AuthenticatedAppProntuariosIndexRouteImport } from './routes/_authenticated/app.prontuarios.index'
 import { Route as AuthenticatedAppProntuariosIdRouteImport } from './routes/_authenticated/app.prontuarios.$id'
@@ -63,16 +66,34 @@ const AuthenticatedAppPacientesRoute =
     path: '/pacientes',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppListaEsperaRoute =
+  AuthenticatedAppListaEsperaRouteImport.update({
+    id: '/lista-espera',
+    path: '/lista-espera',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppFinanceiroRoute =
   AuthenticatedAppFinanceiroRouteImport.update({
     id: '/financeiro',
     path: '/financeiro',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppEncaminhamentosRoute =
+  AuthenticatedAppEncaminhamentosRouteImport.update({
+    id: '/encaminhamentos',
+    path: '/encaminhamentos',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppConfiguracoesRoute =
   AuthenticatedAppConfiguracoesRouteImport.update({
     id: '/configuracoes',
     path: '/configuracoes',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppBibliotecaRoute =
+  AuthenticatedAppBibliotecaRouteImport.update({
+    id: '/biblioteca',
+    path: '/biblioteca',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppAgendaRoute = AuthenticatedAppAgendaRouteImport.update({
@@ -100,8 +121,11 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/agenda': typeof AuthenticatedAppAgendaRoute
+  '/app/biblioteca': typeof AuthenticatedAppBibliotecaRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
+  '/app/encaminhamentos': typeof AuthenticatedAppEncaminhamentosRoute
   '/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
+  '/app/lista-espera': typeof AuthenticatedAppListaEsperaRoute
   '/app/pacientes': typeof AuthenticatedAppPacientesRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
@@ -113,8 +137,11 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/app/agenda': typeof AuthenticatedAppAgendaRoute
+  '/app/biblioteca': typeof AuthenticatedAppBibliotecaRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
+  '/app/encaminhamentos': typeof AuthenticatedAppEncaminhamentosRoute
   '/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
+  '/app/lista-espera': typeof AuthenticatedAppListaEsperaRoute
   '/app/pacientes': typeof AuthenticatedAppPacientesRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
@@ -129,8 +156,11 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/agenda': typeof AuthenticatedAppAgendaRoute
+  '/_authenticated/app/biblioteca': typeof AuthenticatedAppBibliotecaRoute
   '/_authenticated/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
+  '/_authenticated/app/encaminhamentos': typeof AuthenticatedAppEncaminhamentosRoute
   '/_authenticated/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
+  '/_authenticated/app/lista-espera': typeof AuthenticatedAppListaEsperaRoute
   '/_authenticated/app/pacientes': typeof AuthenticatedAppPacientesRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
@@ -145,8 +175,11 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/app'
     | '/app/agenda'
+    | '/app/biblioteca'
     | '/app/configuracoes'
+    | '/app/encaminhamentos'
     | '/app/financeiro'
+    | '/app/lista-espera'
     | '/app/pacientes'
     | '/app/'
     | '/app/prontuarios/$id'
@@ -158,8 +191,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/app/agenda'
+    | '/app/biblioteca'
     | '/app/configuracoes'
+    | '/app/encaminhamentos'
     | '/app/financeiro'
+    | '/app/lista-espera'
     | '/app/pacientes'
     | '/app'
     | '/app/prontuarios/$id'
@@ -173,8 +209,11 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/app'
     | '/_authenticated/app/agenda'
+    | '/_authenticated/app/biblioteca'
     | '/_authenticated/app/configuracoes'
+    | '/_authenticated/app/encaminhamentos'
     | '/_authenticated/app/financeiro'
+    | '/_authenticated/app/lista-espera'
     | '/_authenticated/app/pacientes'
     | '/_authenticated/app/'
     | '/_authenticated/app/prontuarios/$id'
@@ -247,6 +286,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppPacientesRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/lista-espera': {
+      id: '/_authenticated/app/lista-espera'
+      path: '/lista-espera'
+      fullPath: '/app/lista-espera'
+      preLoaderRoute: typeof AuthenticatedAppListaEsperaRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/financeiro': {
       id: '/_authenticated/app/financeiro'
       path: '/financeiro'
@@ -254,11 +300,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppFinanceiroRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/encaminhamentos': {
+      id: '/_authenticated/app/encaminhamentos'
+      path: '/encaminhamentos'
+      fullPath: '/app/encaminhamentos'
+      preLoaderRoute: typeof AuthenticatedAppEncaminhamentosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/configuracoes': {
       id: '/_authenticated/app/configuracoes'
       path: '/configuracoes'
       fullPath: '/app/configuracoes'
       preLoaderRoute: typeof AuthenticatedAppConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/biblioteca': {
+      id: '/_authenticated/app/biblioteca'
+      path: '/biblioteca'
+      fullPath: '/app/biblioteca'
+      preLoaderRoute: typeof AuthenticatedAppBibliotecaRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/agenda': {
@@ -287,8 +347,11 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAgendaRoute: typeof AuthenticatedAppAgendaRoute
+  AuthenticatedAppBibliotecaRoute: typeof AuthenticatedAppBibliotecaRoute
   AuthenticatedAppConfiguracoesRoute: typeof AuthenticatedAppConfiguracoesRoute
+  AuthenticatedAppEncaminhamentosRoute: typeof AuthenticatedAppEncaminhamentosRoute
   AuthenticatedAppFinanceiroRoute: typeof AuthenticatedAppFinanceiroRoute
+  AuthenticatedAppListaEsperaRoute: typeof AuthenticatedAppListaEsperaRoute
   AuthenticatedAppPacientesRoute: typeof AuthenticatedAppPacientesRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppProntuariosIdRoute: typeof AuthenticatedAppProntuariosIdRoute
@@ -297,8 +360,11 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAgendaRoute: AuthenticatedAppAgendaRoute,
+  AuthenticatedAppBibliotecaRoute: AuthenticatedAppBibliotecaRoute,
   AuthenticatedAppConfiguracoesRoute: AuthenticatedAppConfiguracoesRoute,
+  AuthenticatedAppEncaminhamentosRoute: AuthenticatedAppEncaminhamentosRoute,
   AuthenticatedAppFinanceiroRoute: AuthenticatedAppFinanceiroRoute,
+  AuthenticatedAppListaEsperaRoute: AuthenticatedAppListaEsperaRoute,
   AuthenticatedAppPacientesRoute: AuthenticatedAppPacientesRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppProntuariosIdRoute: AuthenticatedAppProntuariosIdRoute,
@@ -330,3 +396,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
