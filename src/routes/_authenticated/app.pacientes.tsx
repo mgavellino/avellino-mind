@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Search, Pencil, Trash2, Mail, Phone, Download, Upload } from "lucide-react";
 import { toast } from "sonner";
@@ -169,7 +169,13 @@ function PatientsPage() {
                         )}
                       </div>
                       <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">{p.full_name}</div>
+                        <Link
+                          to="/app/pacientes/$id"
+                          params={{ id: p.id }}
+                          className="text-sm font-medium truncate hover:text-brand"
+                        >
+                          {p.full_name}
+                        </Link>
                         {p.birth_date && (
                           <div className="text-xs text-muted-foreground">
                             {new Date(p.birth_date).toLocaleDateString("pt-BR")}

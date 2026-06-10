@@ -279,7 +279,7 @@ function RecordEditorPage() {
       </div>
 
       <ClientOnly fallback={<EditorSkeleton />}>
-        <RecordEditor content={content} onChange={handleEditorChange} />
+        <RecordEditor content={content} onChange={handleEditorChange} patientName={patientName} />
       </ClientOnly>
 
       {showHistory && (
