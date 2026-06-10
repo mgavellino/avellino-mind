@@ -17,18 +17,22 @@ import {
   Redo2,
   Minus,
   FileText,
+  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import { TEMPLATES } from "@/lib/soap-templates";
+import { AiSoapDraftDialog } from "@/components/app/AiSoapDraftDialog";
 
 type Props = {
   content: object | null;
   onChange: (json: object, text: string) => void;
   editable?: boolean;
+  patientName?: string;
 };
 
-export function RecordEditor({ content, onChange, editable = true }: Props) {
+export function RecordEditor({ content, onChange, editable = true, patientName }: Props) {
   const [tplOpen, setTplOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -156,6 +160,14 @@ export function RecordEditor({ content, onChange, editable = true }: Props) {
             </div>
           )}
         </div>
+        <button
+          type="button"
+          onClick={() => setAiOpen(true)}
+          className="h-8 px-2 inline-flex items-center gap-1 rounded-md text-xs text-brand hover:bg-brand/10"
+          title="IA: gerar rascunho de evolução"
+        >
+          <Sparkles className="h-3.5 w-3.5" /> IA
+        </button>
         <div className="flex-1" />
         <ToolButton
           onClick={() => editor.chain().focus().undo().run()}
@@ -174,6 +186,30 @@ export function RecordEditor({ content, onChange, editable = true }: Props) {
       <div className="px-6 py-8 max-h-[70vh] overflow-y-auto">
         <EditorContent editor={editor} />
       </div>
+
+      <AiSoapDraftDialog
+        open={aiOpen}
+        onClose={() => setAiOpen(false)}
+        patientName={patientName}
+        onInsert={(md) => {
+          // Convert markdown headings/paragraphs to simple TipTap content
+          const lines = md.split("\n");
+          const content: object[] = [];
+          for (const raw of lines) {
+            const line = raw.trim();
+            if (!line) {
+              content.push({ type: "paragraph" });
+              continue;
+            }
+            const h2 = line.match(/^##\s+(.+)$/);
+            const h3 = line.match(/^###\s+(.+)$/);
+            if (h2) content.push({ type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: h2[1] }] });
+            else if (h3) content.push({ type: "heading", attrs: { level: 3 }, content: [{ type: "text", text: h3[1] }] });
+            else content.push({ type: "paragraph", content: [{ type: "text", text: line }] });
+          }
+          editor.chain().focus().insertContent(content as never).run();
+        }}
+      />
     </div>
   );
 }

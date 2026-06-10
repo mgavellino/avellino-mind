@@ -10,6 +10,7 @@ import {
   FileDown,
   Filter,
   Plus,
+  Receipt,
   Trash2,
   TrendingDown,
   TrendingUp,
@@ -17,6 +18,10 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { generateMonthlyReport, type ReportData } from "@/lib/pdf-report";
+import { generateReceipt, shortReceiptNumber } from "@/lib/receipt-pdf";
+import { exportIRYearCSV } from "@/lib/ir-export";
+import { MonthlyGoalCard } from "@/components/app/MonthlyGoalCard";
+import { ExpensesPieChart } from "@/components/app/ExpensesPieChart";
 
 export const Route = createFileRoute("/_authenticated/app/financeiro")({
   component: FinanceiroPage,
@@ -364,13 +369,34 @@ function FinanceiroPage() {
             Receitas, despesas e lucro do consultório.
           </p>
         </div>
-        <button
-          onClick={downloadReport}
-          className="inline-flex items-center gap-1.5 h-10 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90"
-        >
-          <FileDown className="h-4 w-4" />
-          Relatório do mês
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => {
+              const year = new Date().getFullYear();
+              exportIRYearCSV(year, receivables as never, expenses as never, patients as never);
+              toast.success(`Exportado IR ${year} (receitas + despesas)`);
+            }}
+            className="inline-flex items-center gap-1.5 h-10 px-3 rounded-lg border border-border/60 text-sm hover:bg-surface"
+          >
+            <FileDown className="h-4 w-4" /> IR (CSV)
+          </button>
+          <button
+            onClick={downloadReport}
+            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90"
+          >
+            <FileDown className="h-4 w-4" />
+            Relatório
+          </button>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2 mb-6">
+        <MonthlyGoalCard receivedCents={stats.received} pendingCents={stats.pending + stats.overdue} />
+        <ExpensesPieChart expenses={expenses.filter((e) => {
+          const now = new Date();
+          const m = startOfMonth(now).toISOString();
+          const me = endOfMonth(now).toISOString();
+          return e.paid_at >= m && e.paid_at <= me;
+        }) as never} />
       </div>
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-6">

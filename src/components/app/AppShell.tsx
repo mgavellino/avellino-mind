@@ -12,6 +12,7 @@ import {
   Clock,
   Network,
   BookOpen,
+  CalendarX,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { AiAssistant } from "@/components/app/AiAssistant";
@@ -30,6 +31,7 @@ const nav = [
 
 const navExtras = [
   { to: "/app/lista-espera", icon: Clock, label: "Lista de espera" },
+  { to: "/app/bloqueios", icon: CalendarX, label: "Bloqueios" },
   { to: "/app/encaminhamentos", icon: Network, label: "Encaminhamentos" },
   { to: "/app/biblioteca", icon: BookOpen, label: "Biblioteca" },
   { to: "/app/configuracoes", icon: Settings, label: "Ajustes" },
