@@ -1,6 +1,7 @@
 import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, HeadingLevel, TextRun } from "docx";
-import { saveAs } from "file-saver";
+import FileSaver from "file-saver";
+const { saveAs } = FileSaver;
 
 type DocNode = {
   type: string;
