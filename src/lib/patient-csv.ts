@@ -1,5 +1,6 @@
 import Papa from "papaparse";
-import { saveAs } from "file-saver";
+import FileSaver from "file-saver";
+const { saveAs } = FileSaver;
 import { supabase } from "@/integrations/supabase/client";
 import type { Patient } from "@/components/app/PatientFormSheet";
 

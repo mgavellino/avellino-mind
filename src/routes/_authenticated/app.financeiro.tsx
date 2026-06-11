@@ -387,7 +387,10 @@ function FinanceiroPage() {
             <FileDown className="h-4 w-4" />
             Relatório
           </button>
+        </div>
       </div>
+
+
 
       <div className="grid gap-4 lg:grid-cols-2 mb-6">
         <MonthlyGoalCard receivedCents={stats.received} pendingCents={stats.pending + stats.overdue} />
