@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/aline-dias-logo.jpg.asset.json";
+const LOGO_URL = "/aline-logo.jpg";
 
 type LogoProps = {
   className?: string;
@@ -11,7 +11,7 @@ export function Logo({ className = "", showWordmark = true, size = 36 }: LogoPro
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <img
-        src={logoAsset.url}
+        src={LOGO_URL}
         alt="Aline Dias — Psicóloga"
         width={size}
         height={size}
