@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/aline-dias-logo.jpg.asset.json";
+const LOGO_URL = "/aline-logo.jpg";
 
 type LogoProps = {
   className?: string;
