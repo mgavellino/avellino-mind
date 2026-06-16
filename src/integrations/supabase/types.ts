@@ -190,6 +190,51 @@ export type Database = {
         }
         Relationships: []
       }
+      books: {
+        Row: {
+          authors: string | null
+          cover_id: number | null
+          created_at: string
+          first_publish_year: number | null
+          id: string
+          notes: string | null
+          ol_key: string | null
+          owner_id: string
+          rating: number | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          authors?: string | null
+          cover_id?: number | null
+          created_at?: string
+          first_publish_year?: number | null
+          id?: string
+          notes?: string | null
+          ol_key?: string | null
+          owner_id: string
+          rating?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          authors?: string | null
+          cover_id?: number | null
+          created_at?: string
+          first_publish_year?: number | null
+          id?: string
+          notes?: string | null
+          ol_key?: string | null
+          owner_id?: string
+          rating?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       coupon_redemptions: {
         Row: {
           coupon_id: string
