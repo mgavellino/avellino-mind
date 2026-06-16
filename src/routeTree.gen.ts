@@ -17,6 +17,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppPacientesRouteImport } from './routes/_authenticated/app.pacientes'
+import { Route as AuthenticatedAppMusicaRouteImport } from './routes/_authenticated/app.musica'
+import { Route as AuthenticatedAppLivrosRouteImport } from './routes/_authenticated/app.livros'
 import { Route as AuthenticatedAppListaEsperaRouteImport } from './routes/_authenticated/app.lista-espera'
 import { Route as AuthenticatedAppFinanceiroRouteImport } from './routes/_authenticated/app.financeiro'
 import { Route as AuthenticatedAppEncaminhamentosRouteImport } from './routes/_authenticated/app.encaminhamentos'
@@ -68,6 +70,16 @@ const AuthenticatedAppPacientesRoute =
     path: '/pacientes',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppMusicaRoute = AuthenticatedAppMusicaRouteImport.update({
+  id: '/musica',
+  path: '/musica',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppLivrosRoute = AuthenticatedAppLivrosRouteImport.update({
+  id: '/livros',
+  path: '/livros',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppListaEsperaRoute =
   AuthenticatedAppListaEsperaRouteImport.update({
     id: '/lista-espera',
@@ -141,6 +153,8 @@ export interface FileRoutesByFullPath {
   '/app/encaminhamentos': typeof AuthenticatedAppEncaminhamentosRoute
   '/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
   '/app/lista-espera': typeof AuthenticatedAppListaEsperaRoute
+  '/app/livros': typeof AuthenticatedAppLivrosRoute
+  '/app/musica': typeof AuthenticatedAppMusicaRoute
   '/app/pacientes': typeof AuthenticatedAppPacientesRouteWithChildren
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/pacientes/$id': typeof AuthenticatedAppPacientesIdRoute
@@ -159,6 +173,8 @@ export interface FileRoutesByTo {
   '/app/encaminhamentos': typeof AuthenticatedAppEncaminhamentosRoute
   '/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
   '/app/lista-espera': typeof AuthenticatedAppListaEsperaRoute
+  '/app/livros': typeof AuthenticatedAppLivrosRoute
+  '/app/musica': typeof AuthenticatedAppMusicaRoute
   '/app/pacientes': typeof AuthenticatedAppPacientesRouteWithChildren
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/pacientes/$id': typeof AuthenticatedAppPacientesIdRoute
@@ -180,6 +196,8 @@ export interface FileRoutesById {
   '/_authenticated/app/encaminhamentos': typeof AuthenticatedAppEncaminhamentosRoute
   '/_authenticated/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
   '/_authenticated/app/lista-espera': typeof AuthenticatedAppListaEsperaRoute
+  '/_authenticated/app/livros': typeof AuthenticatedAppLivrosRoute
+  '/_authenticated/app/musica': typeof AuthenticatedAppMusicaRoute
   '/_authenticated/app/pacientes': typeof AuthenticatedAppPacientesRouteWithChildren
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/pacientes/$id': typeof AuthenticatedAppPacientesIdRoute
@@ -201,6 +219,8 @@ export interface FileRouteTypes {
     | '/app/encaminhamentos'
     | '/app/financeiro'
     | '/app/lista-espera'
+    | '/app/livros'
+    | '/app/musica'
     | '/app/pacientes'
     | '/app/'
     | '/app/pacientes/$id'
@@ -219,6 +239,8 @@ export interface FileRouteTypes {
     | '/app/encaminhamentos'
     | '/app/financeiro'
     | '/app/lista-espera'
+    | '/app/livros'
+    | '/app/musica'
     | '/app/pacientes'
     | '/app'
     | '/app/pacientes/$id'
@@ -239,6 +261,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/encaminhamentos'
     | '/_authenticated/app/financeiro'
     | '/_authenticated/app/lista-espera'
+    | '/_authenticated/app/livros'
+    | '/_authenticated/app/musica'
     | '/_authenticated/app/pacientes'
     | '/_authenticated/app/'
     | '/_authenticated/app/pacientes/$id'
@@ -310,6 +334,20 @@ declare module '@tanstack/react-router' {
       path: '/pacientes'
       fullPath: '/app/pacientes'
       preLoaderRoute: typeof AuthenticatedAppPacientesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/musica': {
+      id: '/_authenticated/app/musica'
+      path: '/musica'
+      fullPath: '/app/musica'
+      preLoaderRoute: typeof AuthenticatedAppMusicaRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/livros': {
+      id: '/_authenticated/app/livros'
+      path: '/livros'
+      fullPath: '/app/livros'
+      preLoaderRoute: typeof AuthenticatedAppLivrosRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/lista-espera': {
@@ -407,6 +445,8 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppEncaminhamentosRoute: typeof AuthenticatedAppEncaminhamentosRoute
   AuthenticatedAppFinanceiroRoute: typeof AuthenticatedAppFinanceiroRoute
   AuthenticatedAppListaEsperaRoute: typeof AuthenticatedAppListaEsperaRoute
+  AuthenticatedAppLivrosRoute: typeof AuthenticatedAppLivrosRoute
+  AuthenticatedAppMusicaRoute: typeof AuthenticatedAppMusicaRoute
   AuthenticatedAppPacientesRoute: typeof AuthenticatedAppPacientesRouteWithChildren
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppProntuariosIdRoute: typeof AuthenticatedAppProntuariosIdRoute
@@ -421,6 +461,8 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppEncaminhamentosRoute: AuthenticatedAppEncaminhamentosRoute,
   AuthenticatedAppFinanceiroRoute: AuthenticatedAppFinanceiroRoute,
   AuthenticatedAppListaEsperaRoute: AuthenticatedAppListaEsperaRoute,
+  AuthenticatedAppLivrosRoute: AuthenticatedAppLivrosRoute,
+  AuthenticatedAppMusicaRoute: AuthenticatedAppMusicaRoute,
   AuthenticatedAppPacientesRoute: AuthenticatedAppPacientesRouteWithChildren,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppProntuariosIdRoute: AuthenticatedAppProntuariosIdRoute,
@@ -452,13 +494,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
