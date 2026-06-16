@@ -13,6 +13,8 @@ import {
   Network,
   BookOpen,
   CalendarX,
+  Library,
+  Music,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { AiAssistant } from "@/components/app/AiAssistant";
@@ -34,6 +36,8 @@ const navExtras = [
   { to: "/app/bloqueios", icon: CalendarX, label: "Bloqueios" },
   { to: "/app/encaminhamentos", icon: Network, label: "Encaminhamentos" },
   { to: "/app/biblioteca", icon: BookOpen, label: "Biblioteca" },
+  { to: "/app/livros", icon: Library, label: "Livros" },
+  { to: "/app/musica", icon: Music, label: "Música" },
   { to: "/app/configuracoes", icon: Settings, label: "Ajustes" },
 ];
 
