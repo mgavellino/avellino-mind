@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Search, BookOpen, Plus, Trash2, Star, ExternalLink, Loader2 } from "lucide-react";
+import { Search, BookOpen, Plus, Trash2, Star, ExternalLink, Loader2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -18,6 +18,8 @@ type OLDoc = {
   ia?: string[];
   has_fulltext?: boolean;
   ebook_access?: string;
+  lending_identifier_s?: string;
+  isbn?: string[];
 };
 
 type Book = {
@@ -41,6 +43,13 @@ const STATUS_LABEL: Record<Book["status"], string> = {
 const coverUrl = (id?: number | null, size: "S" | "M" | "L" = "M") =>
   id ? `https://covers.openlibrary.org/b/id/${id}-${size}.jpg` : null;
 
+type Reader = {
+  title: string;
+  iaId?: string;
+  olKey?: string;
+  isbn?: string;
+};
+
 function BooksPage() {
   const { user } = useAuth();
   const [tab, setTab] = useState<"search" | "shelf">("search");
@@ -49,6 +58,8 @@ function BooksPage() {
   const [loading, setLoading] = useState(false);
   const [shelf, setShelf] = useState<Book[]>([]);
   const [filter, setFilter] = useState<Book["status"] | "all">("all");
+  const [reader, setReader] = useState<Reader | null>(null);
+  const [resolvingIa, setResolvingIa] = useState<string | null>(null);
 
   const loadShelf = async () => {
     const { data } = await supabase
@@ -68,7 +79,7 @@ function BooksPage() {
     setLoading(true);
     try {
       const r = await fetch(
-        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=30&fields=key,title,author_name,cover_i,first_publish_year,ia,has_fulltext,ebook_access`,
+        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=40&fields=key,title,author_name,cover_i,first_publish_year,ia,has_fulltext,ebook_access,lending_identifier_s,isbn`,
       );
       const j = await r.json();
       setResults(j.docs ?? []);
@@ -106,6 +117,56 @@ function BooksPage() {
     loadShelf();
   };
 
+  /** Tenta achar um ID do Internet Archive para o livro, usando vários caminhos. */
+  const openReader = async (opts: {
+    title: string;
+    olKey?: string | null;
+    ia?: string[];
+    lending?: string | null;
+    isbn?: string[];
+  }) => {
+    const directIa = opts.ia?.[0] ?? opts.lending ?? null;
+    if (directIa) {
+      setReader({ title: opts.title, iaId: directIa, olKey: opts.olKey ?? undefined });
+      return;
+    }
+    setResolvingIa(opts.olKey ?? opts.title);
+    try {
+      // 1) Open Library work/edition → ocaid
+      if (opts.olKey) {
+        try {
+          const r = await fetch(`https://openlibrary.org${opts.olKey}.json`);
+          const j = await r.json();
+          if (j.ocaid) {
+            setReader({ title: opts.title, iaId: j.ocaid, olKey: opts.olKey });
+            return;
+          }
+        } catch {}
+      }
+      // 2) Busca no Internet Archive por título
+      try {
+        const q = `title:(${opts.title}) AND mediatype:texts`;
+        const r = await fetch(
+          `https://archive.org/advancedsearch.php?q=${encodeURIComponent(q)}&fl[]=identifier&rows=1&output=json`,
+        );
+        const j = await r.json();
+        const id = j?.response?.docs?.[0]?.identifier;
+        if (id) {
+          setReader({ title: opts.title, iaId: id, olKey: opts.olKey ?? undefined });
+          return;
+        }
+      } catch {}
+      // 3) Sem leitura integral — abre visualizador do Google Books
+      setReader({
+        title: opts.title,
+        olKey: opts.olKey ?? undefined,
+        isbn: opts.isbn?.[0],
+      });
+    } finally {
+      setResolvingIa(null);
+    }
+  };
+
   const filtered = useMemo(
     () => (filter === "all" ? shelf : shelf.filter((b) => b.status === filter)),
     [shelf, filter],
@@ -116,7 +177,8 @@ function BooksPage() {
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Livros</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Busque na Open Library, monte sua estante e marque o que já leu. Livros em domínio público têm leitura integral.
+          Busque qualquer título no acervo mundial (Open Library + Internet Archive) e leia
+          dentro do site quando houver versão integral disponível.
         </p>
       </div>
 
@@ -160,7 +222,7 @@ function BooksPage() {
             <div className="rounded-2xl border border-dashed border-border/60 p-12 text-center">
               <BookOpen className="h-8 w-8 text-muted-foreground/40 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">
-                Experimente: "Viktor Frankl", "Yalom", "TCC", "Winnicott", "Bessel van der Kolk"...
+                Digite um título, autor ou ISBN. Ex.: "1984", "Clarice Lispector", "TCC"...
               </p>
             </div>
           )}
@@ -168,8 +230,12 @@ function BooksPage() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {results.map((d) => {
               const cover = coverUrl(d.cover_i, "M");
-              const readable =
-                d.ebook_access === "public" || d.ebook_access === "borrowable" || d.has_fulltext;
+              const directReadable =
+                !!d.ia?.length ||
+                !!d.lending_identifier_s ||
+                d.ebook_access === "public" ||
+                d.ebook_access === "borrowable";
+              const busy = resolvingIa === (d.key ?? d.title);
               return (
                 <div key={d.key} className="rounded-2xl border border-border/60 bg-surface/40 p-3 flex gap-3">
                   <div className="w-20 h-28 shrink-0 rounded-md bg-surface overflow-hidden grid place-items-center">
@@ -189,6 +255,26 @@ function BooksPage() {
                     )}
                     <div className="mt-2 flex flex-wrap gap-1">
                       <button
+                        onClick={() =>
+                          openReader({
+                            title: d.title,
+                            olKey: d.key,
+                            ia: d.ia,
+                            lending: d.lending_identifier_s,
+                            isbn: d.isbn,
+                          })
+                        }
+                        disabled={busy}
+                        className={`h-7 px-2 rounded-md text-[11px] inline-flex items-center gap-1 ${
+                          directReadable
+                            ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                            : "border border-border/60 hover:bg-surface"
+                        }`}
+                      >
+                        {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <BookOpen className="h-3 w-3" />}
+                        Ler
+                      </button>
+                      <button
                         onClick={() => addToShelf(d, "want")}
                         className="h-7 px-2 rounded-md text-[11px] border border-border/60 hover:bg-surface inline-flex items-center gap-1"
                       >
@@ -200,16 +286,6 @@ function BooksPage() {
                       >
                         Lendo
                       </button>
-                      {readable && (
-                        <a
-                          href={`https://openlibrary.org${d.key}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="h-7 px-2 rounded-md text-[11px] border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 inline-flex items-center gap-1"
-                        >
-                          <ExternalLink className="h-3 w-3" /> Ler
-                        </a>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -292,16 +368,14 @@ function BooksPage() {
                           </button>
                         ))}
                       </div>
-                      {b.ol_key && (
-                        <a
-                          href={`https://openlibrary.org${b.ol_key}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-1.5 inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground"
-                        >
-                          <ExternalLink className="h-2.5 w-2.5" /> Open Library
-                        </a>
-                      )}
+                      <button
+                        onClick={() =>
+                          openReader({ title: b.title, olKey: b.ol_key, ia: undefined, lending: null })
+                        }
+                        className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-brand hover:underline"
+                      >
+                        <BookOpen className="h-3 w-3" /> Ler
+                      </button>
                     </div>
                   </div>
                 );
@@ -309,6 +383,74 @@ function BooksPage() {
             </div>
           )}
         </>
+      )}
+
+      {reader && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col">
+          <div className="flex items-center justify-between gap-3 p-3 border-b border-border/40 bg-background/95">
+            <div className="min-w-0">
+              <div className="text-sm font-medium truncate">{reader.title}</div>
+              <div className="text-[10px] text-muted-foreground">
+                {reader.iaId
+                  ? "Internet Archive"
+                  : reader.isbn
+                    ? "Pré-visualização do Google Books"
+                    : "Sem leitura integral disponível"}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {reader.iaId && (
+                <a
+                  href={`https://archive.org/details/${reader.iaId}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="h-8 px-2 rounded-md text-xs border border-border/60 inline-flex items-center gap-1"
+                >
+                  <ExternalLink className="h-3 w-3" /> Abrir
+                </a>
+              )}
+              <button
+                onClick={() => setReader(null)}
+                className="h-8 w-8 grid place-items-center rounded-md border border-border/60"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 bg-black">
+            {reader.iaId ? (
+              <iframe
+                title={reader.title}
+                src={`https://archive.org/stream/${reader.iaId}?ui=embed#mode/2up`}
+                className="w-full h-full border-0"
+                allow="fullscreen"
+              />
+            ) : reader.isbn ? (
+              <iframe
+                title={reader.title}
+                src={`https://books.google.com/books?vid=ISBN${reader.isbn}&printsec=frontcover&output=embed`}
+                className="w-full h-full border-0"
+              />
+            ) : (
+              <div className="h-full grid place-items-center text-center text-sm text-muted-foreground p-6">
+                <div>
+                  <BookOpen className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                  Este título não tem leitura integral pública disponível.<br />
+                  {reader.olKey && (
+                    <a
+                      href={`https://openlibrary.org${reader.olKey}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-brand hover:underline inline-flex items-center gap-1 mt-2"
+                    >
+                      <ExternalLink className="h-3 w-3" /> Ver detalhes na Open Library
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
