@@ -1,0 +1,17 @@
+{
+  "name": "Aline Dias — Psicóloga Clínica",
+  "short_name": "Aline Dias",
+  "description": "Psicóloga clínica em Santa Luzia/MG. TCC para adultos e adolescentes — online e presencial.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f1ec",
+  "theme_color": "#2e6e6e",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "icons": [
+    { "src": "/favicon-16.png", "sizes": "16x16", "type": "image/png" },
+    { "src": "/favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/apple-touch-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
