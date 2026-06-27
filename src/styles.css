@@ -44,8 +44,6 @@
   --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
   --font-script: "Dancing Script", "Great Vibes", cursive;
-  --font-heading: "Playfair Display", "Cormorant Garamond", Georgia, serif;
-  --font-body: "Inter", system-ui, sans-serif;
 
   --shadow-glow: 0 0 60px -15px color-mix(in oklab, var(--brand) 45%, transparent);
   --shadow-elevated: 0 12px 32px -16px color-mix(in oklab, var(--brand) 25%, transparent), 0 2px 8px -2px rgb(15 30 30 / 0.08);

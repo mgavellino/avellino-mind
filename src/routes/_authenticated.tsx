@@ -5,13 +5,7 @@ import { AppShell } from "@/components/app/AppShell";
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
-  head: () => ({
-    meta: [
-      { name: "robots", content: "noindex, nofollow, noarchive, nosnippet, noimageindex" },
-    ],
-  }),
 });
-
 
 function AuthenticatedLayout() {
   const { user, loading } = useAuth();
