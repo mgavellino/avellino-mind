@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://avellpsy.lovable.app/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://avellpsy.lovable.app/landing/aline.jpg</image:loc>
+      <image:title>Aline Dias — Psicóloga Clínica</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://avellpsy.lovable.app/landing/consultorio-1.jpg</image:loc>
+      <image:title>Consultório — Sala de espera</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://avellpsy.lovable.app/landing/consultorio-3.jpg</image:loc>
+      <image:title>Consultório — Sala de atendimento</image:title>
+    </image:image>
+  </url>
+</urlset>
