@@ -75,10 +75,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Aline Dias — Psicóloga" },
-      { name: "description", content: "Área restrita do consultório da psicóloga Aline Dias." },
-      { name: "robots", content: "noindex, nofollow" },
+      { title: "Aline Dias — Psicóloga Clínica" },
+      { name: "description", content: "Psicóloga clínica em Santa Luzia/MG. TCC para adultos e adolescentes — atendimento online e presencial." },
       { name: "theme-color", content: "#2e6e6e" },
+      { name: "color-scheme", content: "light" },
+      { httpEquiv: "Content-Language", content: "pt-BR" },
+      { name: "application-name", content: "Aline Dias Psicóloga" },
+      { name: "apple-mobile-web-app-title", content: "Aline Dias" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "referrer", content: "strict-origin-when-cross-origin" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -86,6 +92,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32.png" },
       { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16.png" },
       { rel: "apple-touch-icon", sizes: "512x512", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "dns-prefetch", href: "https://fonts.googleapis.com" },
+      { rel: "dns-prefetch", href: "https://fonts.gstatic.com" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -94,6 +103,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
   }),
+
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
