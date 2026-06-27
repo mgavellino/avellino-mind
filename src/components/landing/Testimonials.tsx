@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+const sb = supabase as any;
 
 type Review = {
   id: string;
@@ -106,7 +107,7 @@ const Testimonials = () => {
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from("depoimentos")
         .select("id, nome, estrelas, comentario, created_at")
         .order("created_at", { ascending: false });
@@ -135,7 +136,7 @@ const Testimonials = () => {
       return;
     }
     setErrors({});
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from("depoimentos")
       .insert({
         nome: result.data.nome,
