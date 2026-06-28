@@ -309,6 +309,30 @@ export type Database = {
         }
         Relationships: []
       }
+      depoimentos: {
+        Row: {
+          comentario: string
+          created_at: string
+          estrelas: number
+          id: string
+          nome: string
+        }
+        Insert: {
+          comentario: string
+          created_at?: string
+          estrelas: number
+          id?: string
+          nome: string
+        }
+        Update: {
+          comentario?: string
+          created_at?: string
+          estrelas?: number
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string
