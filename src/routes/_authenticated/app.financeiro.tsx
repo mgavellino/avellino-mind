@@ -84,6 +84,11 @@ function brl(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+function focusMoneyInput(e: React.FocusEvent<HTMLInputElement> | React.TouchEvent<HTMLInputElement>) {
+  e.currentTarget.focus();
+  if ("select" in e.currentTarget) e.currentTarget.select();
+}
+
 function methodLabel(id: string | null | undefined) {
   if (!id) return "—";
   return PAYMENT_METHODS.find((m) => m.id === id)?.label ?? id;
@@ -422,18 +427,24 @@ function FinanceiroPage() {
             Aplicado em novos recebíveis automaticamente.
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:w-auto">
           <span className="text-sm text-muted-foreground">R$</span>
           <input
+            type="text"
             inputMode="decimal"
+            enterKeyHint="done"
+            autoComplete="off"
+            pattern="[0-9]*[,.]?[0-9]*"
             value={defaultPrice}
             onChange={(e) => setDefaultPrice(e.target.value)}
+            onFocus={focusMoneyInput}
+            onTouchStart={focusMoneyInput}
             placeholder="200,00"
-            className="h-10 w-28 px-3 rounded-lg bg-background border border-border/60 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+            className="h-11 min-w-0 w-full sm:w-32 px-3 rounded-lg bg-background border border-border/60 text-base sm:text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
           <button
             onClick={saveDefaultPrice}
-            className="h-10 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90"
+            className="h-11 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90"
           >
             Salvar
           </button>
@@ -508,13 +519,19 @@ function FinanceiroPage() {
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs text-muted-foreground">R$</span>
                           <input
+                            type="text"
                             inputMode="decimal"
+                            enterKeyHint="done"
+                            autoComplete="off"
+                            pattern="[0-9]*[,.]?[0-9]*"
                             defaultValue={(r.amount_cents / 100).toFixed(2).replace(".", ",")}
+                            onFocus={focusMoneyInput}
+                            onTouchStart={focusMoneyInput}
                             onBlur={(e) => {
                               const cents = Math.round(parseFloat(e.target.value.replace(",", ".")) * 100);
                               if (!Number.isNaN(cents) && cents !== r.amount_cents) setAmount(r, e.target.value);
                             }}
-                            className="h-9 w-24 px-2 rounded-lg bg-background border border-border/60 text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            className="h-10 w-28 px-2 rounded-lg bg-background border border-border/60 text-base sm:text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring/40"
                           />
                         </div>
                         {r.status !== "paid" && !isPicking && (
@@ -594,11 +611,17 @@ function FinanceiroPage() {
               <div>
                 <label className="text-xs text-muted-foreground">Valor (R$)</label>
                 <input
+                  type="text"
                   inputMode="decimal"
+                  enterKeyHint="done"
+                  autoComplete="off"
+                  pattern="[0-9]*[,.]?[0-9]*"
                   value={expenseForm.amount}
                   onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
+                  onFocus={focusMoneyInput}
+                  onTouchStart={focusMoneyInput}
                   placeholder="1500,00"
-                  className="mt-1 w-full h-10 px-3 rounded-lg bg-background border border-border/60 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                  className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border/60 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
                 />
               </div>
               <div>

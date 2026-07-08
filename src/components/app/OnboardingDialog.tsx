@@ -208,11 +208,20 @@ export function OnboardingDialog() {
                   <span className="text-sm text-muted-foreground">R$</span>
                   <input
                     autoFocus
+                    type="text"
                     inputMode="decimal"
+                    enterKeyHint="done"
+                    autoComplete="off"
+                    pattern="[0-9]*[,.]?[0-9]*"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
+                    onFocus={(e) => e.currentTarget.select()}
+                    onTouchStart={(e) => {
+                      e.currentTarget.focus();
+                      e.currentTarget.select();
+                    }}
                     placeholder="200,00"
-                    className="flex-1 h-10 px-3 rounded-lg bg-surface border border-border/60 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                    className="flex-1 h-11 px-3 rounded-lg bg-surface border border-border/60 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
                   />
                 </div>
                 <p className="mt-2 text-[11px] text-muted-foreground">

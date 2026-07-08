@@ -74,11 +74,20 @@ export function MonthlyGoalCard({ receivedCents, pendingCents }: Props) {
             <span className="text-xs text-muted-foreground">R$</span>
             <input
               autoFocus
+              type="text"
               inputMode="decimal"
+              enterKeyHint="done"
+              autoComplete="off"
+              pattern="[0-9]*[,.]?[0-9]*"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onFocus={(e) => e.currentTarget.select()}
+              onTouchStart={(e) => {
+                e.currentTarget.focus();
+                e.currentTarget.select();
+              }}
               placeholder="10000"
-              className="h-8 w-24 px-2 rounded-md bg-background border border-border/60 text-sm text-right"
+              className="h-9 w-28 px-2 rounded-md bg-background border border-border/60 text-base sm:text-sm text-right"
             />
             <button
               onClick={save}

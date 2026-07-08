@@ -47,7 +47,7 @@ export function RecordEditor({ content, onChange, editable = true, patientName }
     editorProps: {
       attributes: {
         class:
-          "tiptap-content focus:outline-none min-h-[60vh] text-foreground",
+          "tiptap-content focus:outline-none min-h-[55vh] md:min-h-[60vh] text-base md:text-[15px] text-foreground break-words touch-manipulation",
       },
     },
     onUpdate: ({ editor }) => {
@@ -67,8 +67,8 @@ export function RecordEditor({ content, onChange, editable = true, patientName }
   if (!editor) return null;
 
   return (
-    <div className="rounded-2xl border border-border/60 bg-surface/30 overflow-hidden">
-      <div className="flex flex-wrap items-center gap-0.5 border-b border-border/60 bg-surface/40 px-2 py-1.5 sticky top-14 z-10 backdrop-blur">
+    <div className="rounded-xl md:rounded-2xl border border-border/60 bg-surface/30 overflow-visible md:overflow-hidden">
+      <div className="flex md:flex-wrap items-center gap-0.5 border-b border-border/60 bg-surface/95 px-2 py-1.5 sticky top-14 z-10 backdrop-blur overflow-x-auto [-webkit-overflow-scrolling:touch]">
         <ToolButton
           active={editor.isActive("heading", { level: 1 })}
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -183,7 +183,7 @@ export function RecordEditor({ content, onChange, editable = true, patientName }
         />
       </div>
 
-      <div className="px-6 py-8 max-h-[70vh] overflow-y-auto">
+      <div className="px-3 py-4 pb-28 md:px-6 md:py-8 md:pb-8 max-h-none md:max-h-[70vh] overflow-visible md:overflow-y-auto">
         <EditorContent editor={editor} />
       </div>
 
