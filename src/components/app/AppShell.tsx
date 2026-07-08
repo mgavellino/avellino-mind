@@ -156,7 +156,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
           </Link>
         </header>
-        <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">{children}</main>
+        <main className="flex-1 p-3 sm:p-4 md:p-8 pb-28 md:pb-8">{children}</main>
       </div>
 
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur">
@@ -183,7 +183,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </nav>
 
       <AiAssistant open={aiOpen} onOpenChange={setAiOpen} />
-      <PomodoroWidget />
+      <div className="hidden md:block">
+        <PomodoroWidget />
+      </div>
     </div>
   );
 }

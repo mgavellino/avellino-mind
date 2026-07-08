@@ -11,23 +11,44 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+function isPasswordRecoveryRedirect() {
+  if (typeof window === "undefined") return false;
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const search = new URLSearchParams(window.location.search);
+  return hash.get("type") === "recovery" || search.get("type") === "recovery";
+}
+
+function redirectToResetPassword() {
+  if (typeof window === "undefined" || window.location.pathname === "/reset-password") return;
+  window.location.replace(`/reset-password${window.location.search}${window.location.hash}`);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (isPasswordRecoveryRedirect() && window.location.pathname !== "/reset-password") {
+      redirectToResetPassword();
+      return;
+    }
+
     // Set up listener FIRST
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
       setLoading(false);
+      if (event === "PASSWORD_RECOVERY") {
+        redirectToResetPassword();
+      }
     });
 
     // Then check current session
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
+      if (isPasswordRecoveryRedirect()) redirectToResetPassword();
     });
 
     return () => subscription.unsubscribe();

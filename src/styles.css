@@ -238,6 +238,7 @@ html.light {
 }
 
 /* Tiptap editor */
+.tiptap-content .ProseMirror { min-height: inherit; outline: none; caret-color: var(--foreground); white-space: pre-wrap; overflow-wrap: anywhere; }
 .tiptap-content :where(p) { margin: 0.5rem 0; line-height: 1.7; }
 .tiptap-content :where(h1) { font-size: 1.875rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; letter-spacing: -0.025em; }
 .tiptap-content :where(h2) { font-size: 1.5rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
@@ -255,4 +256,12 @@ html.light {
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .tiptap-content .ProseMirror { min-height: 55vh; padding-bottom: 6rem; }
+  .tiptap-content :where(p) { min-height: 1.7em; }
+  .tiptap-content :where(h1) { font-size: 1.5rem; letter-spacing: 0; }
+  .tiptap-content :where(h2) { font-size: 1.25rem; letter-spacing: 0; }
+  .tiptap-content :where(h3) { font-size: 1.125rem; }
 }

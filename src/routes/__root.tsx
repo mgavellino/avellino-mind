@@ -104,7 +104,7 @@ const themeBootstrap = `(function(){try{var t=localStorage.getItem('alinedias-th
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />

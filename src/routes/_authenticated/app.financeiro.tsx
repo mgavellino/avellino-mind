@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FocusEvent, type TouchEvent } from "react";
 import { toast } from "sonner";
 import { format, parseISO, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -82,6 +82,11 @@ const EXPENSE_CATEGORIES = [
 
 function brl(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function focusMoneyInput(e: FocusEvent<HTMLInputElement> | TouchEvent<HTMLInputElement>) {
+  e.currentTarget.focus();
+  if ("select" in e.currentTarget) e.currentTarget.select();
 }
 
 function methodLabel(id: string | null | undefined) {
@@ -362,27 +367,27 @@ function FinanceiroPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="mb-6 flex items-start justify-between gap-3 flex-wrap">
-        <div>
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+        <div className="min-w-0">
           <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Financeiro</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Receitas, despesas e lucro do consultório.
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:flex-wrap">
           <button
             onClick={() => {
               const year = new Date().getFullYear();
               exportIRYearCSV(year, receivables as never, expenses as never, patients as never);
               toast.success(`Exportado IR ${year} (receitas + despesas)`);
             }}
-            className="inline-flex items-center gap-1.5 h-10 px-3 rounded-lg border border-border/60 text-sm hover:bg-surface"
+            className="inline-flex items-center justify-center gap-1.5 h-11 sm:h-10 px-3 rounded-lg border border-border/60 text-sm hover:bg-surface"
           >
             <FileDown className="h-4 w-4" /> IR (CSV)
           </button>
           <button
             onClick={downloadReport}
-            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90"
+            className="inline-flex items-center justify-center gap-1.5 h-11 sm:h-10 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90"
           >
             <FileDown className="h-4 w-4" />
             Relatório
@@ -415,25 +420,31 @@ function FinanceiroPage() {
         <StatCard label="A receber" value={brl(stats.pending + stats.overdue)} tone="amber" />
       </div>
 
-      <div className="rounded-2xl border border-border/60 bg-surface/40 p-4 md:p-5 mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex-1">
+      <div className="rounded-2xl border border-border/60 bg-surface/40 p-4 md:p-5 mb-6 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+        <div className="min-w-0">
           <div className="text-sm font-semibold">Valor padrão da consulta</div>
           <div className="text-xs text-muted-foreground mt-0.5">
             Aplicado em novos recebíveis automaticamente.
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:w-auto">
           <span className="text-sm text-muted-foreground">R$</span>
           <input
+            type="text"
             inputMode="decimal"
+            enterKeyHint="done"
+            autoComplete="off"
+            pattern="[0-9]*[,.]?[0-9]*"
             value={defaultPrice}
             onChange={(e) => setDefaultPrice(e.target.value)}
+            onFocus={focusMoneyInput}
+            onTouchStart={focusMoneyInput}
             placeholder="200,00"
-            className="h-10 w-28 px-3 rounded-lg bg-background border border-border/60 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+            className="h-11 min-w-0 w-full sm:w-32 px-3 rounded-lg bg-background border border-border/60 text-base sm:text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
           <button
             onClick={saveDefaultPrice}
-            className="h-10 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90"
+            className="h-11 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90"
           >
             Salvar
           </button>
@@ -508,13 +519,19 @@ function FinanceiroPage() {
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs text-muted-foreground">R$</span>
                           <input
+                            type="text"
                             inputMode="decimal"
+                            enterKeyHint="done"
+                            autoComplete="off"
+                            pattern="[0-9]*[,.]?[0-9]*"
                             defaultValue={(r.amount_cents / 100).toFixed(2).replace(".", ",")}
+                            onFocus={focusMoneyInput}
+                            onTouchStart={focusMoneyInput}
                             onBlur={(e) => {
                               const cents = Math.round(parseFloat(e.target.value.replace(",", ".")) * 100);
                               if (!Number.isNaN(cents) && cents !== r.amount_cents) setAmount(r, e.target.value);
                             }}
-                            className="h-9 w-24 px-2 rounded-lg bg-background border border-border/60 text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            className="h-10 w-28 px-2 rounded-lg bg-background border border-border/60 text-base sm:text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring/40"
                           />
                         </div>
                         {r.status !== "paid" && !isPicking && (
@@ -594,11 +611,17 @@ function FinanceiroPage() {
               <div>
                 <label className="text-xs text-muted-foreground">Valor (R$)</label>
                 <input
+                  type="text"
                   inputMode="decimal"
+                  enterKeyHint="done"
+                  autoComplete="off"
+                  pattern="[0-9]*[,.]?[0-9]*"
                   value={expenseForm.amount}
                   onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
+                  onFocus={focusMoneyInput}
+                  onTouchStart={focusMoneyInput}
                   placeholder="1500,00"
-                  className="mt-1 w-full h-10 px-3 rounded-lg bg-background border border-border/60 text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                  className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border/60 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
                 />
               </div>
               <div>

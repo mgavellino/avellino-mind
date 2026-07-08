@@ -204,22 +204,22 @@ function RecordEditorPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 mb-5">
         <Link
           to="/app/prontuarios"
-          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="min-w-0 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Voltar
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto [-webkit-overflow-scrolling:touch] justify-end">
           <SaveBadge status={status} />
           <button
             onClick={loadVersions}
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors h-8 px-2.5 rounded-md hover:bg-surface"
+            className="shrink-0 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors h-8 px-2.5 rounded-md hover:bg-surface"
           >
             <History className="h-3.5 w-3.5" />
-            Histórico (v{record.version})
+            <span className="hidden sm:inline">Histórico </span>(v{record.version})
           </button>
           <button
             onClick={async () => {
@@ -232,7 +232,7 @@ function RecordEditorPage() {
                 crp: profile?.crp ?? undefined,
               });
             }}
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors h-8 px-2.5 rounded-md hover:bg-surface"
+            className="shrink-0 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors h-8 px-2.5 rounded-md hover:bg-surface"
           >
             <FileDown className="h-3.5 w-3.5" />
             PDF
@@ -248,14 +248,14 @@ function RecordEditorPage() {
                 crp: profile?.crp ?? undefined,
               });
             }}
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors h-8 px-2.5 rounded-md hover:bg-surface"
+            className="shrink-0 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors h-8 px-2.5 rounded-md hover:bg-surface"
           >
             <FileTextIcon className="h-3.5 w-3.5" />
             DOCX
           </button>
           <button
             onClick={handleDelete}
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors h-8 px-2.5 rounded-md hover:bg-destructive/10"
+            className="shrink-0 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors h-8 px-2.5 rounded-md hover:bg-destructive/10"
           >
             <Trash2 className="h-3.5 w-3.5" />
             Excluir
@@ -263,12 +263,12 @@ function RecordEditorPage() {
         </div>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-4 md:mb-6">
         <input
           value={title}
           onChange={(e) => handleTitleChange(e.target.value)}
           placeholder="Título do prontuário"
-          className="w-full text-3xl font-semibold tracking-tight bg-transparent focus:outline-none placeholder:text-muted-foreground/40"
+          className="w-full text-2xl md:text-3xl font-semibold bg-transparent focus:outline-none placeholder:text-muted-foreground/40"
         />
         {patientName && (
           <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
