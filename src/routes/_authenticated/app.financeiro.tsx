@@ -367,27 +367,27 @@ function FinanceiroPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="mb-6 flex items-start justify-between gap-3 flex-wrap">
-        <div>
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+        <div className="min-w-0">
           <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Financeiro</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Receitas, despesas e lucro do consultório.
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:flex-wrap">
           <button
             onClick={() => {
               const year = new Date().getFullYear();
               exportIRYearCSV(year, receivables as never, expenses as never, patients as never);
               toast.success(`Exportado IR ${year} (receitas + despesas)`);
             }}
-            className="inline-flex items-center gap-1.5 h-10 px-3 rounded-lg border border-border/60 text-sm hover:bg-surface"
+            className="inline-flex items-center justify-center gap-1.5 h-11 sm:h-10 px-3 rounded-lg border border-border/60 text-sm hover:bg-surface"
           >
             <FileDown className="h-4 w-4" /> IR (CSV)
           </button>
           <button
             onClick={downloadReport}
-            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90"
+            className="inline-flex items-center justify-center gap-1.5 h-11 sm:h-10 px-4 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90"
           >
             <FileDown className="h-4 w-4" />
             Relatório
@@ -420,8 +420,8 @@ function FinanceiroPage() {
         <StatCard label="A receber" value={brl(stats.pending + stats.overdue)} tone="amber" />
       </div>
 
-      <div className="rounded-2xl border border-border/60 bg-surface/40 p-4 md:p-5 mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex-1">
+      <div className="rounded-2xl border border-border/60 bg-surface/40 p-4 md:p-5 mb-6 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+        <div className="min-w-0">
           <div className="text-sm font-semibold">Valor padrão da consulta</div>
           <div className="text-xs text-muted-foreground mt-0.5">
             Aplicado em novos recebíveis automaticamente.
