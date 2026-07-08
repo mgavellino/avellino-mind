@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FocusEvent, type TouchEvent } from "react";
 import { toast } from "sonner";
 import { format, parseISO, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -84,7 +84,7 @@ function brl(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-function focusMoneyInput(e: React.FocusEvent<HTMLInputElement> | React.TouchEvent<HTMLInputElement>) {
+function focusMoneyInput(e: FocusEvent<HTMLInputElement> | TouchEvent<HTMLInputElement>) {
   e.currentTarget.focus();
   if ("select" in e.currentTarget) e.currentTarget.select();
 }
