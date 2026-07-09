@@ -538,49 +538,76 @@ export type Database = {
       patients: {
         Row: {
           address: string | null
+          assessment_date: string | null
           avatar_url: string | null
           birth_date: string | null
           cpf: string | null
           created_at: string
           email: string | null
+          father_name: string | null
+          father_phone: string | null
+          financial_responsible_cpf: string | null
+          financial_responsible_name: string | null
           full_name: string
           id: string
           is_active: boolean
+          mother_name: string | null
+          mother_phone: string | null
           notes: string | null
           owner_id: string
           phone: string | null
+          reassessment_date: string | null
+          session_price: number | null
           therapeutic_plan: Json | null
           updated_at: string
         }
         Insert: {
           address?: string | null
+          assessment_date?: string | null
           avatar_url?: string | null
           birth_date?: string | null
           cpf?: string | null
           created_at?: string
           email?: string | null
+          father_name?: string | null
+          father_phone?: string | null
+          financial_responsible_cpf?: string | null
+          financial_responsible_name?: string | null
           full_name: string
           id?: string
           is_active?: boolean
+          mother_name?: string | null
+          mother_phone?: string | null
           notes?: string | null
           owner_id: string
           phone?: string | null
+          reassessment_date?: string | null
+          session_price?: number | null
           therapeutic_plan?: Json | null
           updated_at?: string
         }
         Update: {
           address?: string | null
+          assessment_date?: string | null
           avatar_url?: string | null
           birth_date?: string | null
           cpf?: string | null
           created_at?: string
           email?: string | null
+          father_name?: string | null
+          father_phone?: string | null
+          financial_responsible_cpf?: string | null
+          financial_responsible_name?: string | null
           full_name?: string
           id?: string
           is_active?: boolean
+          mother_name?: string | null
+          mother_phone?: string | null
           notes?: string | null
           owner_id?: string
           phone?: string | null
+          reassessment_date?: string | null
+          session_price?: number | null
           therapeutic_plan?: Json | null
           updated_at?: string
         }
