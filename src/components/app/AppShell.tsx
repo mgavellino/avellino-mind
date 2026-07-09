@@ -13,6 +13,8 @@ import {
   Network,
   BookOpen,
   CalendarX,
+  Menu,
+  X,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { AiAssistant } from "@/components/app/AiAssistant";
