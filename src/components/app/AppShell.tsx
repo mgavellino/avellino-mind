@@ -47,6 +47,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
