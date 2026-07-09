@@ -526,6 +526,14 @@ function FinanceiroPage() {
                         <span className={`text-[11px] px-2 py-1 rounded-full border shrink-0 ${meta.cls}`}>
                           {meta.label}
                         </span>
+                        <button
+                          onClick={() => deleteReceivable(r.id)}
+                          className="h-8 w-8 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                          aria-label="Excluir recebível"
+                          title="Excluir"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <div className="flex items-center gap-1.5">
