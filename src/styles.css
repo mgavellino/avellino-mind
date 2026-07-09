@@ -265,3 +265,7 @@ html.light {
   .tiptap-content :where(h2) { font-size: 1.25rem; letter-spacing: 0; }
   .tiptap-content :where(h3) { font-size: 1.125rem; }
 }
+
+#lovable-badge {
+  display: none !important;
+}
