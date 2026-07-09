@@ -248,6 +248,147 @@ function TimelineView({ items }: { items: TimelineItem[] }) {
   );
 }
 
+type Apt = { id: string; starts_at: string; status: string; kind: string; title: string | null };
+
+const STATUS_META: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
+  completed: { label: "Compareceu", color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30", icon: CheckCircle2 },
+  scheduled: { label: "Agendada", color: "text-sky-600 bg-sky-500/10 border-sky-500/30", icon: Calendar },
+  no_show: { label: "Faltou", color: "text-rose-600 bg-rose-500/10 border-rose-500/30", icon: XCircle },
+  cancelled: { label: "Cancelada", color: "text-muted-foreground bg-muted/40 border-border/40", icon: XCircle },
+};
+
+function ConsultationsView({ appointments }: { appointments: Apt[] }) {
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<"all" | "completed" | "scheduled" | "no_show" | "cancelled">("all");
+
+  const sessions = useMemo(
+    () => appointments.filter((a) => a.kind === "consulta" || a.kind === "sessao" || !a.kind),
+    [appointments],
+  );
+
+  const stats = useMemo(() => {
+    const total = sessions.length;
+    const completed = sessions.filter((a) => a.status === "completed").length;
+    const noShow = sessions.filter((a) => a.status === "no_show").length;
+    const scheduled = sessions.filter((a) => a.status === "scheduled").length;
+    const cancelled = sessions.filter((a) => a.status === "cancelled").length;
+    const past = completed + noShow;
+    const attendanceRate = past > 0 ? Math.round((completed / past) * 100) : 0;
+    return { total, completed, noShow, scheduled, cancelled, attendanceRate };
+  }, [sessions]);
+
+  const filtered = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    return sessions.filter((a) => {
+      if (filter !== "all" && a.status !== filter) return false;
+      if (!term) return true;
+      const dateStr = format(parseISO(a.starts_at), "dd/MM/yyyy EEEE", { locale: ptBR }).toLowerCase();
+      return dateStr.includes(term) || (a.title ?? "").toLowerCase().includes(term);
+    });
+  }, [sessions, q, filter]);
+
+  const filters: { key: typeof filter; label: string; count: number }[] = [
+    { key: "all", label: "Todas", count: stats.total },
+    { key: "completed", label: "Compareceu", count: stats.completed },
+    { key: "no_show", label: "Faltou", count: stats.noShow },
+    { key: "scheduled", label: "Agendada", count: stats.scheduled },
+    { key: "cancelled", label: "Cancelada", count: stats.cancelled },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <MiniStat label="Total marcadas" value={String(stats.total)} />
+        <MiniStat label="Compareceu" value={String(stats.completed)} tone="ok" />
+        <MiniStat label="Faltou" value={String(stats.noShow)} tone="bad" />
+        <MiniStat label="Taxa de presença" value={`${stats.attendanceRate}%`} tone="ok" />
+      </div>
+
+      <div className="rounded-2xl border border-border/60 bg-surface/40 p-3 md:p-4 space-y-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar por data ou título..."
+            className="w-full h-10 pl-9 pr-3 rounded-lg bg-background border border-border/60 text-sm"
+          />
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {filters.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className={`px-3 h-8 rounded-full border text-xs font-medium transition-colors ${
+                filter === f.key
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-background border-border/60 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {f.label} <span className="opacity-60">· {f.count}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center text-sm text-muted-foreground">
+          Nenhuma consulta encontrada.
+        </div>
+      ) : (
+        <ul className="space-y-2">
+          {filtered.map((a) => {
+            const meta = STATUS_META[a.status] ?? STATUS_META.scheduled;
+            const Icon = meta.icon;
+            const d = parseISO(a.starts_at);
+            return (
+              <li
+                key={a.id}
+                className="flex items-center gap-3 rounded-xl border border-border/60 bg-surface/40 px-3 md:px-4 py-3"
+              >
+                <div className="text-center w-12 shrink-0">
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {format(d, "MMM", { locale: ptBR })}
+                  </div>
+                  <div className="text-lg font-semibold leading-none mt-0.5">{format(d, "dd")}</div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium capitalize truncate">
+                    {format(d, "EEEE · HH:mm", { locale: ptBR })}
+                  </div>
+                  {a.title && (
+                    <div className="text-xs text-muted-foreground truncate">{a.title}</div>
+                  )}
+                </div>
+                <span
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-[11px] font-medium ${meta.color}`}
+                >
+                  <Icon className="h-3 w-3" />
+                  {meta.label}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function MiniStat({ label, value, tone }: { label: string; value: string; tone?: "ok" | "bad" }) {
+  const toneCls =
+    tone === "ok"
+      ? "text-emerald-600"
+      : tone === "bad"
+      ? "text-rose-600"
+      : "text-foreground";
+  return (
+    <div className="rounded-xl border border-border/60 bg-surface/40 px-3 py-2.5">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className={`text-lg md:text-xl font-semibold mt-0.5 ${toneCls}`}>{value}</div>
+    </div>
+  );
+
 function TherapeuticPlanEditor({ patient, onSaved }: { patient: Patient; onSaved: (p: Patient) => void }) {
   const [plan, setPlan] = useState<TherapeuticPlan>(patient.therapeutic_plan ?? {});
   const [newObj, setNewObj] = useState("");
