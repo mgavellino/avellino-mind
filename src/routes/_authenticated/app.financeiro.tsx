@@ -4,6 +4,9 @@ import { toast } from "sonner";
 import { format, parseISO, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
+  AlertTriangle,
+  Ban,
+  CalendarClock,
   CheckCircle2,
   Clock,
   DollarSign,
@@ -11,6 +14,7 @@ import {
   Filter,
   Plus,
   Receipt,
+  RotateCcw,
   Trash2,
   TrendingDown,
   TrendingUp,
@@ -534,14 +538,57 @@ function FinanceiroPage() {
                             className="h-10 w-28 px-2 rounded-lg bg-background border border-border/60 text-base sm:text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring/40"
                           />
                         </div>
+                        <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <CalendarClock className="h-3.5 w-3.5" />
+                          <span className="hidden sm:inline">Vence</span>
+                          <input
+                            type="date"
+                            defaultValue={r.due_at ? r.due_at.slice(0, 10) : ""}
+                            onChange={(e) => {
+                              const v = e.target.value;
+                              if (!v) return;
+                              updateReceivable(r.id, { due_at: new Date(v + "T12:00:00").toISOString() });
+                            }}
+                            className="h-9 px-2 rounded-lg bg-background border border-border/60 text-xs focus:outline-none focus:ring-2 focus:ring-ring/40"
+                          />
+                        </label>
                         {r.status !== "paid" && !isPicking && (
-                          <button
-                            onClick={() => setPayingId(r.id)}
-                            className="h-9 px-3 rounded-lg text-xs bg-emerald-600 text-white hover:opacity-90 inline-flex items-center gap-1"
-                          >
-                            <CheckCircle2 className="h-3.5 w-3.5" />
-                            Marcar recebido
-                          </button>
+                          <>
+                            <button
+                              onClick={() => setPayingId(r.id)}
+                              className="h-9 px-3 rounded-lg text-xs bg-emerald-600 text-white hover:opacity-90 inline-flex items-center gap-1"
+                            >
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                              Recebido
+                            </button>
+                            {r.status !== "overdue" && (
+                              <button
+                                onClick={() => updateReceivable(r.id, { status: "overdue" })}
+                                className="h-9 px-3 rounded-lg text-xs border border-red-500/40 bg-red-500/10 text-red-600 hover:bg-red-500/20 inline-flex items-center gap-1"
+                              >
+                                <AlertTriangle className="h-3.5 w-3.5" />
+                                Atrasado
+                              </button>
+                            )}
+                            {r.status === "overdue" && (
+                              <button
+                                onClick={() => updateReceivable(r.id, { status: "pending" })}
+                                className="h-9 px-3 rounded-lg text-xs border border-border/60 hover:bg-surface text-muted-foreground inline-flex items-center gap-1"
+                              >
+                                <RotateCcw className="h-3.5 w-3.5" />
+                                A receber
+                              </button>
+                            )}
+                            {r.status !== "waived" && (
+                              <button
+                                onClick={() => updateReceivable(r.id, { status: "waived" })}
+                                className="h-9 px-3 rounded-lg text-xs border border-border/60 hover:bg-surface text-muted-foreground inline-flex items-center gap-1"
+                              >
+                                <Ban className="h-3.5 w-3.5" />
+                                Isento
+                              </button>
+                            )}
+                          </>
                         )}
                         {isPicking && (
                           <div className="flex items-center gap-1 flex-wrap">
