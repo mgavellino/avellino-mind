@@ -271,6 +271,14 @@ function FinanceiroPage() {
     loadExpenses();
   };
 
+  const deleteReceivable = async (id: string) => {
+    if (!confirm("Excluir este recebível? Esta ação não pode ser desfeita.")) return;
+    const { error } = await supabase.from("appointment_receivables").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Recebível excluído");
+    loadReceivables();
+  };
+
   const downloadReport = async () => {
     if (!user) return;
     const now = new Date();
@@ -472,7 +480,7 @@ function FinanceiroPage() {
 
       {tab === "receitas" && (
         <>
-          <div className="flex items-center gap-2 mb-3 overflow-x-auto">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
             <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
             {(["all", "pending", "paid", "overdue", "waived"] as StatusFilter[]).map((s) => (
               <button
@@ -518,6 +526,14 @@ function FinanceiroPage() {
                         <span className={`text-[11px] px-2 py-1 rounded-full border shrink-0 ${meta.cls}`}>
                           {meta.label}
                         </span>
+                        <button
+                          onClick={() => deleteReceivable(r.id)}
+                          className="h-8 w-8 grid place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                          aria-label="Excluir recebível"
+                          title="Excluir"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <div className="flex items-center gap-1.5">
