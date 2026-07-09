@@ -10,6 +10,7 @@ import { BirthdaysCard } from "@/components/app/BirthdaysCard";
 import { InactivePatientsCard } from "@/components/app/InactivePatientsCard";
 import { PendingReceivablesCard } from "@/components/app/PendingReceivablesCard";
 import { OnboardingDialog } from "@/components/app/OnboardingDialog";
+import { BirthdayReminderBanner } from "@/components/app/BirthdayReminderBanner";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: Dashboard,
