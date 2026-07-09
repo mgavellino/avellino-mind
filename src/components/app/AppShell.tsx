@@ -15,7 +15,10 @@ import {
   CalendarX,
   Menu,
   X,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "@/components/theme/ThemeProvider";
 import { Logo } from "@/components/brand/Logo";
 import { AiAssistant } from "@/components/app/AiAssistant";
 import { PomodoroWidget } from "@/components/app/PomodoroWidget";
@@ -44,6 +47,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -152,6 +156,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Logo showWordmark={false} size={28} />
           </div>
           <div className="flex-1" />
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="h-9 w-9 grid place-items-center rounded-full border border-border/60 text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+            aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
+            title={theme === "dark" ? "Tema claro" : "Tema escuro"}
+          >
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
           <button
             onClick={() => setAiOpen(true)}
             className="inline-flex items-center gap-1.5 h-9 px-3 rounded-full text-xs font-medium bg-brand/10 text-brand border border-brand/30 hover:bg-brand/15 transition-colors"
