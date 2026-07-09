@@ -203,7 +203,7 @@ function RecordEditorPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl xl:max-w-5xl mx-auto px-1 sm:px-0">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 mb-5">
         <Link
           to="/app/prontuarios"
