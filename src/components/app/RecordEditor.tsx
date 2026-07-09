@@ -47,7 +47,7 @@ export function RecordEditor({ content, onChange, editable = true, patientName }
     editorProps: {
       attributes: {
         class:
-          "tiptap-content focus:outline-none min-h-[55vh] md:min-h-[60vh] text-base md:text-[15px] text-foreground break-words touch-manipulation",
+          "tiptap-content focus:outline-none min-h-[40vh] md:min-h-[50vh] text-base md:text-[15px] text-foreground break-words touch-manipulation",
       },
     },
     onUpdate: ({ editor }) => {
