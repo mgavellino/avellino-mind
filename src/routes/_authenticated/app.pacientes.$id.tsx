@@ -13,10 +13,12 @@ import {
   Phone,
   Plus,
   Save,
+  Search,
   Target,
   Trash2,
   User,
   Users,
+  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
