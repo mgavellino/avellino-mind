@@ -4,6 +4,9 @@ import { toast } from "sonner";
 import { format, parseISO, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
+  AlertTriangle,
+  Ban,
+  CalendarClock,
   CheckCircle2,
   Clock,
   DollarSign,
@@ -11,6 +14,7 @@ import {
   Filter,
   Plus,
   Receipt,
+  RotateCcw,
   Trash2,
   TrendingDown,
   TrendingUp,
