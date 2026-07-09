@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   Sheet,
@@ -22,6 +22,15 @@ export type Patient = {
   notes: string | null;
   avatar_url: string | null;
   is_active: boolean;
+  assessment_date: string | null;
+  reassessment_date: string | null;
+  financial_responsible_name: string | null;
+  financial_responsible_cpf: string | null;
+  session_price: number | null;
+  father_name: string | null;
+  father_phone: string | null;
+  mother_name: string | null;
+  mother_phone: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -44,7 +53,27 @@ const empty = {
   notes: "",
   avatar_url: "" as string | null | "",
   is_active: true,
+  assessment_date: "",
+  reassessment_date: "",
+  financial_responsible_name: "",
+  financial_responsible_cpf: "",
+  session_price: "",
+  father_name: "",
+  father_phone: "",
+  mother_name: "",
+  mother_phone: "",
 };
+
+function calcAge(birth: string): string {
+  if (!birth) return "";
+  const b = new Date(birth);
+  if (isNaN(b.getTime())) return "";
+  const now = new Date();
+  let age = now.getFullYear() - b.getFullYear();
+  const m = now.getMonth() - b.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
+  return age >= 0 && age < 150 ? `${age} anos` : "";
+}
 
 export function PatientFormSheet({ open, onOpenChange, patient, ownerId, onSaved }: Props) {
   const [form, setForm] = useState(empty);
@@ -62,21 +91,35 @@ export function PatientFormSheet({ open, onOpenChange, patient, ownerId, onSaved
         notes: patient.notes ?? "",
         avatar_url: patient.avatar_url ?? "",
         is_active: patient.is_active,
+        assessment_date: patient.assessment_date ?? "",
+        reassessment_date: patient.reassessment_date ?? "",
+        financial_responsible_name: patient.financial_responsible_name ?? "",
+        financial_responsible_cpf: patient.financial_responsible_cpf ?? "",
+        session_price: patient.session_price != null ? String(patient.session_price) : "",
+        father_name: patient.father_name ?? "",
+        father_phone: patient.father_phone ?? "",
+        mother_name: patient.mother_name ?? "",
+        mother_phone: patient.mother_phone ?? "",
       });
     } else {
       setForm(empty);
     }
   }, [patient, open]);
 
+  const age = useMemo(() => calcAge(form.birth_date), [form.birth_date]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.full_name.trim()) {
-      toast.error("Informe o nome completo");
+      toast.error("Informe o nome do paciente");
       return;
     }
     if (!ownerId) return;
 
     setSaving(true);
+    const price = form.session_price.trim()
+      ? Number(form.session_price.replace(",", "."))
+      : null;
     const payload = {
       full_name: form.full_name.trim(),
       email: form.email.trim() || null,
@@ -87,6 +130,15 @@ export function PatientFormSheet({ open, onOpenChange, patient, ownerId, onSaved
       notes: form.notes.trim() || null,
       avatar_url: form.avatar_url || null,
       is_active: form.is_active,
+      assessment_date: form.assessment_date || null,
+      reassessment_date: form.reassessment_date || null,
+      financial_responsible_name: form.financial_responsible_name.trim() || null,
+      financial_responsible_cpf: form.financial_responsible_cpf.trim() || null,
+      session_price: price != null && !isNaN(price) ? price : null,
+      father_name: form.father_name.trim() || null,
+      father_phone: form.father_phone.trim() || null,
+      mother_name: form.mother_name.trim() || null,
+      mother_phone: form.mother_phone.trim() || null,
     };
 
     if (patient) {
@@ -141,7 +193,8 @@ export function PatientFormSheet({ open, onOpenChange, patient, ownerId, onSaved
               </div>
             </div>
           )}
-          <Field label="Nome completo *">
+
+          <Field label="Nome do paciente *">
             <input
               value={form.full_name}
               onChange={(e) => setForm({ ...form, full_name: e.target.value })}
@@ -151,20 +204,16 @@ export function PatientFormSheet({ open, onOpenChange, patient, ownerId, onSaved
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Email">
+            <Field label="Data de nascimento">
               <input
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                type="date"
+                value={form.birth_date}
+                onChange={(e) => setForm({ ...form, birth_date: e.target.value })}
                 className={inputCls}
               />
             </Field>
-            <Field label="Telefone">
-              <input
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className={inputCls}
-              />
+            <Field label="Idade">
+              <input value={age} readOnly className={`${inputCls} bg-muted/40`} />
             </Field>
           </div>
 
@@ -176,15 +225,24 @@ export function PatientFormSheet({ open, onOpenChange, patient, ownerId, onSaved
                 className={inputCls}
               />
             </Field>
-            <Field label="Data de nascimento">
+            <Field label="Telefone">
               <input
-                type="date"
-                value={form.birth_date}
-                onChange={(e) => setForm({ ...form, birth_date: e.target.value })}
+                type="tel"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 className={inputCls}
               />
             </Field>
           </div>
+
+          <Field label="E-mail">
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              className={inputCls}
+            />
+          </Field>
 
           <Field label="Endereço">
             <input
@@ -194,7 +252,101 @@ export function PatientFormSheet({ open, onOpenChange, patient, ownerId, onSaved
             />
           </Field>
 
-          <Field label="Observações">
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Data de avaliação">
+              <input
+                type="date"
+                value={form.assessment_date}
+                onChange={(e) => setForm({ ...form, assessment_date: e.target.value })}
+                className={inputCls}
+              />
+            </Field>
+            <Field label="Data de reavaliação">
+              <input
+                type="date"
+                value={form.reassessment_date}
+                onChange={(e) => setForm({ ...form, reassessment_date: e.target.value })}
+                className={inputCls}
+              />
+            </Field>
+          </div>
+
+          <div className="pt-2">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+              Financeiro
+            </div>
+            <div className="space-y-3">
+              <Field label="Responsável financeiro">
+                <input
+                  value={form.financial_responsible_name}
+                  onChange={(e) =>
+                    setForm({ ...form, financial_responsible_name: e.target.value })
+                  }
+                  className={inputCls}
+                />
+              </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="CPF do responsável">
+                  <input
+                    value={form.financial_responsible_cpf}
+                    onChange={(e) =>
+                      setForm({ ...form, financial_responsible_cpf: e.target.value })
+                    }
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="Valor da sessão (R$)">
+                  <input
+                    inputMode="decimal"
+                    value={form.session_price}
+                    onChange={(e) => setForm({ ...form, session_price: e.target.value })}
+                    className={inputCls}
+                    placeholder="0,00"
+                  />
+                </Field>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+              Filiação
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Nome do pai">
+                <input
+                  value={form.father_name}
+                  onChange={(e) => setForm({ ...form, father_name: e.target.value })}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Telefone do pai">
+                <input
+                  type="tel"
+                  value={form.father_phone}
+                  onChange={(e) => setForm({ ...form, father_phone: e.target.value })}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Nome da mãe">
+                <input
+                  value={form.mother_name}
+                  onChange={(e) => setForm({ ...form, mother_name: e.target.value })}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Telefone da mãe">
+                <input
+                  type="tel"
+                  value={form.mother_phone}
+                  onChange={(e) => setForm({ ...form, mother_phone: e.target.value })}
+                  className={inputCls}
+                />
+              </Field>
+            </div>
+          </div>
+
+          <Field label="Observação">
             <textarea
               rows={4}
               value={form.notes}
