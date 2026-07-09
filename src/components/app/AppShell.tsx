@@ -15,7 +15,10 @@ import {
   CalendarX,
   Menu,
   X,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "@/components/theme/ThemeProvider";
 import { Logo } from "@/components/brand/Logo";
 import { AiAssistant } from "@/components/app/AiAssistant";
 import { PomodoroWidget } from "@/components/app/PomodoroWidget";
