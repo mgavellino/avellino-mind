@@ -13,6 +13,8 @@ import {
   Network,
   BookOpen,
   CalendarX,
+  Menu,
+  X,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { AiAssistant } from "@/components/app/AiAssistant";
@@ -44,6 +46,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, signOut } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!user) return;
@@ -133,6 +141,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 border-b border-border/60 flex items-center px-4 md:px-6 gap-3 bg-background/80 backdrop-blur sticky top-0 z-30">
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="md:hidden h-9 w-9 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface"
+            aria-label="Abrir menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
           <div className="md:hidden">
             <Logo showWordmark={false} size={28} />
           </div>
@@ -158,6 +173,88 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main className="flex-1 p-3 sm:p-4 md:p-8 pb-28 md:pb-8">{children}</main>
       </div>
+
+      {/* Mobile drawer with full navigation */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-50 flex">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <aside className="relative w-72 max-w-[85vw] h-full bg-background border-r border-border/60 flex flex-col overflow-y-auto">
+            <div className="p-4 flex items-center justify-between border-b border-border/60">
+              <Logo />
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="h-9 w-9 grid place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface"
+                aria-label="Fechar menu"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <nav className="flex-1 px-3 py-3 space-y-0.5">
+              {nav.map((item) => {
+                const active =
+                  item.to === "/app"
+                    ? location.pathname === "/app"
+                    : location.pathname.startsWith(item.to);
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                      active
+                        ? "bg-surface-elevated text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-surface"
+                    }`}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+              <div className="mt-3 pt-3 border-t border-border/40 space-y-0.5">
+                {navExtras.map((item) => {
+                  const active = location.pathname.startsWith(item.to);
+                  return (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                        active
+                          ? "bg-surface-elevated text-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-surface"
+                      }`}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </nav>
+            <div className="p-3 border-t border-border/60 space-y-1">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setAiOpen(true);
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm bg-brand/10 text-brand hover:bg-brand/15 border border-brand/30 transition-colors"
+              >
+                <Sparkles className="h-4 w-4" />
+                Assistente IA
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                Sair
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
 
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur">
         <div className="flex items-stretch justify-around h-16 px-1 pb-[env(safe-area-inset-bottom)]">
