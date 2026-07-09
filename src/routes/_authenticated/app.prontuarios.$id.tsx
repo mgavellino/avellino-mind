@@ -212,7 +212,7 @@ function RecordEditorPage() {
           <ArrowLeft className="h-3.5 w-3.5" />
           Voltar
         </Link>
-        <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto [-webkit-overflow-scrolling:touch] justify-end">
+        <div className="flex flex-wrap min-w-0 items-center gap-1.5 justify-end">
           <SaveBadge status={status} />
           <button
             onClick={loadVersions}
