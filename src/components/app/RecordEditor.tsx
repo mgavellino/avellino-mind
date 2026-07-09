@@ -68,7 +68,7 @@ export function RecordEditor({ content, onChange, editable = true, patientName }
 
   return (
     <div className="rounded-xl md:rounded-2xl border border-border/60 bg-surface/30 overflow-visible">
-      <div className="flex flex-nowrap md:flex-wrap items-center gap-0.5 border-b border-border/60 bg-surface/95 px-2 py-1.5 sticky top-14 z-10 backdrop-blur overflow-x-auto md:overflow-visible [-webkit-overflow-scrolling:touch]">
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-border/60 bg-surface/95 px-2 py-1.5 sticky top-14 z-10 backdrop-blur">
         <ToolButton
           active={editor.isActive("heading", { level: 1 })}
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -141,23 +141,45 @@ export function RecordEditor({ content, onChange, editable = true, patientName }
             <FileText className="h-3.5 w-3.5" /> Template
           </button>
           {tplOpen && (
-            <div className="absolute z-20 top-9 left-0 w-64 rounded-lg border border-border/60 bg-background shadow-lg p-1">
-              {TEMPLATES.map((t) => (
-                <button
-                  key={t.key}
-                  type="button"
-                  onClick={() => {
-                    const doc = t.build();
-                    editor.chain().focus().insertContent(doc.content as never).run();
-                    setTplOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-md hover:bg-surface text-sm"
-                >
-                  <div className="font-medium">{t.label}</div>
-                  <div className="text-xs text-muted-foreground">{t.description}</div>
-                </button>
-              ))}
-            </div>
+            <>
+              {/* Backdrop (mobile) */}
+              <div
+                className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:hidden"
+                onClick={() => setTplOpen(false)}
+              />
+              <div
+                className="
+                  fixed inset-x-3 bottom-3 z-40 max-h-[70vh] overflow-y-auto rounded-2xl border border-border/60 bg-background shadow-xl p-1.5
+                  md:absolute md:inset-auto md:top-9 md:left-0 md:bottom-auto md:w-64 md:max-h-none md:rounded-lg md:shadow-lg md:p-1
+                "
+              >
+                <div className="md:hidden flex items-center justify-between px-2 py-2 border-b border-border/60 mb-1">
+                  <span className="text-sm font-medium">Templates</span>
+                  <button
+                    type="button"
+                    onClick={() => setTplOpen(false)}
+                    className="text-xs text-muted-foreground px-2 py-1 rounded hover:bg-surface"
+                  >
+                    Fechar
+                  </button>
+                </div>
+                {TEMPLATES.map((t) => (
+                  <button
+                    key={t.key}
+                    type="button"
+                    onClick={() => {
+                      const doc = t.build();
+                      editor.chain().focus().insertContent(doc.content as never).run();
+                      setTplOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2.5 rounded-md hover:bg-surface active:bg-surface-elevated text-sm"
+                  >
+                    <div className="font-medium">{t.label}</div>
+                    <div className="text-xs text-muted-foreground">{t.description}</div>
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </div>
         <button
