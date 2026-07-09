@@ -67,7 +67,7 @@ function PatientDetailPage() {
   const { id } = Route.useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"timeline" | "plan" | "geno">("timeline");
+  const [tab, setTab] = useState<"consultas" | "timeline" | "plan" | "geno">("consultas");
   const [patient, setPatient] = useState<Patient | null>(null);
   const [appointments, setAppointments] = useState<{ id: string; starts_at: string; status: string; kind: string; title: string | null }[]>([]);
   const [records, setRecords] = useState<{ id: string; title: string; created_at: string }[]>([]);
