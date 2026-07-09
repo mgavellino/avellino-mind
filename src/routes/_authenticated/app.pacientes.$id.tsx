@@ -388,6 +388,9 @@ function MiniStat({ label, value, tone }: { label: string; value: string; tone?:
       <div className={`text-lg md:text-xl font-semibold mt-0.5 ${toneCls}`}>{value}</div>
     </div>
   );
+}
+
+
 
 function TherapeuticPlanEditor({ patient, onSaved }: { patient: Patient; onSaved: (p: Patient) => void }) {
   const [plan, setPlan] = useState<TherapeuticPlan>(patient.therapeutic_plan ?? {});
