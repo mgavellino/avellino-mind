@@ -127,7 +127,10 @@ function Dashboard() {
           <p className="mt-1 text-sm text-muted-foreground">Resumo do consultório hoje.</p>
         </div>
 
+        <BirthdayReminderBanner />
+
         <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+
           {stats.map((s) => (
             <div
               key={s.label}
