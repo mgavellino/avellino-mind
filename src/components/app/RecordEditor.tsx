@@ -183,7 +183,7 @@ export function RecordEditor({ content, onChange, editable = true, patientName }
         />
       </div>
 
-      <div className="px-3 py-4 pb-28 md:px-6 md:py-8 md:pb-8 max-h-none md:max-h-[70vh] overflow-visible md:overflow-y-auto">
+      <div className="px-3 py-4 pb-28 md:px-8 md:py-8 md:pb-12 lg:px-10">
         <EditorContent editor={editor} />
       </div>
 
