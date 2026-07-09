@@ -271,6 +271,14 @@ function FinanceiroPage() {
     loadExpenses();
   };
 
+  const deleteReceivable = async (id: string) => {
+    if (!confirm("Excluir este recebível? Esta ação não pode ser desfeita.")) return;
+    const { error } = await supabase.from("appointment_receivables").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Recebível excluído");
+    loadReceivables();
+  };
+
   const downloadReport = async () => {
     if (!user) return;
     const now = new Date();
