@@ -68,7 +68,7 @@ export function RecordEditor({ content, onChange, editable = true, patientName }
 
   return (
     <div className="rounded-xl md:rounded-2xl border border-border/60 bg-surface/30 overflow-visible">
-      <div className="flex flex-nowrap md:flex-wrap items-center gap-0.5 border-b border-border/60 bg-surface/95 px-2 py-1.5 sticky top-14 z-10 backdrop-blur overflow-x-auto md:overflow-visible [-webkit-overflow-scrolling:touch]">
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-border/60 bg-surface/95 px-2 py-1.5 sticky top-14 z-10 backdrop-blur">
         <ToolButton
           active={editor.isActive("heading", { level: 1 })}
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
