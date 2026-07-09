@@ -174,11 +174,13 @@ function PatientDetailPage() {
       </div>
 
       <div className="flex items-center gap-1 mb-4 p-1 rounded-xl bg-surface/40 border border-border/60 flex-wrap">
+        <TabBtn active={tab === "consultas"} onClick={() => setTab("consultas")}>Consultas</TabBtn>
         <TabBtn active={tab === "timeline"} onClick={() => setTab("timeline")}>Linha do tempo</TabBtn>
         <TabBtn active={tab === "plan"} onClick={() => setTab("plan")}>Plano terapêutico</TabBtn>
         <TabBtn active={tab === "geno"} onClick={() => setTab("geno")}>Genograma</TabBtn>
       </div>
 
+      {tab === "consultas" && <ConsultationsView appointments={appointments} />}
       {tab === "timeline" && <TimelineView items={timeline} />}
       {tab === "plan" && <TherapeuticPlanEditor patient={patient} onSaved={setPatient} />}
       {tab === "geno" && <GenogramEditor patient={patient} onSaved={setPatient} />}
