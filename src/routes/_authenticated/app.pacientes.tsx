@@ -14,6 +14,7 @@ export const Route = createFileRoute("/_authenticated/app/pacientes")({
 
 function PatientsPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
