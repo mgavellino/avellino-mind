@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Plus, Search, Pencil, Trash2, Mail, Phone, Download, Upload } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Mail, Phone, Download, Upload, ExternalLink } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/_authenticated/app/pacientes")({
 
 function PatientsPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -157,7 +159,8 @@ function PatientsPage() {
               {filtered.map((p) => (
                 <tr
                   key={p.id}
-                  className="border-b border-border/40 last:border-0 hover:bg-surface/60 transition-colors"
+                  onClick={() => navigate({ to: "/app/pacientes/$id", params: { id: p.id } })}
+                  className="border-b border-border/40 last:border-0 hover:bg-surface/60 transition-colors cursor-pointer"
                 >
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
@@ -172,6 +175,7 @@ function PatientsPage() {
                         <Link
                           to="/app/pacientes/$id"
                           params={{ id: p.id }}
+                          onClick={(e) => e.stopPropagation()}
                           className="text-sm font-medium truncate hover:text-brand"
                         >
                           {p.full_name}
@@ -215,8 +219,16 @@ function PatientsPage() {
                       {p.is_active ? "Ativo" : "Inativo"}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-end gap-1">
+                      <Link
+                        to="/app/pacientes/$id"
+                        params={{ id: p.id }}
+                        className="inline-flex items-center gap-1 h-8 px-2.5 rounded-md border border-border/60 bg-surface hover:bg-surface-elevated text-xs transition-colors"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        Abrir
+                      </Link>
                       <button
                         onClick={() => {
                           setEditing(p);
