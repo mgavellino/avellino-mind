@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { PatientFormSheet, type Patient } from "@/components/app/PatientFormSheet";
 import { exportPatientsCSV, importPatientsCSV } from "@/lib/patient-csv";
 
-export const Route = createFileRoute("/_authenticated/app/pacientes")({
+export const Route = createFileRoute("/_authenticated/app/pacientes/")({
   component: PatientsPage,
 });
 
