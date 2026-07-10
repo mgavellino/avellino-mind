@@ -16,7 +16,6 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
-import { Route as AuthenticatedAppPacientesRouteImport } from './routes/_authenticated/app.pacientes'
 import { Route as AuthenticatedAppListaEsperaRouteImport } from './routes/_authenticated/app.lista-espera'
 import { Route as AuthenticatedAppFinanceiroRouteImport } from './routes/_authenticated/app.financeiro'
 import { Route as AuthenticatedAppEncaminhamentosRouteImport } from './routes/_authenticated/app.encaminhamentos'
@@ -25,6 +24,7 @@ import { Route as AuthenticatedAppBloqueiosRouteImport } from './routes/_authent
 import { Route as AuthenticatedAppBibliotecaRouteImport } from './routes/_authenticated/app.biblioteca'
 import { Route as AuthenticatedAppAgendaRouteImport } from './routes/_authenticated/app.agenda'
 import { Route as AuthenticatedAppProntuariosIndexRouteImport } from './routes/_authenticated/app.prontuarios.index'
+import { Route as AuthenticatedAppPacientesIndexRouteImport } from './routes/_authenticated/app.pacientes.index'
 import { Route as AuthenticatedAppProntuariosIdRouteImport } from './routes/_authenticated/app.prontuarios.$id'
 import { Route as AuthenticatedAppPacientesIdRouteImport } from './routes/_authenticated/app.pacientes.$id'
 
@@ -62,12 +62,6 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
-const AuthenticatedAppPacientesRoute =
-  AuthenticatedAppPacientesRouteImport.update({
-    id: '/pacientes',
-    path: '/pacientes',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
 const AuthenticatedAppListaEsperaRoute =
   AuthenticatedAppListaEsperaRouteImport.update({
     id: '/lista-espera',
@@ -115,6 +109,12 @@ const AuthenticatedAppProntuariosIndexRoute =
     path: '/prontuarios/',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppPacientesIndexRoute =
+  AuthenticatedAppPacientesIndexRouteImport.update({
+    id: '/pacientes/',
+    path: '/pacientes/',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppProntuariosIdRoute =
   AuthenticatedAppProntuariosIdRouteImport.update({
     id: '/prontuarios/$id',
@@ -123,9 +123,9 @@ const AuthenticatedAppProntuariosIdRoute =
   } as any)
 const AuthenticatedAppPacientesIdRoute =
   AuthenticatedAppPacientesIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedAppPacientesRoute,
+    id: '/pacientes/$id',
+    path: '/pacientes/$id',
+    getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -141,10 +141,10 @@ export interface FileRoutesByFullPath {
   '/app/encaminhamentos': typeof AuthenticatedAppEncaminhamentosRoute
   '/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
   '/app/lista-espera': typeof AuthenticatedAppListaEsperaRoute
-  '/app/pacientes': typeof AuthenticatedAppPacientesRouteWithChildren
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/pacientes/$id': typeof AuthenticatedAppPacientesIdRoute
   '/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
+  '/app/pacientes/': typeof AuthenticatedAppPacientesIndexRoute
   '/app/prontuarios/': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRoutesByTo {
@@ -159,10 +159,10 @@ export interface FileRoutesByTo {
   '/app/encaminhamentos': typeof AuthenticatedAppEncaminhamentosRoute
   '/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
   '/app/lista-espera': typeof AuthenticatedAppListaEsperaRoute
-  '/app/pacientes': typeof AuthenticatedAppPacientesRouteWithChildren
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/pacientes/$id': typeof AuthenticatedAppPacientesIdRoute
   '/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
+  '/app/pacientes': typeof AuthenticatedAppPacientesIndexRoute
   '/app/prontuarios': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRoutesById {
@@ -180,10 +180,10 @@ export interface FileRoutesById {
   '/_authenticated/app/encaminhamentos': typeof AuthenticatedAppEncaminhamentosRoute
   '/_authenticated/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
   '/_authenticated/app/lista-espera': typeof AuthenticatedAppListaEsperaRoute
-  '/_authenticated/app/pacientes': typeof AuthenticatedAppPacientesRouteWithChildren
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/pacientes/$id': typeof AuthenticatedAppPacientesIdRoute
   '/_authenticated/app/prontuarios/$id': typeof AuthenticatedAppProntuariosIdRoute
+  '/_authenticated/app/pacientes/': typeof AuthenticatedAppPacientesIndexRoute
   '/_authenticated/app/prontuarios/': typeof AuthenticatedAppProntuariosIndexRoute
 }
 export interface FileRouteTypes {
@@ -201,10 +201,10 @@ export interface FileRouteTypes {
     | '/app/encaminhamentos'
     | '/app/financeiro'
     | '/app/lista-espera'
-    | '/app/pacientes'
     | '/app/'
     | '/app/pacientes/$id'
     | '/app/prontuarios/$id'
+    | '/app/pacientes/'
     | '/app/prontuarios/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -219,10 +219,10 @@ export interface FileRouteTypes {
     | '/app/encaminhamentos'
     | '/app/financeiro'
     | '/app/lista-espera'
-    | '/app/pacientes'
     | '/app'
     | '/app/pacientes/$id'
     | '/app/prontuarios/$id'
+    | '/app/pacientes'
     | '/app/prontuarios'
   id:
     | '__root__'
@@ -239,10 +239,10 @@ export interface FileRouteTypes {
     | '/_authenticated/app/encaminhamentos'
     | '/_authenticated/app/financeiro'
     | '/_authenticated/app/lista-espera'
-    | '/_authenticated/app/pacientes'
     | '/_authenticated/app/'
     | '/_authenticated/app/pacientes/$id'
     | '/_authenticated/app/prontuarios/$id'
+    | '/_authenticated/app/pacientes/'
     | '/_authenticated/app/prontuarios/'
   fileRoutesById: FileRoutesById
 }
@@ -305,13 +305,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/pacientes': {
-      id: '/_authenticated/app/pacientes'
-      path: '/pacientes'
-      fullPath: '/app/pacientes'
-      preLoaderRoute: typeof AuthenticatedAppPacientesRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
     '/_authenticated/app/lista-espera': {
       id: '/_authenticated/app/lista-espera'
       path: '/lista-espera'
@@ -368,6 +361,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProntuariosIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/pacientes/': {
+      id: '/_authenticated/app/pacientes/'
+      path: '/pacientes'
+      fullPath: '/app/pacientes/'
+      preLoaderRoute: typeof AuthenticatedAppPacientesIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/prontuarios/$id': {
       id: '/_authenticated/app/prontuarios/$id'
       path: '/prontuarios/$id'
@@ -377,27 +377,13 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/app/pacientes/$id': {
       id: '/_authenticated/app/pacientes/$id'
-      path: '/$id'
+      path: '/pacientes/$id'
       fullPath: '/app/pacientes/$id'
       preLoaderRoute: typeof AuthenticatedAppPacientesIdRouteImport
-      parentRoute: typeof AuthenticatedAppPacientesRoute
+      parentRoute: typeof AuthenticatedAppRoute
     }
   }
 }
-
-interface AuthenticatedAppPacientesRouteChildren {
-  AuthenticatedAppPacientesIdRoute: typeof AuthenticatedAppPacientesIdRoute
-}
-
-const AuthenticatedAppPacientesRouteChildren: AuthenticatedAppPacientesRouteChildren =
-  {
-    AuthenticatedAppPacientesIdRoute: AuthenticatedAppPacientesIdRoute,
-  }
-
-const AuthenticatedAppPacientesRouteWithChildren =
-  AuthenticatedAppPacientesRoute._addFileChildren(
-    AuthenticatedAppPacientesRouteChildren,
-  )
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAgendaRoute: typeof AuthenticatedAppAgendaRoute
@@ -407,9 +393,10 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppEncaminhamentosRoute: typeof AuthenticatedAppEncaminhamentosRoute
   AuthenticatedAppFinanceiroRoute: typeof AuthenticatedAppFinanceiroRoute
   AuthenticatedAppListaEsperaRoute: typeof AuthenticatedAppListaEsperaRoute
-  AuthenticatedAppPacientesRoute: typeof AuthenticatedAppPacientesRouteWithChildren
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppPacientesIdRoute: typeof AuthenticatedAppPacientesIdRoute
   AuthenticatedAppProntuariosIdRoute: typeof AuthenticatedAppProntuariosIdRoute
+  AuthenticatedAppPacientesIndexRoute: typeof AuthenticatedAppPacientesIndexRoute
   AuthenticatedAppProntuariosIndexRoute: typeof AuthenticatedAppProntuariosIndexRoute
 }
 
@@ -421,9 +408,10 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppEncaminhamentosRoute: AuthenticatedAppEncaminhamentosRoute,
   AuthenticatedAppFinanceiroRoute: AuthenticatedAppFinanceiroRoute,
   AuthenticatedAppListaEsperaRoute: AuthenticatedAppListaEsperaRoute,
-  AuthenticatedAppPacientesRoute: AuthenticatedAppPacientesRouteWithChildren,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppPacientesIdRoute: AuthenticatedAppPacientesIdRoute,
   AuthenticatedAppProntuariosIdRoute: AuthenticatedAppProntuariosIdRoute,
+  AuthenticatedAppPacientesIndexRoute: AuthenticatedAppPacientesIndexRoute,
   AuthenticatedAppProntuariosIndexRoute: AuthenticatedAppProntuariosIndexRoute,
 }
 
