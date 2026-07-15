@@ -35,7 +35,7 @@ export const Route = createFileRoute("/_authenticated")({
       });
     }
 
-    return { user: data.user };
+    return { user: sessionResult.data.session.user };
   },
   component: AuthenticatedLayout,
 });
