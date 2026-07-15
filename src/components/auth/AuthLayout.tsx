@@ -42,7 +42,7 @@ export function AuthLayout({
       </main>
 
       <footer className="relative text-center pb-6 text-[11px] text-muted-foreground">
-        © {new Date().getFullYear()} Aline Dias · Psicóloga
+        © 2026 Aline Dias · Psicóloga
       </footer>
     </div>
   );

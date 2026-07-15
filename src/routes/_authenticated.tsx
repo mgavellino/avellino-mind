@@ -22,20 +22,6 @@ export const Route = createFileRoute("/_authenticated")({
         search: { redirect: location.href || "/app" },
       });
     }
-
-    const sessionResult = await Promise.race([
-      supabase.auth.getSession(),
-      new Promise<null>((resolve) => window.setTimeout(() => resolve(null), 2500)),
-    ]);
-
-    if (!sessionResult?.data.session) {
-      throw redirect({
-        to: "/login",
-        search: { redirect: location.href || "/app" },
-      });
-    }
-
-    return { user: sessionResult.data.session.user };
   },
   component: AuthenticatedLayout,
 });
