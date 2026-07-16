@@ -1103,6 +1103,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      exec_sql: { Args: { sql_query: string }; Returns: Json }
       get_user_plan_limits: { Args: { _uid: string }; Returns: Json }
       has_role: {
         Args: {
