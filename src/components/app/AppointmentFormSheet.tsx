@@ -310,15 +310,15 @@ export function AppointmentFormSheet({
             />
           </Field>
 
-          {appointment && needsPatient && (() => {
-            const pat = patients.find((p) => p.id === patientId);
+          {currentAppt && needsPatient && (() => {
+            const pat = allPatients.find((p) => p.id === patientId);
             if (!pat?.phone) return null;
-            const remLink = waLink(pat.phone, reminderMessage({ patientName: pat.full_name, startsAt: appointment.starts_at }));
-            const confLink = waLink(pat.phone, confirmationMessage({ patientName: pat.full_name, startsAt: appointment.starts_at }));
+            const remLink = waLink(pat.phone, reminderMessage({ patientName: pat.full_name, startsAt: currentAppt.starts_at }));
+            const confLink = waLink(pat.phone, confirmationMessage({ patientName: pat.full_name, startsAt: currentAppt.starts_at }));
             return (
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-2">
                 <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                  <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+                  <MessageCircle className="h-3.5 w-3.5" /> Enviar lembrete por WhatsApp
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {remLink && (
