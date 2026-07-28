@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/app/financeiro")({
 
 type Receivable = {
   id: string;
-  appointment_id: string;
+  appointment_id: string | null;
   patient_id: string | null;
   amount_cents: number;
   status: "pending" | "paid" | "overdue" | "waived";
@@ -41,6 +41,7 @@ type Receivable = {
   paid_at: string | null;
   payment_method: string | null;
   notes: string | null;
+  description: string | null;
   owner_id: string;
 };
 
