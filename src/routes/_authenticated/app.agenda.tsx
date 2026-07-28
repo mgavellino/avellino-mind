@@ -164,10 +164,43 @@ function AgendaPage() {
         })}
       </div>
 
+      {/* Mobile day picker */}
+      {isMobile && (
+        <div className="mb-3 grid grid-cols-7 gap-1">
+          {days.map((d, i) => {
+            const active = i === dayIndex;
+            const isToday = isSameDay(d, new Date());
+            return (
+              <button
+                key={d.toISOString()}
+                onClick={() => setDayIndex(i)}
+                className={`rounded-lg py-2 text-center border transition-colors ${
+                  active
+                    ? "bg-foreground text-background border-transparent"
+                    : "bg-surface/40 border-border/60 text-muted-foreground"
+                }`}
+              >
+                <div className="text-[9px] uppercase tracking-wider">
+                  {format(d, "EEEEEE", { locale: ptBR })}
+                </div>
+                <div
+                  className={`text-sm font-semibold ${!active && isToday ? "text-[oklch(0.68_0.20_245)]" : ""}`}
+                >
+                  {format(d, "d")}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <div className="rounded-2xl border border-border/60 bg-surface/30 overflow-hidden">
-        <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border/60 bg-surface/40 sticky top-0 z-10">
+        <div
+          className="grid border-b border-border/60 bg-surface/40 sticky top-0 z-10"
+          style={{ gridTemplateColumns: `60px repeat(${visibleDays.length}, minmax(0,1fr))` }}
+        >
           <div />
-          {days.map((d) => {
+          {visibleDays.map((d) => {
             const isToday = isSameDay(d, new Date());
             return (
               <div
@@ -189,7 +222,10 @@ function AgendaPage() {
           })}
         </div>
 
-        <div className="grid grid-cols-[60px_repeat(7,1fr)] relative">
+        <div
+          className="grid relative"
+          style={{ gridTemplateColumns: `60px repeat(${visibleDays.length}, minmax(0,1fr))` }}
+        >
           <div>
             {HOURS.map((h) => (
               <div
@@ -201,7 +237,7 @@ function AgendaPage() {
             ))}
           </div>
 
-          {days.map((d) => {
+          {visibleDays.map((d) => {
             const dayApps = appointments.filter((a) =>
               isSameDay(parseISO(a.starts_at), d),
             );
