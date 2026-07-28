@@ -171,13 +171,21 @@ export function AppointmentFormSheet({
       toast.success("Compromisso atualizado");
       onSaved();
     } else {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("appointments")
-        .insert({ ...payload, owner_id: ownerId });
+        .insert({ ...payload, owner_id: ownerId })
+        .select("*")
+        .single();
       setSaving(false);
       if (error) return toast.error(error.message);
       toast.success("Compromisso agendado");
-      onSaved();
+      const created = data as unknown as Appointment;
+      if (needsPatient && created) {
+        setSavedAppt(created);
+        onSaved({ keepOpen: true });
+      } else {
+        onSaved();
+      }
     }
   };
 
