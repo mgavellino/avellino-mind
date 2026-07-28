@@ -247,16 +247,53 @@ export function AppointmentFormSheet({
                 className={inputCls}
               >
                 <option value="">Selecione...</option>
-                {patients.map((p) => (
+                {allPatients.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.full_name}
                   </option>
                 ))}
               </select>
-              {patients.length === 0 && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Cadastre um paciente antes de agendar uma consulta.
-                </p>
+              {!quickOpen ? (
+                <button
+                  type="button"
+                  onClick={() => setQuickOpen(true)}
+                  className="mt-2 text-xs text-brand hover:underline"
+                >
+                  + Agendar alguém novo (só nome e telefone)
+                </button>
+              ) : (
+                <div className="mt-2 rounded-xl border border-border/60 bg-surface/60 p-3 space-y-2">
+                  <input
+                    value={quickName}
+                    onChange={(e) => setQuickName(e.target.value)}
+                    placeholder="Nome do paciente"
+                    className={inputCls}
+                  />
+                  <input
+                    value={quickPhone}
+                    onChange={(e) => setQuickPhone(e.target.value)}
+                    inputMode="tel"
+                    placeholder="Telefone (opcional)"
+                    className={inputCls}
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setQuickOpen(false)}
+                      className="h-9 px-3 rounded-lg text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={createQuickPatient}
+                      disabled={creatingPatient}
+                      className="h-9 px-3 rounded-lg text-xs bg-foreground text-background disabled:opacity-60"
+                    >
+                      {creatingPatient ? "Criando..." : "Criar e selecionar"}
+                    </button>
+                  </div>
+                </div>
               )}
             </Field>
           )}
