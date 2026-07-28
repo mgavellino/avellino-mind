@@ -73,6 +73,15 @@ export function AppointmentFormSheet({
   const [status, setStatus] = useState<AppointmentStatus>("scheduled");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [savedAppt, setSavedAppt] = useState<Appointment | null>(null);
+  const [localPatients, setLocalPatients] = useState<Patient[]>([]);
+  const [quickOpen, setQuickOpen] = useState(false);
+  const [quickName, setQuickName] = useState("");
+  const [quickPhone, setQuickPhone] = useState("");
+  const [creatingPatient, setCreatingPatient] = useState(false);
+
+  const allPatients = [...patients, ...localPatients.filter((lp) => !patients.some((p) => p.id === lp.id))];
+  const currentAppt = appointment ?? savedAppt;
 
   useEffect(() => {
     if (appointment) {
@@ -84,6 +93,7 @@ export function AppointmentFormSheet({
       setEnds(toLocalInput(new Date(appointment.ends_at)));
       setStatus(appointment.status);
       setNotes(appointment.notes ?? "");
+      setSavedAppt(null);
     } else if (initialDate) {
       const end = new Date(initialDate);
       end.setMinutes(end.getMinutes() + 50);
@@ -95,8 +105,38 @@ export function AppointmentFormSheet({
       setEnds(toLocalInput(end));
       setStatus("scheduled");
       setNotes("");
+      setSavedAppt(null);
     }
   }, [appointment, initialDate, open, patients]);
+
+  useEffect(() => {
+    if (!open) {
+      setSavedAppt(null);
+      setQuickOpen(false);
+      setQuickName("");
+      setQuickPhone("");
+    }
+  }, [open]);
+
+  const createQuickPatient = async () => {
+    if (!ownerId) return;
+    if (!quickName.trim()) return toast.error("Informe o nome");
+    setCreatingPatient(true);
+    const { data, error } = await supabase
+      .from("patients")
+      .insert({ owner_id: ownerId, full_name: quickName.trim(), phone: quickPhone.trim() || null })
+      .select("*")
+      .single();
+    setCreatingPatient(false);
+    if (error) return toast.error(error.message);
+    const p = data as unknown as Patient;
+    setLocalPatients((prev) => [...prev, p]);
+    setPatientId(p.id);
+    setQuickOpen(false);
+    setQuickName("");
+    setQuickPhone("");
+    toast.success("Paciente criado — complete o cadastro depois em Pacientes");
+  };
 
   const needsPatient = kind === "consulta";
 
