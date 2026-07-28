@@ -38,7 +38,7 @@ type Props = {
   initialDate: Date | null;
   ownerId: string | undefined;
   patients: Patient[];
-  onSaved: () => void;
+  onSaved: (opts?: { keepOpen?: boolean }) => void;
   onDeleted: () => void;
 };
 
