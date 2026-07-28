@@ -129,6 +129,45 @@ function FinanceiroPage() {
     payment_method: "pix",
   });
   const [expenseOpen, setExpenseOpen] = useState(false);
+  const [incomeOpen, setIncomeOpen] = useState(false);
+  const [incomeForm, setIncomeForm] = useState({
+    description: "",
+    amount: "",
+    date: format(new Date(), "yyyy-MM-dd"),
+    received: true,
+    payment_method: "pix",
+  });
+
+  const addIncome = async () => {
+    if (!user) return;
+    const cents = Math.round(parseFloat(incomeForm.amount.replace(",", ".")) * 100);
+    if (!incomeForm.description.trim() || Number.isNaN(cents) || cents <= 0) {
+      return toast.error("Preencha descrição e valor");
+    }
+    const when = new Date(incomeForm.date + "T12:00:00").toISOString();
+    const { error } = await supabase.from("appointment_receivables").insert({
+      owner_id: user.id,
+      appointment_id: null,
+      patient_id: null,
+      description: incomeForm.description.trim(),
+      amount_cents: cents,
+      status: incomeForm.received ? "paid" : "pending",
+      due_at: when,
+      paid_at: incomeForm.received ? when : null,
+      payment_method: incomeForm.received ? incomeForm.payment_method : null,
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Receita registrada");
+    setIncomeForm({
+      description: "",
+      amount: "",
+      date: format(new Date(), "yyyy-MM-dd"),
+      received: true,
+      payment_method: "pix",
+    });
+    setIncomeOpen(false);
+    loadReceivables();
+  };
 
   useEffect(() => {
     if (!user) return;
