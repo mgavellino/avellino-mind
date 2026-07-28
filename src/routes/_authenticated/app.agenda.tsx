@@ -299,8 +299,8 @@ function AgendaPage() {
         initialDate={initialDate}
         ownerId={user?.id}
         patients={patients}
-        onSaved={() => {
-          setOpen(false);
+        onSaved={(opts) => {
+          if (!opts?.keepOpen) setOpen(false);
           load();
         }}
         onDeleted={() => {

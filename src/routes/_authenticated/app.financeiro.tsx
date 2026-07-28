@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/app/financeiro")({
 
 type Receivable = {
   id: string;
-  appointment_id: string;
+  appointment_id: string | null;
   patient_id: string | null;
   amount_cents: number;
   status: "pending" | "paid" | "overdue" | "waived";
@@ -41,6 +41,7 @@ type Receivable = {
   paid_at: string | null;
   payment_method: string | null;
   notes: string | null;
+  description: string | null;
   owner_id: string;
 };
 
@@ -105,6 +106,12 @@ const STATUS_META: Record<Receivable["status"], { label: string; cls: string }> 
   waived: { label: "Isento", cls: "text-muted-foreground bg-surface border-border/60" },
 };
 
+/** Status real: um "a receber" com vencimento no passado conta como atrasado. */
+function effStatus(r: Receivable): Receivable["status"] {
+  if (r.status === "pending" && r.due_at && new Date(r.due_at) < new Date()) return "overdue";
+  return r.status;
+}
+
 function FinanceiroPage() {
   const { user } = useAuth();
   const [tab, setTab] = useState<"receitas" | "despesas">("receitas");
@@ -122,6 +129,45 @@ function FinanceiroPage() {
     payment_method: "pix",
   });
   const [expenseOpen, setExpenseOpen] = useState(false);
+  const [incomeOpen, setIncomeOpen] = useState(false);
+  const [incomeForm, setIncomeForm] = useState({
+    description: "",
+    amount: "",
+    date: format(new Date(), "yyyy-MM-dd"),
+    received: true,
+    payment_method: "pix",
+  });
+
+  const addIncome = async () => {
+    if (!user) return;
+    const cents = Math.round(parseFloat(incomeForm.amount.replace(",", ".")) * 100);
+    if (!incomeForm.description.trim() || Number.isNaN(cents) || cents <= 0) {
+      return toast.error("Preencha descrição e valor");
+    }
+    const when = new Date(incomeForm.date + "T12:00:00").toISOString();
+    const { error } = await supabase.from("appointment_receivables").insert({
+      owner_id: user.id,
+      appointment_id: null,
+      patient_id: null,
+      description: incomeForm.description.trim(),
+      amount_cents: cents,
+      status: incomeForm.received ? "paid" : "pending",
+      due_at: when,
+      paid_at: incomeForm.received ? when : null,
+      payment_method: incomeForm.received ? incomeForm.payment_method : null,
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Receita registrada");
+    setIncomeForm({
+      description: "",
+      amount: "",
+      date: format(new Date(), "yyyy-MM-dd"),
+      received: true,
+      payment_method: "pix",
+    });
+    setIncomeOpen(false);
+    loadReceivables();
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -152,7 +198,9 @@ function FinanceiroPage() {
     const list = (recs as unknown as Receivable[]) ?? [];
     setReceivables(list);
 
-    const apptIds = Array.from(new Set(list.map((r) => r.appointment_id)));
+    const apptIds = Array.from(
+      new Set(list.map((r) => r.appointment_id).filter(Boolean) as string[]),
+    );
     const patIds = Array.from(new Set(list.map((r) => r.patient_id).filter(Boolean) as string[]));
     if (apptIds.length) {
       const { data: a } = await supabase
@@ -184,9 +232,15 @@ function FinanceiroPage() {
   };
 
   const filtered = useMemo(
-    () => (filter === "all" ? receivables : receivables.filter((r) => r.status === filter)),
+    () => (filter === "all" ? receivables : receivables.filter((r) => effStatus(r) === filter)),
     [receivables, filter],
   );
+
+  const counts = useMemo(() => {
+    const c: Record<StatusFilter, number> = { all: receivables.length, pending: 0, paid: 0, overdue: 0, waived: 0 };
+    for (const r of receivables) c[effStatus(r)] += 1;
+    return c;
+  }, [receivables]);
 
   const stats = useMemo(() => {
     const now = new Date();
@@ -199,9 +253,10 @@ function FinanceiroPage() {
     for (const r of receivables) {
       const ref = r.paid_at ?? r.due_at;
       const inMonth = ref && ref >= monthStart && ref <= monthEnd;
-      if (r.status === "paid" && inMonth) received += r.amount_cents;
-      if (r.status === "pending") pending += r.amount_cents;
-      if (r.status === "overdue") overdue += r.amount_cents;
+      const st = effStatus(r);
+      if (st === "paid" && inMonth) received += r.amount_cents;
+      if (st === "pending") pending += r.amount_cents;
+      if (st === "overdue") overdue += r.amount_cents;
     }
     for (const e of expenses) {
       if (e.paid_at >= monthStart && e.paid_at <= monthEnd) monthExpenses += e.amount_cents;
@@ -480,22 +535,121 @@ function FinanceiroPage() {
 
       {tab === "receitas" && (
         <>
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
-            {(["all", "pending", "paid", "overdue", "waived"] as StatusFilter[]).map((s) => (
-              <button
-                key={s}
-                onClick={() => setFilter(s)}
-                className={`px-3 h-8 rounded-full text-xs whitespace-nowrap border transition-colors ${
-                  filter === s
-                    ? "bg-foreground text-background border-foreground"
-                    : "border-border/60 text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {s === "all" ? "Todos" : STATUS_META[s].label}
-              </button>
-            ))}
+          <div className="mb-3 flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+              {(["all", "pending", "paid", "overdue", "waived"] as StatusFilter[]).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setFilter(s)}
+                  className={`px-3 h-8 rounded-full text-xs whitespace-nowrap border transition-colors ${
+                    filter === s
+                      ? "bg-foreground text-background border-foreground"
+                      : "border-border/60 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {s === "all" ? "Todos" : STATUS_META[s].label} ({counts[s]})
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setIncomeOpen((v) => !v)}
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-foreground text-background text-xs font-medium hover:opacity-90"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Nova receita
+            </button>
           </div>
+
+          {incomeOpen && (
+            <div className="rounded-2xl border border-border/60 bg-surface/40 p-4 mb-4 grid gap-3 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="text-xs text-muted-foreground">Descrição</label>
+                <input
+                  value={incomeForm.description}
+                  onChange={(e) => setIncomeForm({ ...incomeForm, description: e.target.value })}
+                  placeholder="Ex: Palestra na escola X"
+                  className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border/60 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Valor (R$)</label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  enterKeyHint="done"
+                  autoComplete="off"
+                  pattern="[0-9]*[,.]?[0-9]*"
+                  value={incomeForm.amount}
+                  onChange={(e) => setIncomeForm({ ...incomeForm, amount: e.target.value })}
+                  onFocus={focusMoneyInput}
+                  onTouchStart={focusMoneyInput}
+                  placeholder="500,00"
+                  className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border/60 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Data</label>
+                <input
+                  type="date"
+                  value={incomeForm.date}
+                  onChange={(e) => setIncomeForm({ ...incomeForm, date: e.target.value })}
+                  className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border/60 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="text-xs text-muted-foreground">Situação</label>
+                <div className="mt-1 flex gap-1 flex-wrap">
+                  <button
+                    onClick={() => setIncomeForm({ ...incomeForm, received: true })}
+                    className={`h-9 px-3 rounded-lg text-xs border transition-colors ${incomeForm.received ? "bg-foreground text-background border-foreground" : "border-border/60 hover:bg-surface"}`}
+                  >
+                    Já recebido
+                  </button>
+                  <button
+                    onClick={() => setIncomeForm({ ...incomeForm, received: false })}
+                    className={`h-9 px-3 rounded-lg text-xs border transition-colors ${!incomeForm.received ? "bg-foreground text-background border-foreground" : "border-border/60 hover:bg-surface"}`}
+                  >
+                    A receber
+                  </button>
+                </div>
+              </div>
+              {incomeForm.received && (
+                <div className="sm:col-span-2">
+                  <label className="text-xs text-muted-foreground">Forma de pagamento</label>
+                  <div className="mt-1 flex gap-1 flex-wrap">
+                    {PAYMENT_METHODS.map((m) => (
+                      <button
+                        key={m.id}
+                        onClick={() => setIncomeForm({ ...incomeForm, payment_method: m.id })}
+                        className={`h-9 px-3 rounded-lg text-xs border transition-colors ${
+                          incomeForm.payment_method === m.id
+                            ? "bg-foreground text-background border-foreground"
+                            : "border-border/60 hover:bg-surface"
+                        }`}
+                      >
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="sm:col-span-2 flex justify-end gap-2">
+                <button
+                  onClick={() => setIncomeOpen(false)}
+                  className="h-10 px-4 rounded-lg text-sm text-muted-foreground hover:text-foreground"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={addIncome}
+                  className="h-10 px-5 rounded-lg bg-brand text-primary-foreground text-sm font-medium hover:opacity-90"
+                >
+                  Adicionar
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="rounded-2xl border border-border/60 bg-surface/40 overflow-hidden">
             {filtered.length === 0 ? (
@@ -505,21 +659,23 @@ function FinanceiroPage() {
             ) : (
               <ul className="divide-y divide-border/50">
                 {filtered.map((r) => {
-                  const ap = appts[r.appointment_id];
+                  const ap = r.appointment_id ? appts[r.appointment_id] : undefined;
                   const patient = r.patient_id ? patients[r.patient_id] : undefined;
-                  const meta = STATUS_META[r.status];
+                  const meta = STATUS_META[effStatus(r)];
                   const isPicking = payingId === r.id;
                   return (
                     <li key={r.id} className="p-4 space-y-2">
                       <div className="flex items-start gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium truncate">
-                            {patient?.full_name ?? "Sem paciente"}
+                            {patient?.full_name ?? r.description ?? "Sem paciente"}
                           </div>
                           <div className="text-xs text-muted-foreground mt-0.5">
                             {ap
                               ? format(parseISO(ap.starts_at), "dd 'de' MMM, HH:mm", { locale: ptBR })
-                              : "Consulta"}
+                              : r.description
+                                ? "Receita avulsa"
+                                : "Consulta"}
                             {r.payment_method ? ` · ${methodLabel(r.payment_method)}` : ""}
                           </div>
                         </div>

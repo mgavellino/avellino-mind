@@ -17,8 +17,9 @@ export type Database = {
       appointment_receivables: {
         Row: {
           amount_cents: number
-          appointment_id: string
+          appointment_id: string | null
           created_at: string
+          description: string | null
           due_at: string | null
           id: string
           notes: string | null
@@ -31,8 +32,9 @@ export type Database = {
         }
         Insert: {
           amount_cents?: number
-          appointment_id: string
+          appointment_id?: string | null
           created_at?: string
+          description?: string | null
           due_at?: string | null
           id?: string
           notes?: string | null
@@ -45,8 +47,9 @@ export type Database = {
         }
         Update: {
           amount_cents?: number
-          appointment_id?: string
+          appointment_id?: string | null
           created_at?: string
+          description?: string | null
           due_at?: string | null
           id?: string
           notes?: string | null

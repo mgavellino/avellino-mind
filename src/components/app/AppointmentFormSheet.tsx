@@ -38,7 +38,7 @@ type Props = {
   initialDate: Date | null;
   ownerId: string | undefined;
   patients: Patient[];
-  onSaved: () => void;
+  onSaved: (opts?: { keepOpen?: boolean }) => void;
   onDeleted: () => void;
 };
 
@@ -73,6 +73,15 @@ export function AppointmentFormSheet({
   const [status, setStatus] = useState<AppointmentStatus>("scheduled");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [savedAppt, setSavedAppt] = useState<Appointment | null>(null);
+  const [localPatients, setLocalPatients] = useState<Patient[]>([]);
+  const [quickOpen, setQuickOpen] = useState(false);
+  const [quickName, setQuickName] = useState("");
+  const [quickPhone, setQuickPhone] = useState("");
+  const [creatingPatient, setCreatingPatient] = useState(false);
+
+  const allPatients = [...patients, ...localPatients.filter((lp) => !patients.some((p) => p.id === lp.id))];
+  const currentAppt = appointment ?? savedAppt;
 
   useEffect(() => {
     if (appointment) {
@@ -84,6 +93,7 @@ export function AppointmentFormSheet({
       setEnds(toLocalInput(new Date(appointment.ends_at)));
       setStatus(appointment.status);
       setNotes(appointment.notes ?? "");
+      setSavedAppt(null);
     } else if (initialDate) {
       const end = new Date(initialDate);
       end.setMinutes(end.getMinutes() + 50);
@@ -95,8 +105,38 @@ export function AppointmentFormSheet({
       setEnds(toLocalInput(end));
       setStatus("scheduled");
       setNotes("");
+      setSavedAppt(null);
     }
   }, [appointment, initialDate, open, patients]);
+
+  useEffect(() => {
+    if (!open) {
+      setSavedAppt(null);
+      setQuickOpen(false);
+      setQuickName("");
+      setQuickPhone("");
+    }
+  }, [open]);
+
+  const createQuickPatient = async () => {
+    if (!ownerId) return;
+    if (!quickName.trim()) return toast.error("Informe o nome");
+    setCreatingPatient(true);
+    const { data, error } = await supabase
+      .from("patients")
+      .insert({ owner_id: ownerId, full_name: quickName.trim(), phone: quickPhone.trim() || null })
+      .select("*")
+      .single();
+    setCreatingPatient(false);
+    if (error) return toast.error(error.message);
+    const p = data as unknown as Patient;
+    setLocalPatients((prev) => [...prev, p]);
+    setPatientId(p.id);
+    setQuickOpen(false);
+    setQuickName("");
+    setQuickPhone("");
+    toast.success("Paciente criado — complete o cadastro depois em Pacientes");
+  };
 
   const needsPatient = kind === "consulta";
 
@@ -131,13 +171,21 @@ export function AppointmentFormSheet({
       toast.success("Compromisso atualizado");
       onSaved();
     } else {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("appointments")
-        .insert({ ...payload, owner_id: ownerId });
+        .insert({ ...payload, owner_id: ownerId })
+        .select("*")
+        .single();
       setSaving(false);
       if (error) return toast.error(error.message);
       toast.success("Compromisso agendado");
-      onSaved();
+      const created = data as unknown as Appointment;
+      if (needsPatient && created) {
+        setSavedAppt(created);
+        onSaved({ keepOpen: true });
+      } else {
+        onSaved();
+      }
     }
   };
 
@@ -199,16 +247,53 @@ export function AppointmentFormSheet({
                 className={inputCls}
               >
                 <option value="">Selecione...</option>
-                {patients.map((p) => (
+                {allPatients.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.full_name}
                   </option>
                 ))}
               </select>
-              {patients.length === 0 && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Cadastre um paciente antes de agendar uma consulta.
-                </p>
+              {!quickOpen ? (
+                <button
+                  type="button"
+                  onClick={() => setQuickOpen(true)}
+                  className="mt-2 text-xs text-brand hover:underline"
+                >
+                  + Agendar alguém novo (só nome e telefone)
+                </button>
+              ) : (
+                <div className="mt-2 rounded-xl border border-border/60 bg-surface/60 p-3 space-y-2">
+                  <input
+                    value={quickName}
+                    onChange={(e) => setQuickName(e.target.value)}
+                    placeholder="Nome do paciente"
+                    className={inputCls}
+                  />
+                  <input
+                    value={quickPhone}
+                    onChange={(e) => setQuickPhone(e.target.value)}
+                    inputMode="tel"
+                    placeholder="Telefone (opcional)"
+                    className={inputCls}
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setQuickOpen(false)}
+                      className="h-9 px-3 rounded-lg text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={createQuickPatient}
+                      disabled={creatingPatient}
+                      className="h-9 px-3 rounded-lg text-xs bg-foreground text-background disabled:opacity-60"
+                    >
+                      {creatingPatient ? "Criando..." : "Criar e selecionar"}
+                    </button>
+                  </div>
+                </div>
               )}
             </Field>
           )}
@@ -262,15 +347,15 @@ export function AppointmentFormSheet({
             />
           </Field>
 
-          {appointment && needsPatient && (() => {
-            const pat = patients.find((p) => p.id === patientId);
+          {currentAppt && needsPatient && (() => {
+            const pat = allPatients.find((p) => p.id === patientId);
             if (!pat?.phone) return null;
-            const remLink = waLink(pat.phone, reminderMessage({ patientName: pat.full_name, startsAt: appointment.starts_at }));
-            const confLink = waLink(pat.phone, confirmationMessage({ patientName: pat.full_name, startsAt: appointment.starts_at }));
+            const remLink = waLink(pat.phone, reminderMessage({ patientName: pat.full_name, startsAt: currentAppt.starts_at }));
+            const confLink = waLink(pat.phone, confirmationMessage({ patientName: pat.full_name, startsAt: currentAppt.starts_at }));
             return (
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-2">
                 <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                  <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+                  <MessageCircle className="h-3.5 w-3.5" /> Enviar lembrete por WhatsApp
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {remLink && (
