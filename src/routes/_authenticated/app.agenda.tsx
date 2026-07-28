@@ -30,17 +30,27 @@ const HOURS = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START
 
 function AgendaPage() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [cursor, setCursor] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Appointment | null>(null);
   const [initialDate, setInitialDate] = useState<Date | null>(null);
+  const [dayIndex, setDayIndex] = useState(0);
 
   const days = useMemo(
     () => Array.from({ length: 7 }, (_, i) => addDays(cursor, i)),
     [cursor],
   );
+
+  useEffect(() => {
+    const idx = days.findIndex((d) => isSameDay(d, new Date()));
+    setDayIndex(idx >= 0 ? idx : 0);
+  }, [days]);
+
+  const visibleDays = isMobile ? [days[Math.min(dayIndex, 6)]] : days;
+
 
   const load = async () => {
     const from = days[0].toISOString();
