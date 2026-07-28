@@ -153,7 +153,9 @@ function FinanceiroPage() {
     const list = (recs as unknown as Receivable[]) ?? [];
     setReceivables(list);
 
-    const apptIds = Array.from(new Set(list.map((r) => r.appointment_id)));
+    const apptIds = Array.from(
+      new Set(list.map((r) => r.appointment_id).filter(Boolean) as string[]),
+    );
     const patIds = Array.from(new Set(list.map((r) => r.patient_id).filter(Boolean) as string[]));
     if (apptIds.length) {
       const { data: a } = await supabase
