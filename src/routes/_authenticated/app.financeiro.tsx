@@ -193,9 +193,15 @@ function FinanceiroPage() {
   };
 
   const filtered = useMemo(
-    () => (filter === "all" ? receivables : receivables.filter((r) => r.status === filter)),
+    () => (filter === "all" ? receivables : receivables.filter((r) => effStatus(r) === filter)),
     [receivables, filter],
   );
+
+  const counts = useMemo(() => {
+    const c: Record<StatusFilter, number> = { all: receivables.length, pending: 0, paid: 0, overdue: 0, waived: 0 };
+    for (const r of receivables) c[effStatus(r)] += 1;
+    return c;
+  }, [receivables]);
 
   const stats = useMemo(() => {
     const now = new Date();
@@ -208,9 +214,10 @@ function FinanceiroPage() {
     for (const r of receivables) {
       const ref = r.paid_at ?? r.due_at;
       const inMonth = ref && ref >= monthStart && ref <= monthEnd;
-      if (r.status === "paid" && inMonth) received += r.amount_cents;
-      if (r.status === "pending") pending += r.amount_cents;
-      if (r.status === "overdue") overdue += r.amount_cents;
+      const st = effStatus(r);
+      if (st === "paid" && inMonth) received += r.amount_cents;
+      if (st === "pending") pending += r.amount_cents;
+      if (st === "overdue") overdue += r.amount_cents;
     }
     for (const e of expenses) {
       if (e.paid_at >= monthStart && e.paid_at <= monthEnd) monthExpenses += e.amount_cents;
