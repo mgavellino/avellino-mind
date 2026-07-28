@@ -106,6 +106,12 @@ const STATUS_META: Record<Receivable["status"], { label: string; cls: string }> 
   waived: { label: "Isento", cls: "text-muted-foreground bg-surface border-border/60" },
 };
 
+/** Status real: um "a receber" com vencimento no passado conta como atrasado. */
+function effStatus(r: Receivable): Receivable["status"] {
+  if (r.status === "pending" && r.due_at && new Date(r.due_at) < new Date()) return "overdue";
+  return r.status;
+}
+
 function FinanceiroPage() {
   const { user } = useAuth();
   const [tab, setTab] = useState<"receitas" | "despesas">("receitas");
