@@ -24,12 +24,10 @@ export function reminderMessage(opts: {
 }): string {
   const start = typeof opts.startsAt === "string" ? new Date(opts.startsAt) : opts.startsAt;
   const dateStr = format(start, "EEEE, d 'de' MMMM", { locale: ptBR });
-  const timeStr = format(start, "HH'h'mm");
-  const greeting = `Oi, ${opts.patientName.split(" ")[0]}!`;
-  const body = `Passando pra lembrar da nossa sessão amanhã, ${dateStr}, às ${timeStr}.`;
-  const sign = opts.professionalName ? `\n\nAté lá!\n${opts.professionalName}` : "";
-  const loc = opts.address ? `\nLocal: ${opts.address}` : "";
-  return `${greeting}\n\n${body}${loc}${sign}`;
+  const timeStr = format(start, "HH:mm");
+  const greeting = `Oi, ${opts.patientName.split(" ")[0]}!🙂`;
+  const body = `Está confirmado nossa sessão de ${dateStr} às ${timeStr}?`;
+  return `${greeting}\n\n${body}`;
 }
 
 export function confirmationMessage(opts: {

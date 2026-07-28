@@ -13,6 +13,7 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   AppointmentFormSheet,
   type Appointment,
@@ -30,17 +31,27 @@ const HOURS = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START
 
 function AgendaPage() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [cursor, setCursor] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Appointment | null>(null);
   const [initialDate, setInitialDate] = useState<Date | null>(null);
+  const [dayIndex, setDayIndex] = useState(0);
 
   const days = useMemo(
     () => Array.from({ length: 7 }, (_, i) => addDays(cursor, i)),
     [cursor],
   );
+
+  useEffect(() => {
+    const idx = days.findIndex((d) => isSameDay(d, new Date()));
+    setDayIndex(idx >= 0 ? idx : 0);
+  }, [days]);
+
+  const visibleDays = isMobile ? [days[Math.min(dayIndex, 6)]] : days;
+
 
   const load = async () => {
     const from = days[0].toISOString();
@@ -153,10 +164,43 @@ function AgendaPage() {
         })}
       </div>
 
+      {/* Mobile day picker */}
+      {isMobile && (
+        <div className="mb-3 grid grid-cols-7 gap-1">
+          {days.map((d, i) => {
+            const active = i === dayIndex;
+            const isToday = isSameDay(d, new Date());
+            return (
+              <button
+                key={d.toISOString()}
+                onClick={() => setDayIndex(i)}
+                className={`rounded-lg py-2 text-center border transition-colors ${
+                  active
+                    ? "bg-foreground text-background border-transparent"
+                    : "bg-surface/40 border-border/60 text-muted-foreground"
+                }`}
+              >
+                <div className="text-[9px] uppercase tracking-wider">
+                  {format(d, "EEEEEE", { locale: ptBR })}
+                </div>
+                <div
+                  className={`text-sm font-semibold ${!active && isToday ? "text-[oklch(0.68_0.20_245)]" : ""}`}
+                >
+                  {format(d, "d")}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <div className="rounded-2xl border border-border/60 bg-surface/30 overflow-hidden">
-        <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border/60 bg-surface/40 sticky top-0 z-10">
+        <div
+          className="grid border-b border-border/60 bg-surface/40 sticky top-0 z-10"
+          style={{ gridTemplateColumns: `60px repeat(${visibleDays.length}, minmax(0,1fr))` }}
+        >
           <div />
-          {days.map((d) => {
+          {visibleDays.map((d) => {
             const isToday = isSameDay(d, new Date());
             return (
               <div
@@ -178,7 +222,10 @@ function AgendaPage() {
           })}
         </div>
 
-        <div className="grid grid-cols-[60px_repeat(7,1fr)] relative">
+        <div
+          className="grid relative"
+          style={{ gridTemplateColumns: `60px repeat(${visibleDays.length}, minmax(0,1fr))` }}
+        >
           <div>
             {HOURS.map((h) => (
               <div
@@ -190,7 +237,7 @@ function AgendaPage() {
             ))}
           </div>
 
-          {days.map((d) => {
+          {visibleDays.map((d) => {
             const dayApps = appointments.filter((a) =>
               isSameDay(parseISO(a.starts_at), d),
             );
