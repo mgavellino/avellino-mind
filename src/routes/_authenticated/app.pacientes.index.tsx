@@ -291,20 +291,25 @@ function PatientsPage() {
                         Abrir
                       </Link>
                       <button
+                        title="Editar cadastro"
                         onClick={() => {
                           setEditing(p);
                           setOpen(true);
                         }}
-                        className="h-8 w-8 grid place-items-center rounded-md hover:bg-surface-elevated text-muted-foreground hover:text-foreground transition-colors"
+                        className="inline-flex items-center gap-1 h-8 px-2.5 rounded-md border border-border/60 bg-surface hover:bg-surface-elevated text-xs transition-colors"
                       >
                         <Pencil className="h-3.5 w-3.5" />
+                        Editar
                       </button>
                       <button
+                        title="Excluir paciente"
                         onClick={() => handleDelete(p)}
-                        className="h-8 w-8 grid place-items-center rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                        className="inline-flex items-center gap-1 h-8 px-2.5 rounded-md border border-destructive/30 text-destructive hover:bg-destructive/10 text-xs transition-colors"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
+                        Excluir
                       </button>
+
                     </div>
                   </td>
                 </tr>
