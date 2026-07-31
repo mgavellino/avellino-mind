@@ -1,0 +1,16 @@
+{
+  "name": "Aline Dias — Psicóloga",
+  "short_name": "Aline Dias",
+  "description": "Área restrita do consultório da psicóloga Aline Dias.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2e6e6e",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/apple-touch-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/favicon-32.png", "sizes": "32x32", "type": "image/png" }
+  ]
+}
