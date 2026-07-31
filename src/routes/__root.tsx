@@ -8,8 +8,12 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
+import { useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { OfflineBanner } from "@/components/app/OfflineBanner";
+import { registerServiceWorker } from "@/lib/register-sw";
+
 
 import appCss from "../styles.css?url";
 
@@ -90,6 +94,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+
       { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
       { rel: "icon", type: "image/x-icon", sizes: "32x32", href: "/favicon.ico" },
       { rel: "icon", type: "image/x-icon", sizes: "16x16", href: "/favicon.ico" },
@@ -128,14 +134,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    void registerServiceWorker();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
           <Outlet />
+          <OfflineBanner />
           <Toaster position="top-right" richColors />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
+
 }
