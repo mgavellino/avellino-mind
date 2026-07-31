@@ -311,7 +311,9 @@ function PatientsPage() {
               ))}
             </tbody>
           </table>
+          </>
         )}
+
       </div>
 
       <PatientFormSheet
