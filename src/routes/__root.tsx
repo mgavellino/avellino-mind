@@ -8,8 +8,12 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
+import { useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { OfflineBanner } from "@/components/app/OfflineBanner";
+import { registerServiceWorker } from "@/lib/register-sw";
+
 
 import appCss from "../styles.css?url";
 
