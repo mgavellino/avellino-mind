@@ -96,8 +96,9 @@ function Dashboard() {
       setMonthRevenueCents(sum(recs.data as { amount_cents: number }[]));
       setMonthExpensesCents(sum(exps.data as { amount_cents: number }[]));
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, [user]);
+
 
   const brl = (c: number) =>
     (c / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
